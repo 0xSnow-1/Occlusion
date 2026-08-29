@@ -51,12 +51,12 @@ confident — with every change measured against a golden eval set.
              │
        Validation node (deterministic code:
          schema valid · cited IDs ∈ retrieved set · confidence ≥ threshold)
-             │ violated?
-             ├── yes ──► Evaluator-optimizer (LLM + structured feedback:
-             │             issues + suggested re-retrieval action — never
-             │             medical content) ──► feedback ──► RAG agent
-             │             (max 3 loops, then ──► REFUSAL NODE)
-             └── no ──► Answer + source links ──► END
+             │ validated?
+             ├── no ──► Evaluator-optimizer (LLM + structured feedback:
+             │            issues + suggested re-retrieval action — never
+             │            medical content) ──► feedback ──► RAG agent
+             │            (max 3 loops, then ──► REFUSAL NODE)
+             └── yes ──► Answer + source links ──► END
 
   Cross-cutting: LangSmith tracing (latency, tokens, cost per node,
   loop counts) · Ragas eval harness vs. golden set in CI
