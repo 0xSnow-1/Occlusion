@@ -1,6 +1,6 @@
 # HTML Sources — Parse Manifest
 
-> The 10 HTML-only corpus sources (verified live on 2026-08-30, all patient-facing,
+> The 11 HTML-only corpus sources (verified live on 2026-08-30, all patient-facing,
 > all with visible review dates). Convert to markdown with docling during Phase 1.2.
 > Target: `data/parsed/<source>/<filename>` per the layout below.
 
@@ -18,6 +18,7 @@
 | 8 | `nhs_dental_abscess.md` | NHS (UK) | https://www.nhs.uk/conditions/dental-abscess/ | OGL v3.0 | Mar 2026 | Triage |
 | 9 | `nhs_knocked_out_tooth.md` | NHS (UK) | https://www.nhs.uk/conditions/knocked-out-tooth/ | OGL v3.0 | Feb 2025 | Triage |
 | 10 | `nhs_toothache.md` | NHS (UK) | https://www.nhs.uk/symptoms/toothache/ | OGL v3.0 | Jul 2024 | Triage, Conditions |
+| 11 | `nhs_dental_treatments.md` | NHS (UK) | https://www.nhs.uk/live-well/healthy-teeth-and-gums/dental-treatments/ | OGL v3.0 | Jul 2026 | Post-procedure, Conditions — covers fillings, scale & polish, crowns, bridges, dentures |
 
 ## Parsing notes (things docling will need handled)
 
@@ -36,12 +37,12 @@
   PROVENANCE must carry "Contains public sector information licensed under the
   Open Government Licence v3.0" for NHS content.
 
-## Category coverage status (from RESEARCHER_OUTPUT.md)
+## Category coverage status (from RESEARCHER_OUTPUT.md + scope decisions)
 
 | Category | Status |
 |---|---|
-| 1. Post-procedure | OK for extraction/wisdom/root canal; **thin for fillings/cleanings** (candidate: nhs.uk dental-treatments page) |
+| 1. Post-procedure | Covered for extraction/wisdom/root canal; fillings & scale-and-polish now covered at treatment-overview level via `nhs_dental_treatments.md` (dedicated aftercare pages still don't exist publicly — accepted gap) |
 | 2. Conditions | Well covered |
 | 3. Prevention | Good; **no dedicated sealants doc** (candidate: CDC sealants FAQ) |
-| 4. Emergency triage | Strongest category (5 docs) |
-| 5. Insurance glossary | **Weakest** — US general glossary only; no dental-specific terms (annual maximum, missing-tooth clause, etc.). Likely needs an original, clearly-labeled glossary authored by the project. |
+| 4. Emergency triage | Strongest category (5 docs) — **jurisdiction: UK NHS** (see SCOPE.md §4 note) |
+| 5. Insurance glossary | **Descoped for v1** (SCOPE.md §5) — CMS glossary archived; "what's a deductible" is a `refuse_no_coverage` golden item. Revisit in v2 with an original glossary (SCOPE.md §9). |

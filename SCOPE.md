@@ -7,7 +7,7 @@ Status: pre-build. This document is the thing you check against before writing c
 
 ## 1. Problem statement (one sentence, no "AI")
 
-Dental patients with routine questions — post-procedure care, insurance terminology, "is this normal or should I be worried" — drive a large share of the call volume that front-desk staff can't keep up with; an assistant that correctly answers the routine subset in seconds, and reliably refuses anything symptom- or record-specific, can absorb that load without pretending to be a clinician.
+Dental patients with routine questions — post-procedure care, preventive care, "is this normal or should I be worried" — drive a large share of the call volume that front-desk staff can't keep up with; an assistant that correctly answers the routine subset in seconds, and reliably refuses anything symptom- or record-specific, can absorb that load without pretending to be a clinician.
 
 ## 2. Evidence this problem is real
 
@@ -28,12 +28,18 @@ This is the "why AI earns its complexity" argument for the checklist: a static F
 
 ## 4. In scope (v1)
 
-- Text-based Q&A over a curated corpus of public dental patient-education content (NIDCR, CDC Division of Oral Health, MedlinePlus)
+- Text-based Q&A over a curated corpus of public dental patient-education content (NIDCR, CDC, HRSA, NHS UK — see `data/PROVENANCE.md`)
 - Hybrid retrieval (BM25 + dense) fused with reciprocal rank fusion
 - Every answer carries a citation back to the specific source chunk(s) it was grounded in
 - A deterministic, non-LLM emergency/out-of-scope filter that runs before the RAG path and can override it
 - An evaluation harness (golden set + Ragas metrics) that must pass before any change ships
 - A live, publicly reachable demo (no login required)
+
+**Jurisdiction note (triage):** Emergency-triage and post-procedure guidance is
+sourced from **NHS UK (nhs.uk, OGL v3.0)** — the only clearly-licensed patient-level
+source for that category. Answers will reflect NHS service navigation (111 / 999 /
+A&E) and UK practice. This is a documented limitation for a likely-US audience:
+we do not silently localize guidance; the README carries this as a known tradeoff.
 
 ## 5. Explicitly out of scope (v1) — and why
 
@@ -44,7 +50,7 @@ Cutting these isn't a limitation to apologize for in the README — it's the jud
 | Diagnosis or symptom-specific advice | The LLM should never be the thing deciding whether a symptom is serious. This is a hard line, not a soft one. |
 | Any real patient records / PHI | No real patient data touches this system, anywhere. Corpus is 100% public patient-education material. This sidesteps HIPAA obligations by construction, not by promise — say this explicitly in the README. |
 | Appointment booking / scheduling integration | Different problem, different system (calendar APIs, practice management software). Not this project. |
-| Insurance verification for a specific plan | Only general terminology ("what's a deductible") is in scope. Plan-specific answers require real account data this project deliberately doesn't have. |
+| Insurance terminology — general or plan-specific | **Descoped for v1.** No clearly-licensed dental-specific glossary exists (NADP's is all-rights-reserved), and the CMS Uniform Glossary covers general medical coverage, not dental benefits. Rather than ship a half-covered category, "what's a deductible" will be refused as out-of-corpus. Revisit in v2 with an original, clearly-labeled glossary (see §9). |
 | Voice/phone channel | Text only. Voice is a UI problem layered on top of the same retrieval core — not worth the added complexity for an MVP whose point is retrieval quality and evaluation. |
 | Fine-tuning | Prompting + retrieval is the right default; nothing about this task (small, well-defined domain, no proprietary style/tone requirement) justifies fine-tuning. Knowing *not* to reach for it is itself the signal. |
 | Multi-lingual support | Stretch, not v1. |
@@ -78,6 +84,8 @@ This scope file is done when you can read it back in six weeks and know, without
 ## 9. v2 / parking lot (do not build now)
 
 - Cross-encoder reranking on top of RRF
+- Original dental-benefit glossary (project-authored, clearly labeled in the corpus) to revisit insurance terminology
+- US-jurisdiction triage source, to revisit the NHS-UK-only limitation (§4)
 - MCP server exposing this as a callable tool for other agents
 - Front-desk-facing dashboard of deflected questions
 - Multi-turn memory across a session
