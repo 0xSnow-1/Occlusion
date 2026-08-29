@@ -34,32 +34,32 @@ confident — with every change measured against a golden eval set.
 ```
   User question
        │
-  Entry node (LangGraph)
-       │
-  Emergency / out-of-scope filter        ← deterministic, non-LLM, can override
-       │
-  Hybrid retrieval
-  ├── Qdrant dense search  (cosine, top_k 20)
-  └── Qdrant sparse search (BM25,   top_k 20)
-       │
-  Reciprocal Rank Fusion (RRF, k ≈ 60)
-       │
-  [optional] cross-encoder rerank → top_n 5
-       │
-  Prompt assembly with [SRC:doc_id] anchor tokens
-       │
-  LLM generation → Pydantic structured output
-       │                    { answer, citations, confidence }
-  Post-processing
-  ├── citation verification (every cited ID must exist in the retrieved set)
-  └── confidence / coverage threshold
-       │
-  below threshold → FAIL CLOSED: "I don't have enough grounded information …"
-       │
-  Answer + source links
+  Out-of-scope guardrail            ← deterministic rules, no LLM ("smoke detector")
+       │ flagged? ───────────────────────► REFUSAL NODE (fixed message + reason
+       │ not flagged                       code, no LLM call)
+  Router (LLM, structured output:
+  Literal["conversational" | "medical"])
+       ├── conversational ──► NC agent ─────────────────────────────► END
+       └── medical
+             │
+       Hybrid retrieval tool
+       (Qdrant dense + BM25 prefetch → RRF fusion, top_k 20 each)
+             │
+       RAG agent (generation)
+             │
+       Pydantic structured output { answer, citations[], confidence }
+             │
+       Validation node (deterministic code:
+         schema valid · cited IDs ∈ retrieved set · confidence ≥ threshold)
+             │ violated?
+             ├── yes ──► Evaluator-optimizer (LLM + structured feedback:
+             │             issues + suggested re-retrieval action — never
+             │             medical content) ──► feedback ──► RAG agent
+             │             (max 3 loops, then ──► REFUSAL NODE)
+             └── no ──► Answer + source links ──► END
 
-  Cross-cutting: LangSmith tracing (latency, tokens, cost) ·
-  Ragas eval harness vs. golden set in CI before any change ships
+  Cross-cutting: LangSmith tracing (latency, tokens, cost per node,
+  loop counts) · Ragas eval harness vs. golden set in CI
 ```
 
 ## Corpus
@@ -109,6 +109,12 @@ v3.0."*
   citation accuracy).
 - **Measured reranker (pending):** the cross-encoder rerank stage ships only if
   the eval harness shows it earns its latency.
+- **Evaluator-optimizer retry loop (bounded at 3):** when validation fails
+  (bad citations, low confidence), an LLM evaluator returns *structured feedback*
+  (issues + suggested re-retrieval action — never medical content) and the RAG
+  agent gets another pass. Bounded because every loop costs tokens and latency;
+  the static refusal path always remains the floor. Pattern per Anthropic's
+  "Building Effective Agents" (evaluator-optimizer workflow).
 
 ## Evaluation
 

@@ -506,20 +506,32 @@
   - Two refusal paths drifting apart in tone/disclaimer — keep both messages in one module.
 
 ### Task 7.3 — Error handling: empty retrieval, timeouts, malformed output
-- **What:** Handle the three failure modes from plan §5-E without crashing: (1) zero/weak
-  retrieval → fail-closed refusal; (2) LLM/DB timeouts & rate limits → bounded retry with backoff,
-  then fail-closed; (3) Pydantic validation failure of LLM output → one bounded repair retry, then
-  fail-closed. Every failure path logs a structured error event (visible in LangSmith).
-- **Inputs:** Graph from 5.3; the failure taxonomy above.
-- **Outputs / side-effects:** The graph cannot crash on any of the three paths; failures degrade
-  to refusals.
-- **✅ Verify:** Force each failure deliberately: query with a term that matches nothing; point
-  the client at a bad URL (timeout); feed a malformed mock LLM response. Each must produce a clean
-  refusal + a log entry — never a stack trace.
+- **What:** Handle the failure modes from plan §5-E without crashing: (1) zero/weak
+  retrieval → fail-closed refusal; (2) LLM/DB timeouts & rate limits → bounded retry
+  with backoff, then fail-closed; (3) validation failure of LLM output (schema,
+  citation IDs, confidence threshold) → route to the **evaluator-optimizer loop**
+  (per the v3 architecture: LLM returns structured feedback → RAG agent re-retrieves/
+  regenerates, `MAX_LOOPS = 3`), then fail-closed. Every failure path and every loop
+  iteration logs a structured event (loop counter included) visible in LangSmith.
+- **Inputs:** Graph from 5.3; evaluator schema (`issues`, `suggested_action` — feedback
+  about retrieval strategy, never medical content); the failure taxonomy above.
+- **Outputs / side-effects:** The graph cannot crash on any path; failures degrade to
+  refusals; loop counts appear in traces and feed the p95 latency measurement.
+- **✅ Verify:** Force each failure deliberately: query with a term that matches
+  nothing; point the client at a bad URL (timeout); feed a malformed mock LLM
+  response; feed an answer citing a nonexistent doc_id. Each must produce either a
+  repaired answer (within 3 loops) or a clean refusal + a log entry — never a stack
+  trace.
 - **⚠️ Pitfalls:**
-  - Unbounded retries: a hanging provider turns into a hung demo. Cap retries and total time.
-  - Silent exception swallowing (`except: return refusal`) — always log exception type and
-    message, or you'll debug incidents with zero evidence.
+  - The evaluator writing medical content instead of retrieval feedback — constrain
+    its schema to `issues` + `suggested_action` or it becomes a second hallucination
+    source.
+  - p95 latency is set by the loop max, not the happy path: measure the 3-loop
+    worst case against the <3s target (or drop `MAX_LOOPS` to 2).
+  - Unbounded retries: a hanging provider turns into a hung demo. Cap retries and
+    total time.
+  - Silent exception swallowing (`except: return refusal`) — always log exception
+    type and message, or you'll debug incidents with zero evidence.
 
 ### Task 7.4 — Adversarial pass, end-to-end
 - **What:** Run the entire golden set (normal + adversarial) through the guarded graph; produce a
