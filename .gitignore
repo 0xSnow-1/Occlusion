@@ -1,0 +1,32 @@
+# --- Secrets ---
+.env
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# --- Data artifacts (keep raw + versioned snapshots, ignore generated) ---
+data/parsed/
+data/embeddings_cache/
+eval/results/*.json
+
+# --- Notebooks / editors / OS ---
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# --- Windows NTFS artifacts (never commit these) ---
+*:Zone.Identifier

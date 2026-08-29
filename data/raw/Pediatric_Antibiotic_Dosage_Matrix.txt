@@ -1,0 +1,55 @@
+# Pediatric Dental Antibiotic Dosage & Penicillin Allergy Chart
+
+> **Test Corpus Document — For Ingestion Pipeline Evaluation Only, Not for Clinical Use**
+> Format: Markdown, table-heavy, for table-aware chunking evaluation.
+
+## 1. Weight-Based Treatment Dosing — Odontogenic Infection (Pediatric, Immunocompetent)
+
+| Drug | Pediatric Dose (mg/kg/day) | Max Single Dose | Max Daily Dose | Frequency | Typical Duration |
+|---|---|---|---|---|---|
+| Amoxicillin | 50 mg/kg/day, divided | 500 mg | up to 2 g/day | TID | 3–7 days |
+| Amoxicillin/Clavulanate | 45 mg/kg/day (amoxicillin component) | 500 mg | up to 1.75 g/day | BID–TID | 3–7 days |
+| Penicillin V potassium | 25–50 mg/kg/day, divided | 500 mg | up to 2 g/day | QID | 3–7 days |
+| Cephalexin | 25–50 mg/kg/day, divided | 500 mg | up to 2 g/day | QID | 3–7 days |
+| Clindamycin | 20–30 mg/kg/day, divided | 300 mg | up to 1.8 g/day | TID–QID | 3–7 days |
+| Azithromycin | 10 mg/kg day 1, then 5 mg/kg | 500 mg day 1, then 250 mg | — | Once daily | 5 days total |
+| Metronidazole (adjunct only) | 20–30 mg/kg/day, divided | 500 mg | up to 4 g/day (adult ceiling) | TID | 3–7 days |
+
+## 2. Infective Endocarditis Prophylaxis — Pediatric Single-Dose Regimens (30–60 min pre-procedure)
+
+| Situation | Agent | Pediatric Dose | Absolute Max (adult dose) |
+|---|---|---|---|
+| Standard, able to take oral meds | Amoxicillin | 50 mg/kg | 2 g |
+| Unable to take oral meds | Ampicillin | 50 mg/kg IM/IV | 2 g |
+| Unable to take oral meds | Cefazolin or Ceftriaxone | 50 mg/kg IM/IV | 1 g |
+| Penicillin-allergic, oral | Cephalexin | 50 mg/kg | 2 g |
+| Penicillin-allergic, oral | Azithromycin / Clarithromycin | 15 mg/kg | 500 mg |
+| Penicillin-allergic, oral | Doxycycline (≥45 kg: adult dose; <45 kg: weight-based) | 2.2 mg/kg | 100 mg |
+| Penicillin-allergic + unable to take oral | Cefazolin or Ceftriaxone | 50 mg/kg IM/IV | 1 g |
+
+*Note: Clindamycin is **no longer recommended** by the 2021 AHA Scientific Statement as a penicillin-allergy alternative for IE prophylaxis, due to a higher rate of adverse reactions including C. difficile infection. It remains listed in Table 1 above only for treatment of active infection, not prophylaxis.*
+
+## 3. Penicillin Allergy Classification & Antibiotic Selection Guide
+
+| Allergy Severity | Clinical History | Safe to Use Cephalosporins? | Recommended Alternative Class |
+|---|---|---|---|
+| Non-severe (Type IV / delayed) | Isolated mild rash, no urticaria/anaphylaxis, occurred >72h after dose | Generally yes (low cross-reactivity, <2%) | Cephalexin acceptable |
+| Severe (Type I / IgE-mediated) | Urticaria, angioedema, anaphylaxis, laryngeal edema, bronchospasm within minutes-hours | **No** — avoid all beta-lactams including cephalosporins | Azithromycin, clarithromycin, clindamycin, or doxycycline |
+| Uncertain / undocumented | Family-reported "penicillin allergy" with no clinical detail available | Treat as severe until clarified | Refer for allergy testing if recurring need; use non-beta-lactam in interim |
+
+## 4. Quick-Reference: "50 mg/kg up to 2 g" Rule
+
+For amoxicillin, cephalexin, and penicillin V in children:
+
+```
+Dose (mg) = 50 mg/kg x patient weight (kg)
+Ceiling   = 2000 mg (2 g), regardless of calculated value above this threshold
+```
+
+Example: A 30 kg child → 50 × 30 = 1500 mg → below the 2 g ceiling → administer 1500 mg (1.5 g).
+Example: A 55 kg adolescent → 50 × 55 = 2750 mg → exceeds ceiling → cap dose at 2000 mg (2 g), do not exceed adult dose.
+
+## 5. References
+- American Dental Association, Antibiotic Stewardship & Antibiotic Prophylaxis Prior to Dental Procedures (Oral Health Topics).
+- Wilson WR, Gewitz M, Lockhart PB, et al. Prevention of Viridans Group Streptococcal Infective Endocarditis: AHA Scientific Statement. Circulation. 2021;143:e963-e978.
+- American Academy of Pediatric Dentistry, Reference Manual, Antibiotic Use chapter.

@@ -1,0 +1,76 @@
+LOCAL ANESTHESIA MAXIMUM RECOMMENDED DOSE (MRD) CHART
+PEDIATRIC DENTAL PATIENTS - CHAIRSIDE QUICK REFERENCE
+Test Corpus Document - For Ingestion Pipeline Evaluation Only, Not for Clinical Use
+Format: plain text, fixed-width table, to test non-markdown table parsing.
+=====================================================================================
+
+SECTION 1: AGENT-BY-AGENT MRD TABLE
+
+Agent                              Conc.    mg/cartridge   MRD(mg/kg)   Abs.Max(mg)
+-------------------------------------------------------------------------------------
+Lidocaine plain                    2%       36 mg          4.4          300
+Lidocaine + 1:100,000 epi          2%       36 mg          4.4          300
+Lidocaine + 1:50,000 epi           2%       36 mg          4.4          300
+Mepivacaine plain                  3%       54 mg          4.4          300
+Mepivacaine + 1:100,000 epi        2%       36 mg          4.4          300
+Prilocaine plain                   4%       72 mg          8.0          400
+Articaine + 1:100,000 epi          4%       72 mg          7.0          N/A (calc by wt)
+Bupivacaine + 1:200,000 epi        0.5%     9 mg           1.3          90
+
+NOTES:
+  - Cartridge volume assumed = 1.8 mL for all calculations above.
+  - AAPD values are intentionally MORE CONSERVATIVE than FDA package-insert
+    adult MRDs; use the AAPD pediatric values for all patients under 12
+    unless directed otherwise by the supervising dentist/anesthesiologist.
+  - Articaine: not recommended in children younger than 4 years old.
+  - Bupivacaine: not recommended in children younger than 12 years old
+    (long duration of soft-tissue anesthesia -> risk of self-inflicted
+    lip/cheek/tongue biting injury in young children who cannot yet
+    reliably report numbness).
+  - Prilocaine: avoid in patients with anemia or methemoglobinemia risk.
+
+SECTION 2: EPINEPHRINE MAX DOSE (SEPARATE FROM LOCAL ANESTHETIC MRD)
+
+  Healthy patient, no cardiac risk factors ........ 200 micrograms (0.2 mg)
+  Patient w/ significant cardiovascular disease .... 40 micrograms (0.04 mg)
+
+  1:100,000 epinephrine cartridge (1.8 mL) contains ~18 micrograms epi
+  1:50,000  epinephrine cartridge (1.8 mL) contains ~36 micrograms epi
+
+SECTION 3: WORKED EXAMPLES (weight in kg, dose in mg, cartridges @1.8mL)
+
+  --- Example A: 15 kg child, Lidocaine 2% + 1:100,000 epi ---
+  MRD = 15 kg x 4.4 mg/kg = 66 mg
+  66 mg < 300 mg absolute ceiling -> 66 mg governs
+  66 mg / 36 mg per cartridge = 1.83 cartridges MAX
+
+  --- Example B: 20 kg child, Lidocaine 2% + 1:100,000 epi ---
+  MRD = 20 kg x 4.4 mg/kg = 88 mg
+  88 mg / 36 mg per cartridge = 2.44 cartridges MAX
+
+  --- Example C: 40 kg adolescent, Mepivacaine 3% plain ---
+  MRD = 40 kg x 4.4 mg/kg = 176 mg
+  176 mg / 54 mg per cartridge = 3.26 cartridges MAX
+
+  --- Example D: 12 kg child, Articaine 4% + 1:100,000 epi ---
+  MRD = 12 kg x 7.0 mg/kg = 84 mg
+  84 mg / 72 mg per cartridge = 1.17 cartridges MAX
+  (NOTE: articaine generally avoided under age 4 regardless of calculated MRD)
+
+SECTION 4: SIGNS OF LOCAL ANESTHETIC SYSTEMIC TOXICITY (LAST) - ESCALATING
+
+  MILD ............ circumoral numbness, metallic taste, tinnitus,
+                     lightheadedness, visual disturbance, agitation
+  MODERATE ........ slurred speech, muscle twitching, tremors
+  SEVERE .......... generalized tonic-clonic seizure, cardiovascular
+                     collapse (progresses from HTN/tachycardia early to
+                     hypotension/bradycardia/arrhythmia late)
+
+  MANAGEMENT: stop injection -> call for help/EMS -> support airway,
+  breathing, circulation -> administer oxygen -> consider IV lipid
+  emulsion ("intralipid") therapy for severe cardiovascular toxicity.
+
+SECTION 5: REFERENCE
+  American Academy of Pediatric Dentistry. Guideline on Use of Local
+  Anesthesia for Pediatric Dental Patients. The Reference Manual of
+  Pediatric Dentistry.
