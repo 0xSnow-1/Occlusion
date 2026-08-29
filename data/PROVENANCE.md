@@ -18,6 +18,15 @@
 | `Local_Anesthesia_MRD_Dosage_Chart.txt` | *TODO: fill in* | TXT | 2026-08-17 | *TODO* | |
 | `Pediatric_Antibiotic_Dosage_Matrix.txt` | *TODO: fill in* | TXT | 2026-08-17 | *TODO* | |
 
+## Archived corpus (v1 → v2 decision)
+
+The original 9 clinical-guideline files (AAPD, AAP staging, AHA/ADA prophylaxis,
+dosage charts, etc.) were **archived to `data/raw/_archive_clinical/`** (gitignored,
+not redistributed — association copyrights). Reason: v1 scope (SCOPE.md §4) calls
+for patient-education material; clinical guidelines and dosage charts fight the
+patient-FAQ framing and muddy the refusal boundary. They are retained locally as
+a **v2 "clinician-mode corpus"** candidate — see SCOPE.md §9 parking lot.
+
 ## What is deliberately NOT in the corpus
 
 *TODO: list the topics/sources you chose to exclude and why (scope alignment with

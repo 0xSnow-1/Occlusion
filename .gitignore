@@ -30,3 +30,6 @@ eval/results/*.json
 
 # --- Windows NTFS artifacts (never commit these) ---
 *:Zone.Identifier
+
+# Archived clinical-guideline corpus (v2 candidate, not part of v1 scope)
+data/raw/_archive_clinical/
