@@ -2,6 +2,10 @@
 .env
 *.key
 
+# --- no-mistakes personal docs (local reference, never commit) ---
+no-mistake configurator.md
+no-mistake GUIDE.md
+
 # --- Python ---
 __pycache__/
 *.py[cod]
