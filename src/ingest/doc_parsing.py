@@ -18,7 +18,13 @@ def parse_folder(folder: str) -> list[Document]:
     chunker = HybridChunker()
     documents = []
 
-    for file in Path(folder).rglob("*"):
+    folder_path = Path(folder)
+    if not folder_path.is_dir():
+        raise FileNotFoundError(
+            f"Document folder does not exist or is not a directory: {folder}"
+        )
+
+    for file in folder_path.rglob("*"):
         if not file.is_file():
             continue
         if file.suffix.lower() not in SUFFIX_COMPATIBLE:
