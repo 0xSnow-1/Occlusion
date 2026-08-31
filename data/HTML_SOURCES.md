@@ -1,10 +1,10 @@
 # HTML Sources — Parse Manifest
 
 > The 11 HTML-only corpus sources (verified live on 2026-08-30, all patient-facing,
-> all with visible review dates). Convert to markdown with docling during Phase 1.2.
-> Target: `data/parsed/<source>/<filename>` per the layout below.
+> all with visible review dates). Target: `data/parsed/<source>/<filename>` per
+> the layout below.
 
-## Parsing queue (docling HTML → markdown)
+## Parsing queue
 
 | # | Output filename | Source | URL | License | Last reviewed | Categories |
 |---|---|---|---|---|---|---|
@@ -20,7 +20,7 @@
 | 10 | `nhs_toothache.md` | NHS (UK) | https://www.nhs.uk/symptoms/toothache/ | OGL v3.0 | Jul 2024 | Triage, Conditions |
 | 11 | `nhs_dental_treatments.md` | NHS (UK) | https://www.nhs.uk/live-well/healthy-teeth-and-gums/dental-treatments/ | OGL v3.0 | Jul 2026 | Post-procedure, Conditions — covers fillings, scale & polish, crowns, bridges, dentures |
 
-## Parsing notes (things docling will need handled)
+## Parsing notes
 
 - **Strip boilerplate:** every NHS page carries identical nav/"Support links"/footer
   chrome and a "Page last reviewed / Next review due" block — exclude nav and

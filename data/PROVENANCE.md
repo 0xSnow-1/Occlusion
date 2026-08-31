@@ -15,7 +15,7 @@
 | `regular-oral-health-care-keeps-you-healthy.pdf` | HRSA (HHS) | PDF | 2026-08-30 | Public domain* | 1 p; prevention |
 | `older-adults-and-oral-health.pdf` | NIDCR/NIH | PDF | 2026-08-30 | Public domain | 6 pp, Nov 2023; conditions incl. oral-cancer warning signs |
 
-### HTML-only pages (to be parsed via docling — see `HTML_SOURCES.md` for manifest)
+### HTML-only pages (to be parsed — see `HTML_SOURCES.md` for manifest)
 
 | Source | Pages | License | Verified live |
 |---|---|---|---|
