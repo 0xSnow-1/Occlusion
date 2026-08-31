@@ -1,32 +1,44 @@
 from pathlib import Path
+import logging
 from typing import List, Any
 from langchain_community.document_loaders import (
     PyMuPDFLoader,
-    PyPDFLoader,
-    TextLoader,
-    CSVLoader,
-    pdf,
 )
-from langchain_community.document_loaders import Docx2txtLoader
-from langchain_community.document_loaders.excel import UnstructuredExcelLoader
-from langchain_community.document_loaders import JSONLoader
+from langchain_core.documents import Document
+
+logger = logging.getLogger(__name__)
 
 
-def load_all_documents(data_directory: str) -> list[Any]:
+def load_all_documents(data_directory: str) -> List[Any]:
     data_path = Path(data_directory).resolve()
-    print(f"[DEBUG]: Data directory: {data_path}")
+    logger.info(f"The Data Directory has been found: {data_path}")
     documents = []
 
-    pdf_files = list(data_path.glob("**/.pdf"))
-    print(
-        f"[DEBUG]: There is a total number of {len(pdf_files)} PDF files: {[str(f) for f in pdf_files]}"
+    pdf_files = list(data_path.glob("**/*.pdf"))
+    logger.debug(
+        f"There is a total number of {len(pdf_files)} PDF files for: {[str(f) for f in pdf_files]} "
     )
     for pdf_file in pdf_files:
-        print(f"Loading PDF: {pdf_file}")
+        logger.info(f"Selected PDF file: {pdf_file}")
+
         try:
             loader = PyMuPDFLoader(str(pdf_file))
             loaded = loader.load()
-            print(f"Loaded Pages: {len(loaded)} from PDF: {pdf_file}")
+            doc_id = pdf_file.stem
+            for doc in loaded:
+                doc.metadata["doc_id"] = doc_id
+            logger.debug(f"Assigned doc_id={doc_id} to {len(loaded)} pages")
+            logger.info(f"Loaded {len(loaded)} pages from: {pdf_file}")
             documents.extend(loaded)
         except Exception as e:
-            print(f"[ERROR]: Failed to Parse and Load PDF: {pdf_file}: {str(e)}")
+            logger.exception(
+                f"failed to parse and load pdf: {pdf_file}: {e}", exc_info=True
+            )
+
+    logger.info(f"Successfully Loaded {len(documents)} total pages.")
+    return documents
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    load_all_documents("data/raw")
