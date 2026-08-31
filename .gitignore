@@ -2,6 +2,10 @@
 .env
 *.key
 
+# --- no-mistakes personal docs (local reference, never commit) ---
+no-mistake configurator.md
+no-mistake GUIDE.md
+
 # --- Python ---
 __pycache__/
 *.py[cod]
@@ -33,3 +37,4 @@ eval/results/*.json
 
 # Archived clinical-guideline corpus (v2 candidate, not part of v1 scope)
 data/raw/_archive/
+LOGGING.md

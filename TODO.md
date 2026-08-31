@@ -11,7 +11,7 @@
 2. Tasks describe **what** to build, **inputs**, **outputs/side-effects**, **how to verify**, and
    **pitfalls** — never the implementation. You write 100% of the code yourself.
 3. Target stack (already pinned by `pyproject.toml` + `.env`): Qdrant Cloud (free tier),
-   `fastembed` for local embeddings + sparse/BM25 vectors, `docling` for document parsing,
+    `fastembed` for local embeddings + sparse/BM25 vectors, `PyMuPDFLoader` for PDF parsing,
    `langgraph` orchestration, `pydantic` v2 structured output, one LLM provider for generation
    (pick: Bedrock/Anthropic **or** Groq — don't split the generation path across both during MVP),
    `ragas` + `pytest` for evaluation, LangSmith for tracing, Streamlit/Gradio for the demo.
@@ -91,7 +91,7 @@
   - "I'll remember where it came from." Unrecorded provenance fails checklist B and makes golden
     set ground truth unauditable.
 
-### Task 1.2 — Parse documents to clean markdown with `docling`
+### Task 1.2 — Parse documents to clean markdown
 - **What:** A manual-run ingestion script (not a service) that converts each raw PDF/HTML source
   to normalized markdown, preserving section headings, writing to
   `data/parsed/<source>/<docname>.md`.
