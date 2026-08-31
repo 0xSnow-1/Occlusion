@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-from typing import List, Any
+from typing import List
 from langchain_community.document_loaders import (
     PyMuPDFLoader,
 )
@@ -9,8 +9,12 @@ from langchain_core.documents import Document
 logger = logging.getLogger(__name__)
 
 
-def load_all_documents(data_directory: str) -> List[Any]:
+def load_all_documents(data_directory: str) -> List[Document]:
     data_path = Path(data_directory).resolve()
+    if not data_path.is_dir():
+        raise FileNotFoundError(
+            f"Document directory does not exist or is not a directory: {data_directory}"
+        )
     logger.info(f"The Data Directory has been found: {data_path}")
     documents = []
 
