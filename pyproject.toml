@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Citation-grounded dental patient-FAQ RAG agent (MVP) — hybrid retrieval, RRF fusion, fail-closed guardrails, Ragas eval harness"
 readme = "README.md"
 requires-python = ">=3.12"
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
 dependencies = [
     "ag-ui-langgraph>=0.0.42",
     "anthropic[bedrock]>=0.116.0",
