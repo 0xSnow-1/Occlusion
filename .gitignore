@@ -38,3 +38,6 @@ eval/results/*.json
 # Archived clinical-guideline corpus (v2 candidate, not part of v1 scope)
 data/raw/_archive/
 LOGGING.md
+AGENTIC_WORKFLOW.md
+Agentic_AI_Engineering_Reference.md
+LOGGING.md
