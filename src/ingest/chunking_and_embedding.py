@@ -10,9 +10,8 @@ Stack:
 
 from __future__ import annotations
 
-import argparse
 import logging
-from typing import Any, List, Sequence
+from typing import List, Sequence
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -20,8 +19,6 @@ from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-# Default model kept as a module-level constant so both the class and CLI
-# reference the same value without duplication.
 _DEFAULT_EMBED_MODEL = "all-MiniLM-L6-v2"
 
 
@@ -111,79 +108,4 @@ class DocumentChunker:
         return self.embed_documents(chunks)
 
 
-# ---------------------------------------------------------------------------
-# CLI entry point
-# ---------------------------------------------------------------------------
 
-def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Chunk and embed documents from the Occlusion ingestion pipeline.",
-    )
-    parser.add_argument(
-        "--chunk-size",
-        type=int,
-        default=1000,
-        help="Maximum characters per chunk (default: 1000)",
-    )
-    parser.add_argument(
-        "--chunk-overlap",
-        type=int,
-        default=200,
-        help="Character overlap between chunks (default: 200)",
-    )
-    parser.add_argument(
-        "--embedding-model",
-        type=str,
-        default=_DEFAULT_EMBED_MODEL,
-        help=f"sentence-transformers model name (default: {_DEFAULT_EMBED_MODEL})",
-    )
-    parser.add_argument(
-        "--text",
-        type=str,
-        default=None,
-        help="Raw text to chunk and embed (for quick testing)",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable DEBUG-level logging",
-    )
-    return parser
-
-
-def main(argv: list[str] | None = None) -> None:
-    """CLI entry point: chunk and embed a text snippet or stdin."""
-    parser = _build_parser()
-    args = parser.parse_args(argv)
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(asctime)s %(name)s %(levelname)s %(message)s",
-    )
-
-    raw_text = args.text
-    if raw_text is None:
-        import sys
-        if sys.stdin.isatty():
-            parser.error("Provide --text or pipe content via stdin")
-        raw_text = sys.stdin.read()
-
-    doc = Document(page_content=raw_text, metadata={"source": "cli"})
-
-    chunker = DocumentChunker(
-        chunk_size=args.chunk_size,
-        chunk_overlap=args.chunk_overlap,
-        embedding_model=args.embedding_model,
-    )
-    results = chunker.process([doc])
-
-    for i, chunk in enumerate(results):
-        emb = chunk.metadata.get("embedding", [])
-        print(
-            f"Chunk {i}: {len(chunk.page_content)} chars, "
-            f"embedding dim={len(emb)}"
-        )
-
-
-if __name__ == "__main__":
-    main()
