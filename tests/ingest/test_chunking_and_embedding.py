@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List
-
 import pytest
 from langchain_core.documents import Document
 
@@ -16,13 +14,6 @@ from src.ingest.chunking_and_embedding import DocumentChunker
 
 def _doc(text: str, doc_id: str = "test-doc") -> Document:
     return Document(page_content=text, metadata={"doc_id": doc_id})
-
-
-def _docs() -> List[Document]:
-    return [
-        _doc("First document about teeth.", doc_id="doc-1"),
-        _doc("Second document about gums.", doc_id="doc-2"),
-    ]
 
 
 # ---------------------------------------------------------------------------
