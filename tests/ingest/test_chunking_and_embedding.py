@@ -82,10 +82,10 @@ class TestChunking:
         chunker = DocumentChunker(chunk_size=30, chunk_overlap=10)
         text = "abcdefghij" * 5  # 50 chars
         chunks = chunker.chunk_documents([_doc(text)])
-        if len(chunks) >= 2:
-            tail = chunks[0].page_content[-10:]
-            head = chunks[1].page_content[:10]
-            assert tail in chunks[1].page_content or head in chunks[0].page_content
+        assert len(chunks) >= 2, "Expected multiple chunks for overlap test"
+        tail = chunks[0].page_content[-10:]
+        head = chunks[1].page_content[:10]
+        assert tail in chunks[1].page_content or head in chunks[0].page_content
 
 
 # ---------------------------------------------------------------------------

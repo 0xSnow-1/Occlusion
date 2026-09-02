@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import argparse
 import logging
-from typing import Any, List, Sequence
+from typing import List, Sequence
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
