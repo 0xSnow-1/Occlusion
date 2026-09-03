@@ -58,7 +58,6 @@ def load_all_websites(URL_links: list[str]) -> List[Any]:
     logger.info(f"Successfully Loaded {len(documents)} total site pages")
     return documents
 
-
 def load_all_documents(PDFS_directory: str, URL_links: list[str]) -> List[Document]:
     pdf_parser = load_all_PDFS(PDFS_directory)
     html_parser = load_all_websites(URL_links)

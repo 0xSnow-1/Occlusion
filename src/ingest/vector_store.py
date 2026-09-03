@@ -53,7 +53,7 @@ class VectorStore:
     def __init__(
         self,
         collection_name: str,
-        qdrant_url: str = ":memory:",
+        qdrant_url: str = "./data/qdrant_storage",
         qdrant_api_key: str | None = None,
         dense_model: str = _DEFAULT_DENSE_MODEL,
         sparse_model: str = _DEFAULT_SPARSE_MODEL,
