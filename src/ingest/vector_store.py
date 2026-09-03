@@ -67,15 +67,25 @@ class VectorStore:
 
     @property
     def client(self) -> QdrantClient:
-        """Lazily connect to Qdrant."""
+        """Lazily connect to Qdrant.
+
+        Three connection modes, chosen by the shape of ``qdrant_url``:
+
+        * ``":memory:"``        -- in-memory instance (useful for tests)
+        * ``http(s)://...`` URL -- Qdrant server / Qdrant Cloud
+        * anything else         -- local filesystem path for persistent
+                                   on-disk storage (e.g. ``./data/qdrant_storage``)
+        """
         if self._client is None:
             if self._qdrant_url == ":memory:":
                 self._client = QdrantClient(":memory:")
-            else:
+            elif self._qdrant_url.startswith(("http://", "https://")):
                 self._client = QdrantClient(
                     url=self._qdrant_url,
                     api_key=self._qdrant_api_key,
                 )
+            else:
+                self._client = QdrantClient(path=self._qdrant_url)
             logger.info("Connected to Qdrant at %s", self._qdrant_url)
         return self._client
 

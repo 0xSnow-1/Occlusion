@@ -1,11 +1,15 @@
-"""Chunking and embedding pipeline for the Occlusion data ingestion stage.
+"""Document chunking for the Occlusion data ingestion stage.
 
 Takes raw LangChain Documents produced by `document_parser` and produces
-chunked, embedded documents ready for vector-store ingestion.
+chunked documents ready for vector-store ingestion.
 
 Stack:
     - RecursiveCharacterTextSplitter (LangChain) for chunking
-    - SentenceTransformer (sentence-transformers) for dense embeddings
+
+Embedding happens at upsert time, not here: `vector_store.py` wraps each
+chunk in a fastembed ``models.Document`` so the dense (all-MiniLM-L6-v2)
+and sparse (Splade_PP_en_v1) vectors are computed inside
+``client.upsert()`` (see DECISIONS/hybrid-qdrant-vector-store.md).
 """
 
 from __future__ import annotations
@@ -15,15 +19,12 @@ from typing import List, Sequence
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_EMBED_MODEL = "all-MiniLM-L6-v2"
-
 
 class DocumentChunker:
-    """Chunk documents and compute dense embeddings for each chunk.
+    """Split documents into smaller chunks for vector-store ingestion.
 
     Parameters
     ----------
@@ -32,34 +33,18 @@ class DocumentChunker:
         ``RecursiveCharacterTextSplitter``.
     chunk_overlap:
         Character overlap between consecutive chunks.
-    embedding_model:
-        Name of the ``sentence-transformers`` model to load.
     """
 
     def __init__(
         self,
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
-        embedding_model: str = _DEFAULT_EMBED_MODEL,
     ) -> None:
         self._splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             length_function=len,
         )
-        self._embed_model_name = embedding_model
-        self._model: SentenceTransformer | None = None
-
-    # -- lazy-loaded property --------------------------------------------------
-
-    @property
-    def model(self) -> SentenceTransformer:
-        """Lazily load the SentenceTransformer so import-time is fast."""
-        if self._model is None:
-            logger.info("Loading embedding model: %s", self._embed_model_name)
-            self._model = SentenceTransformer(self._embed_model_name)
-            logger.debug("Model loaded successfully")
-        return self._model
 
     # -- public API -----------------------------------------------------------
 
@@ -83,29 +68,6 @@ class DocumentChunker:
             "Chunked %d documents into %d chunks", len(documents), len(all_chunks)
         )
         return all_chunks
-
-    def embed_documents(self, documents: Sequence[Document]) -> List[Document]:
-        """Compute a dense embedding vector for each document.
-
-        The embedding is stored in ``doc.metadata["embedding"]`` as a
-        plain list of floats (JSON-serializable for Qdrant / pgvector).
-        """
-        if not documents:
-            return []
-        texts = [doc.page_content for doc in documents]
-        logger.info("Embedding %d chunks ...", len(texts))
-        vectors = self.model.encode(texts, show_progress_bar=False)
-        embedded: List[Document] = []
-        for doc, vec in zip(documents, vectors):
-            meta = {**doc.metadata, "embedding": vec.tolist()}
-            embedded.append(Document(page_content=doc.page_content, metadata=meta))
-        logger.info("Embedding complete for %d chunks", len(embedded))
-        return embedded
-
-    def process(self, documents: Sequence[Document]) -> List[Document]:
-        """End-to-end: chunk then embed.  Convenience wrapper."""
-        chunks = self.chunk_documents(documents)
-        return self.embed_documents(chunks)
 
 
 
