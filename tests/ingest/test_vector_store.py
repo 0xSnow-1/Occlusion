@@ -193,7 +193,7 @@ class TestUpsertDocuments:
         store.upsert_documents(docs)
 
         point = mock_client.upsert.call_args.kwargs["points"][0]
-        assert "text" not in point.payload
+        assert point.payload["text"] == "Content here"
         assert point.payload["doc_id"] == "abc"
         assert point.payload["source_url"] == "https://x.com"
 

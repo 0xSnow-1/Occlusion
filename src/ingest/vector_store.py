@@ -142,8 +142,11 @@ class VectorStore:
     def upsert_documents(self, documents: Sequence[dict]) -> int:
         """Upsert documents with both dense and sparse embeddings.
 
-        Each document dict must contain a ``"text"`` key and any metadata
-        keys to store as payload (e.g. ``doc_id``, ``source_url``).
+        Each document dict must contain a ``"text"`` key; every other key
+        (e.g. ``doc_id``, ``source_url``, ``chunk_index``) is stored as
+        payload. The ``text`` itself is also stored in the payload so
+        points are self-contained for RAG retrieval (fastembed also
+        embeds it into the dense/sparse vectors).
 
         fastembed handles embedding at upsert time via ``models.Document``.
 
@@ -155,7 +158,10 @@ class VectorStore:
         points = []
         for idx, doc in enumerate(documents):
             text = doc["text"]
-            payload = {k: v for k, v in doc.items() if k != "text"}
+            # Chunk text is stored in the payload alongside the metadata so
+            # each point is self-contained: retrieval can feed the LLM the
+            # matched chunk's words without a second document store.
+            payload = {**doc}
 
             points.append(
                 PointStruct(

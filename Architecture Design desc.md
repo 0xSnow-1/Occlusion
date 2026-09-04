@@ -10,32 +10,38 @@
 
 ## The diagram has two halves
 
-### Right half — Ingestion (offline, runs once per corpus update)
+### Right half — Ingestion (offline, runs once per corpus update) — ✅ IMPLEMENTED (`src/ingest/ingestion_pipeline.py`)
 
 ```
-CORPUS → Docling Parsing → MD Files → Chunk/Split text → Embeddings → Vector DB
+CORPUS (PDFs + HTML) → Parse → Chunk/Split text → Index (fastembed @ upsert) → Qdrant
 ```
 
 1. **CORPUS** — ~15 openly licensed patient-education documents (NIDCR, CDC, HRSA
    PDFs + NHS UK pages; provenance in `data/PROVENANCE.md`).
-2. **Docling Parsing** — converts PDF/HTML into clean markdown, preserving section
-   headings and the NHS "urgent advice" callout blocks.
-3. **Chunk/Split text** — heading-aware chunking; each chunk carries stable IDs and
-   metadata (doc_id, source URL, review date).
-4. **Embeddings** — local `fastembed` model produces two representations per chunk:
-   - **Dense vector** → retrieved by cosine similarity (semantic match; the
-     "Distance Metric" annotation on the diagram).
-   - **Sparse vector (BM25)** → an inverted index with IDF-weighted term values
-     (the `(index, value)` pairs annotated on the diagram); catches exact
-     terminology that dense embeddings miss.
-5. **Vector DB (Qdrant Cloud)** — stores both vectors per point, plus payload
-   metadata used later for citations.
+2. **Parse** (`document_parser.py`) — `PyMuPDFLoader` for PDFs (one LangChain
+   `Document` per page) + `WebBaseLoader` for HTML pages; every document gets a
+   `doc_id` (filename stem or URL slug).
+3. **Chunk/Split text** (`chunking_and_embedding.py`) —
+   `RecursiveCharacterTextSplitter`, 1000 chars / 200 overlap; each chunk
+   inherits the source metadata and gains `chunk_index` / `chunk_total`.
+4. **Index** (`vector_store.py`) — no separate embedding stage: chunk text is
+   wrapped in a fastembed `models.Document` at upsert time, which produces two
+   representations per chunk:
+   - **Dense vector** (all-MiniLM-L6-v2, 384-dim, cosine) → semantic match.
+   - **Sparse vector** (Splade_PP_en_v1, BM25-style IDF-weighted `(index, value)`
+     pairs) → catches exact terminology that dense embeddings miss.
+5. **Vector DB** — Qdrant, persisted locally at `./data/qdrant_storage`
+   (gitignored; pass an `https://` URL to target Qdrant Cloud instead). Each
+   point is **self-contained**: dense vector + sparse vector + payload holding
+   the chunk text *and* its metadata (`doc_id`, `chunk_index`, ...) — so
+   retrieval can feed matched chunks straight to the LLM. The pipeline
+   recreates the collection each run, so the store always mirrors the corpus.
 
 *Why both vector types: dense search finds paraphrases, BM25 finds exact terms
 (drug names, procedure names). Neither alone is sufficient — that's the whole
 argument for hybrid retrieval.*
 
-### Left half — Runtime (per user question)
+### Left half — Runtime (per user question) — 🔲 DESIGNED (`src/agent/` scaffolded, not yet implemented)
 
 **Step 1 — Deterministic guardrail (before any LLM).** `START → Query → Filter`.
 The "Out-of-scope GUARDRAIL" is plain code: a rules/keyword layer built from the
