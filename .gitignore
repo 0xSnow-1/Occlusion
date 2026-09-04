@@ -23,7 +23,11 @@ build/
 # --- Data artifacts (keep raw + versioned snapshots, ignore generated) ---
 data/parsed/
 data/embeddings_cache/
+data/qdrant_storage/
 eval/results/*.json
+
+# --- AI stack reference docs ---
+ai-stack/
 
 # --- Notebooks / editors / OS ---
 .ipynb_checkpoints/

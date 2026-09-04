@@ -58,7 +58,6 @@ def load_all_websites(URL_links: list[str]) -> List[Any]:
     logger.info(f"Successfully Loaded {len(documents)} total site pages")
     return documents
 
-
 def load_all_documents(PDFS_directory: str, URL_links: list[str]) -> List[Document]:
     pdf_parser = load_all_PDFS(PDFS_directory)
     html_parser = load_all_websites(URL_links)
@@ -66,20 +65,3 @@ def load_all_documents(PDFS_directory: str, URL_links: list[str]) -> List[Docume
     logger.info(f"Total documents loaded: {len(all_documents)}")
     return all_documents
 
-
-if __name__ == "__main__":
-    HTML_URLS = [
-        "https://www.nidcr.nih.gov/health-info/gum-disease",
-        "https://www.cdc.gov/oral-health/about/cavities-tooth-decay.html",
-        "https://www.nhs.uk/tests-and-treatments/wisdom-tooth-removal/",
-        "https://www.nhs.uk/tests-and-treatments/root-canal-treatment/",
-        "https://www.nhs.uk/conditions/tooth-decay/",
-        "https://www.nhs.uk/conditions/gum-disease/",
-        "https://www.nhs.uk/symptoms/teeth-grinding/",
-        "https://www.nhs.uk/conditions/dental-abscess/",
-        "https://www.nhs.uk/conditions/knocked-out-tooth/",
-        "https://www.nhs.uk/symptoms/toothache/",
-        "https://www.nhs.uk/live-well/healthy-teeth-and-gums/dental-treatments/",
-    ]
-    logging.basicConfig(level=logging.DEBUG)
-    load_all_documents("data/raw", HTML_URLS)

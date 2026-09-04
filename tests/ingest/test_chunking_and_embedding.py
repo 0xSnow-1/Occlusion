@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 """Tests for src/ingest/chunking_and_embedding.py (data-ingestion pipeline)."""
 
 from __future__ import annotations
 
 import pytest
+=======
+"""Tests for src/ingest/chunking_and_embedding.py (document chunking)."""
+
+from __future__ import annotations
+
+from typing import List
+
+>>>>>>> feature/ingestion_pipeline
 from langchain_core.documents import Document
 
 from src.ingest.chunking_and_embedding import DocumentChunker
@@ -16,6 +25,16 @@ def _doc(text: str, doc_id: str = "test-doc") -> Document:
     return Document(page_content=text, metadata={"doc_id": doc_id})
 
 
+<<<<<<< HEAD
+=======
+def _docs() -> List[Document]:
+    return [
+        _doc("First document about teeth.", doc_id="doc-1"),
+        _doc("Second document about gums.", doc_id="doc-2"),
+    ]
+
+
+>>>>>>> feature/ingestion_pipeline
 # ---------------------------------------------------------------------------
 # Chunking tests
 # ---------------------------------------------------------------------------
@@ -73,6 +92,7 @@ class TestChunking:
         chunker = DocumentChunker(chunk_size=30, chunk_overlap=10)
         text = "abcdefghij" * 5  # 50 chars
         chunks = chunker.chunk_documents([_doc(text)])
+<<<<<<< HEAD
         assert len(chunks) >= 2, "Expected multiple chunks for overlap test"
         tail = chunks[0].page_content[-10:]
         head = chunks[1].page_content[:10]
@@ -138,3 +158,10 @@ class TestProcess:
         results = chunker.process([_doc(text, doc_id="source-42")])
         for chunk in results:
             assert chunk.metadata["doc_id"] == "source-42"
+=======
+        if len(chunks) >= 2:
+            tail = chunks[0].page_content[-10:]
+            head = chunks[1].page_content[:10]
+            assert tail in chunks[1].page_content or head in chunks[0].page_content
+
+>>>>>>> feature/ingestion_pipeline
