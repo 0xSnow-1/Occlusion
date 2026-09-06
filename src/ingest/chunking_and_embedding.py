@@ -68,4 +68,3 @@ class DocumentChunker:
             "Chunked %d documents into %d chunks", len(documents), len(all_chunks)
         )
         return all_chunks
-
