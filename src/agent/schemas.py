@@ -15,7 +15,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, Field, TypeAdapter, field_validator
 
 
 class RetrievedChunk(BaseModel):
@@ -69,6 +69,13 @@ class Answer(BaseModel):
     answer: str = Field(min_length=1)
     citations: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0, le=1)
+
+    @field_validator("answer")
+    @classmethod
+    def _answer_not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("answer must not be blank")
+        return v
 
 
 class Refusal(BaseModel):
