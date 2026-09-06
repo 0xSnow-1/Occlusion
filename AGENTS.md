@@ -17,8 +17,9 @@
 ## Layout (what's real vs stub)
 - `src/ingest/` — implemented: `document_parser.py` (PyMuPDFLoader + WebBaseLoader; `doc_id` = PDF stem / URL path segment), `chunking_and_embedding.py` (RecursiveCharacterTextSplitter 1000/200 chars; embedding at upsert time via fastembed `models.Document`), `vector_store.py` (Qdrant dense cosine + sparse `Splade_PP_en_v1`, payload indexes on `doc_id`/`source_url`/`title`, int point ids `0..n`).
 - `src/retrieve/` — implemented: `base.py` (Qdrant points → `RetrievedChunk`), `dense.py` (cosine top_k 20), `sparse.py` (BM25 top_k 20), `hybrid.py` (prefetch 20+20, server RRF, client-side fallback), `__init__.py` (exports `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`).
-- `src/agent/schemas.py` — `RetrievedChunk` implemented; `Answer`, `Refusal`, `CitationCheck`, `AgentOutput` are Phase 5.1 stubs.
-- `src/agent/{graph,state,verify,prompts,agents}.py` — **empty stubs**. The tests under `tests/agent/` are the spec: implement to match them.
+- `src/agent/schemas.py` — implemented (Phase 5.1): `RetrievedChunk`, `Answer` (`kind`, non-empty `answer`, `citations: list[str]`, `confidence` 0–1), `Refusal` (`RefusalReason` str enum `insufficient_context`/`out_of_scope`, default patient-safe message), `CitationCheck` (fail-closed defaults), `AgentOutput` (discriminated union on `kind`).
+- `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`), default overwrite semantics (deliberately no reducers).
+- `src/agent/{graph,verify,prompts,agents}.py` — **empty stubs**. The tests under `tests/agent/` are the spec: implement to match them.
 - `src/eval/` — empty, planned per TODO phases.
 
 ## Contracts the tests pin (don't reinvent)
@@ -28,7 +29,7 @@
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/*` currently FAIL with `ImportError` (stubs unimplemented) — expected. `tests/ingest/test_vector_store.py` passes (19 tests); chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_graph.py` and `test_verify.py` currently FAIL with `ImportError` (`graph.py` / `verify.py` stubs) — expected. `tests/agent/test_schemas.py` (11) and `test_fusion.py` are green; ingest + retrieve + schemas + fusion is 54 offline tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.

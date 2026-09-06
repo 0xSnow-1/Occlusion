@@ -41,7 +41,7 @@ CORPUS (PDFs + HTML) → Parse → Chunk/Split text → Index (fastembed @ upser
 (drug names, procedure names). Neither alone is sufficient — that's the whole
 argument for hybrid retrieval.*
 
-### Left half — Runtime (per user question) — 🔲 DESIGNED (`src/agent/` scaffolded, not yet implemented)
+### Left half — Runtime (per user question) — 🔲 DESIGNED (only the data contracts exist — `src/agent/schemas.py`, `src/agent/state.py`; the flow is not yet implemented. Live stub status: `AGENTS.md`)
 
 **Step 1 — Deterministic guardrail (before any LLM).** `START → Query → Filter`.
 The "Out-of-scope GUARDRAIL" is plain code: a rules/keyword layer built from the
