@@ -4,7 +4,7 @@
 - Setup: `uv sync && cp sample.env .env` (fill keys; `.env` is gitignored — never commit it).
 - Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py -q`
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
-- Ingest pipeline: `uv run python -m src.ingest.ingestion_pipeline` (PDFs only, `:memory:` Qdrant)
+- Ingest pipeline: `uv run python -m src.ingest.ingestion_pipeline` (default corpus from `data/raw` plus the 11 `DEFAULT_HTML_URLS`, into on-disk Qdrant at `./data/qdrant_storage`)
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
 - CI (`.github/workflows/ci.yml`) mirrors the offline suite on every push and PR. If you add/remove a test path or change the test command, update the `pytest` line to match. Never change triggers, runners, or action versions without human approval.
 
