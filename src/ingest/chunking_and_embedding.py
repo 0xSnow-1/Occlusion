@@ -15,7 +15,7 @@ and sparse (Splade_PP_en_v1) vectors are computed inside
 from __future__ import annotations
 
 import logging
-from typing import List, Sequence
+from collections.abc import Sequence
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -48,7 +48,7 @@ class DocumentChunker:
 
     # -- public API -----------------------------------------------------------
 
-    def chunk_documents(self, documents: Sequence[Document]) -> List[Document]:
+    def chunk_documents(self, documents: Sequence[Document]) -> list[Document]:
         """Split each document into smaller chunks.
 
         Chunk metadata is inherited from the source document.  Two extra
@@ -57,7 +57,7 @@ class DocumentChunker:
         * ``chunk_index`` - 0-based position within the source document.
         * ``chunk_total`` - total number of chunks produced from that doc.
         """
-        all_chunks: List[Document] = []
+        all_chunks: list[Document] = []
         for doc in documents:
             splits = self._splitter.split_text(doc.page_content)
             total = len(splits)

@@ -11,10 +11,10 @@ from langchain_core.documents import Document
 
 from src.ingest.ingestion_pipeline import IngestionPipeline
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(autouse=True)
 def offline_embedding_models(monkeypatch):
@@ -75,6 +75,7 @@ def pipeline() -> IngestionPipeline:
 # ---------------------------------------------------------------------------
 # Pipeline tests
 # ---------------------------------------------------------------------------
+
 
 class TestRun:
     """Verify the end-to-end parse -> chunk -> index flow."""
