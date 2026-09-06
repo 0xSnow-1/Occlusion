@@ -6,6 +6,7 @@
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
 - Ingest pipeline: `uv run python scripts/run_ingest.py` (PDFs only, `:memory:` Qdrant)
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
+- CI (`.github/workflows/ci.yml`) mirrors the offline suite on every push and PR. If you add/remove a test path or change the test command, update the `pytest` line to match. Never change triggers, runners, or action versions without human approval.
 
 ## Stack / dependencies (source: `ai-stack/STACK.md`, inlined — that dir is gitignored)
 - Preferred: Python 3.12+ / uv; LangGraph; Qdrant + fastembed / sentence-transformers; Ragas + LangSmith; Pydantic v2 / FastAPI; PyMuPDF. `pyproject.toml` as committed is approved as-is.
@@ -31,7 +32,7 @@
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
-- No CI, lint, typecheck, or `opencode.json` in repo. No FastAPI/UI yet (TODO Phase 9).
+- No lint, typecheck, or `opencode.json` in repo (CI exists: `.github/workflows/ci.yml`). No FastAPI/UI yet (TODO Phase 9).
 
 ## Scope guards (from SCOPE.md / PROVENANCE.md)
 - Refusal correctness on trap questions is the hard ship gate (100%, zero slack) — never answer diagnostic/prescriptive or out-of-corpus questions confidently.
