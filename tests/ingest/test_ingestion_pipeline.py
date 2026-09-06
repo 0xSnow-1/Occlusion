@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 from langchain_core.documents import Document
 
@@ -13,6 +15,41 @@ from src.ingest.ingestion_pipeline import IngestionPipeline
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def offline_embedding_models(monkeypatch):
+    """Embed without downloading fastembed ONNX models.
+
+    qdrant-client computes dense/sparse vectors at upsert time by
+    instantiating fastembed's TextEmbedding and SparseTextEmbedding,
+    which fetch multi-hundred-MB models on first use. Route those two
+    classes to deterministic fakes so the pipeline runs end-to-end
+    against real in-memory Qdrant without any network dependency.
+    """
+    from qdrant_client.embed import embedder as qdrant_embedder
+
+    class FakeTextEmbedding:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def embed(self, documents, batch_size=8):
+            for _ in documents:
+                yield np.zeros(384, dtype=np.float32)
+
+    class FakeSparseTextEmbedding:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def embed(self, documents, batch_size=8):
+            for _ in documents:
+                yield SimpleNamespace(
+                    indices=np.array([0], dtype=np.int64),
+                    values=np.array([1.0], dtype=np.float32),
+                )
+
+    monkeypatch.setattr(qdrant_embedder, "TextEmbedding", FakeTextEmbedding)
+    monkeypatch.setattr(qdrant_embedder, "SparseTextEmbedding", FakeSparseTextEmbedding)
+
 
 def _documents(n: int = 2) -> list[Document]:
     return [
