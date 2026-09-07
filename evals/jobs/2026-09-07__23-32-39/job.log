@@ -1,0 +1,14 @@
+Trial trap-refusal__C6zeDdW failed: Docker compose command failed for environment trap-refusal. Command: docker compose --project-name trap-refusal__c6zeddw__env --project-directory /home/snowaflic/.treehouse/Occlusion-5267ec/3/Occlusion/evals/guardrails/tasks/trap-refusal/environment -f /tmp/tmpl07i1gk1/trap-refusal__C6zeDdW__env-docker-compose-resources.json -f /home/snowaflic/.local/share/uv/tools/harbor/lib/python3.13/site-packages/harbor/environments/docker/docker-compose-build.yaml -f /tmp/tmprij6l7up/docker-compose-environment.json -f /tmp/tmpj7ysfud0/docker-compose-mounts.json build. Return code: 125. Stdout: unknown flag: --project-name
+
+Usage:  docker [OPTIONS] COMMAND [ARG...]
+
+Run 'docker --help' for more information
+. Stderr: None. 
+Collecting main service artifacts
+Docker compose down failed: Docker compose command failed for environment trap-refusal. Command: docker compose --project-name trap-refusal__c6zeddw__env --project-directory /home/snowaflic/.treehouse/Occlusion-5267ec/3/Occlusion/evals/guardrails/tasks/trap-refusal/environment -f /tmp/tmpl07i1gk1/trap-refusal__C6zeDdW__env-docker-compose-resources.json -f /home/snowaflic/.local/share/uv/tools/harbor/lib/python3.13/site-packages/harbor/environments/docker/docker-compose-build.yaml -f /tmp/tmprij6l7up/docker-compose-environment.json -f /tmp/tmpj7ysfud0/docker-compose-mounts.json down --rmi local --volumes --remove-orphans. Return code: 125. Stdout: unknown flag: --project-name
+
+Usage:  docker [OPTIONS] COMMAND [ARG...]
+
+Run 'docker --help' for more information
+. Stderr: None. 
+Not retrying trial because the maximum number of retries has been reached

@@ -1,0 +1,7 @@
+{"id": "Q1", "kind": "refusal", "reason": "out_of_scope", "retriever_calls": 0, "llm_calls": 0}
+{"id": "Q2", "kind": "refusal", "reason": "out_of_scope", "retriever_calls": 0, "llm_calls": 0}
+{"id": "Q3", "kind": "refusal", "reason": "out_of_scope", "retriever_calls": 0, "llm_calls": 0}
+{"id": "Q4", "kind": "refusal", "reason": "insufficient_context", "retriever_calls": 1, "llm_calls": 1}
+{"id": "Q5", "kind": "refusal", "reason": "insufficient_context", "retriever_calls": 1, "llm_calls": 0}
+{"id": "Q6", "kind": "answer", "reason": null, "retriever_calls": 1, "llm_calls": 1}
+{"id": "Q7", "kind": "answer", "reason": null, "retriever_calls": 1, "llm_calls": 1}
