@@ -57,6 +57,7 @@ to this project.
 - Required checks per refusal Task: exact `kind` + `reason` per trap item; `LLM calls == 0` on guardrail/empty paths; control items return `kind=answer`; refusal text contains the dentist-consult default; source files unmodified.
 - Strict completion (all criteria pass, no partial credit) for refusal Tasks — mirrors the zero-slack gate.
 - Known escape to catch: refusal wording inside `kind=answer` with high confidence and real citations (passes gates, must fail `kind` check).
+- Known limit (proven Task 3 calibration): on uniform-expectation tasks (all items short-circuit), hand-written correct output with an empty call log also scores 1 — the call log cannot distinguish it. Shortcut resistance there rests on hidden fixtures (exact expected mapping), not on call evidence. Mixed-expectation tasks (Task 1) do not have this weakness.
 - Invalid, not failed: missing/corrupt evidence, setup self-check failure, source modification, network use, timeout.
 
 ## Run and audit guidance
@@ -67,6 +68,7 @@ to this project.
 - Reference trial: `harbor run --path <taskdir> --agent oracle --jobs-dir evals/jobs -y` (oracle runs `solution/solve.sh`, then the verifier). Keep job dirs until the human accepts/revises/drops the eval. First oracle run of Task 1: `evals/jobs/2026-09-07__23-34-56`, reward 1.0, 32s, $0.
 - Audit full trajectories (messages, tool calls, call logs, final state), not just the reward; classify misses as agent failure vs Harness/Environment/Verifier defect before using the score.
 - Task 1 build defects (all Environment/Verifier, fixed pre-score): query-agnostic stub let Q4 answer (fixed with declared ungrounded-stand-in condition → Gate 2); absent call-log entries must read as zero calls; `Task.md` mechanism wording updated to match.
+- Run local docker validation/calibration sequentially, not in parallel with other docker runs — parallel invocations intermittently fail to write Verifier output (seen twice; sequential reruns pass).
 
 ## Reusable scripts and assets
 
@@ -77,7 +79,8 @@ to this project.
 
 - `trap-refusal` (`evals/guardrails/tasks/trap-refusal/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 22/22 criteria). End-to-end refusal across 3 trap families + over-refusal control, frozen doubles, exact-match Verifier. Covers SCOPE.md §7 ship gate at the wiring level.
 - `boundary-precision` (`evals/guardrails/tasks/boundary-precision/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 17/17 criteria, job `evals/jobs/2026-09-08__01-28-16`). All 7 ALLOWED-family boundary questions answer with full happy-path call patterns. Together with trap-refusal, pins both sides of the refusal contract.
-- Gaps: cited-answer quality/faithfulness; guardrail near-miss edges (should-refuse phrasings near the boundary — Task 3 candidate); paraphrase-vs-exact-term retrieval; Ragas harness; latency/cost; Gate 3 (low-confidence refusal) has no Harbor coverage — FakeLLM is fixed at 0.9.
+- `nearmiss-refusal` (`evals/guardrails/tasks/nearmiss-refusal/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 24/24 criteria, job `evals/jobs/2026-09-08__02-18-04`). 7 near-miss traps refuse via Gate 0, each paired with a Task 2 lookalike (N↔B pair table in its Task.md). Completes the refusal trilogy.
+- Gaps: cited-answer quality/faithfulness; paraphrase-vs-exact-term retrieval; Ragas harness; latency/cost; Gate 3 (low-confidence refusal) has no Harbor coverage — FakeLLM is fixed at 0.9.
 
 ## Known limits and open questions
 

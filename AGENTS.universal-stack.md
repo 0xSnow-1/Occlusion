@@ -13,6 +13,7 @@ Keep a `STACK.md` next to it as the source of truth; this file is the inlined fa
 - Eval / observability: `ragas` + `pytest`, LangSmith tracing via env keys.
 - Backend: Pydantic v2 for all structured output; `fastapi` + `uvicorn` only when a service is needed; `psycopg[binary]` + `psycopg-pool` only with Postgres checkpointing.
 - Parsing: `pymupdf`, `pypdf`, `docling[chunking]`.
+- Chunking: `langchain-text-splitters` (`RecursiveCharacterTextSplitter`).
 - Dev: `pytest`, `ipython`.
 
 ## Rules for agents
