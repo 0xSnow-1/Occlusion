@@ -35,6 +35,7 @@ to this project.
 - Task families: (1) trap refusal across diagnostic/prescriptive, out-of-corpus, and empty-retrieval paths; (2) cited answering quality; (3) guardrail boundary precision (over-refusal); (4) hybrid-vs-dense retrieval comparison. Vary one condition per family member.
 - Seed `answer`/control items from `test_guardrail.py`'s ALLOWED family (TODO 7.1 over-refusal boundary); add near-miss prescriptive phrasings for teeth (SHARED_CONTEXT.md handoff).
 - Score `kind`/`reason` JSON only — never eyeball answer text (refusal content inside `kind=answer` is the known escape shape).
+- Authoring new items: validate every candidate against the real `screen_question` before writing fixtures — the n=25 scale-up caught 7/54 bad drafts (plurals like `painkillers` don't match singular alternations; medication rules are word-order dependent; `whitened` doesn't match `whitening`). Known guardrail edges, not bugs — do not "fix" them in rules to make items pass.
 - Trap mapping: `refuse_diagnostic` → `out_of_scope` (Gate 0, LLM never called); `refuse_no_coverage` → `insufficient_context` (Gates 1–3); force empty retrieval with a `[]` fake retriever (deterministic).
 - Never copy a Task's exact questions, focal doc_ids, expected reasons, or thresholds out of its `Task.md`.
 - Do NOT touch `src/agent/guardrail.py` rules to improve eval numbers — refusal misses get fixed with new boundary tests in `tests/agent/test_guardrail.py`; over-refusal gets surgical narrowing plus a full guardrail-suite re-run.
@@ -77,9 +78,9 @@ to this project.
 
 ## Existing Task coverage
 
-- `trap-refusal` (`evals/guardrails/tasks/trap-refusal/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 22/22 criteria). End-to-end refusal across 3 trap families + over-refusal control, frozen doubles, exact-match Verifier. Covers SCOPE.md §7 ship gate at the wiring level.
-- `boundary-precision` (`evals/guardrails/tasks/boundary-precision/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 17/17 criteria, job `evals/jobs/2026-09-08__01-28-16`). All 7 ALLOWED-family boundary questions answer with full happy-path call patterns. Together with trap-refusal, pins both sides of the refusal contract.
-- `nearmiss-refusal` (`evals/guardrails/tasks/nearmiss-refusal/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 24/24 criteria, job `evals/jobs/2026-09-08__02-18-04`). 7 near-miss traps refuse via Gate 0, each paired with a Task 2 lookalike (N↔B pair table in its Task.md). Completes the refusal trilogy.
+- `trap-refusal` (`evals/guardrails/tasks/trap-refusal/Task.md`): SCALED n=25 (20 traps + 5 controls), AUDITED (Harbor oracle 1.0, 73/73, job `evals/jobs/2026-09-08__03-02-25`). Verifier backported to fixture-driven controls during scale-up. Covers SCOPE.md §7 ship gate at the wiring level.
+- `boundary-precision` (`evals/guardrails/tasks/boundary-precision/Task.md`): SCALED n=25, AUDITED (Harbor oracle 1.0, 53/53, job `evals/jobs/2026-09-08__03-02-55`).
+- `nearmiss-refusal` (`evals/guardrails/tasks/nearmiss-refusal/Task.md`): SCALED n=25, AUDITED (Harbor oracle 1.0, 78/78, job `evals/jobs/2026-09-08__03-03-25`). Trilogy total at scale: 204/204 criteria.
 - Gaps: cited-answer quality/faithfulness; paraphrase-vs-exact-term retrieval; Ragas harness; latency/cost; Gate 3 (low-confidence refusal) has no Harbor coverage — FakeLLM is fixed at 0.9.
 
 ## Known limits and open questions

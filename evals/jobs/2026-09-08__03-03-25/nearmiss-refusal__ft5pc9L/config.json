@@ -1,0 +1,8 @@
+{
+    "task": {
+        "path": "evals/guardrails/tasks/nearmiss-refusal"
+    },
+    "trial_name": "nearmiss-refusal__ft5pc9L",
+    "trials_dir": "evals/jobs/2026-09-08__03-03-25",
+    "job_id": "c34450cc-4513-4781-a429-34b2b1d97edc"
+}

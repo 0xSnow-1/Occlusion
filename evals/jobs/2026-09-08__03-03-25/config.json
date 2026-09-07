@@ -1,0 +1,8 @@
+{
+    "jobs_dir": "evals/jobs",
+    "tasks": [
+        {
+            "path": "evals/guardrails/tasks/nearmiss-refusal"
+        }
+    ]
+}

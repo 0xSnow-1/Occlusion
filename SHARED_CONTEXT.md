@@ -37,6 +37,15 @@ behavior. Append as you discover things. Reviewed by a human before every merge.
 - Gotchas: thresholds' source of truth is `SCOPE.md` §6 — `SHIP_CRITERIA.md` (TODO 0.2) was never created; human decides where thresholds live. Dump `chunks_v1.jsonl` during ingest before Ragas runs (versioned snapshot, AGENTS.md artifact policy; `eval/results/*.json` is gitignored — reports go there). Baseline p95 latency BEFORE TODO 7.3 lands (retry loops will change it). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids.
 - Do NOT touch `src/agent/guardrail.py` rules to improve eval numbers. Refusal misses → fix guardrail WITH new boundary tests in `tests/agent/test_guardrail.py`. Over-refusal misses → surgical rule narrowing, re-run the whole guardrail suite (SCOPE §7: a missed refusal is a failed project regardless of every other number).
 
+## Eval roadmap (agreed with human 2026-09-08 — order matters, each step unlocks the next)
+
+1. Scale the refusal trilogy to n≈25 items per task (same frozen runner/verifier, more questions + fixture rows). Near-free, resume-grade counts.
+2. Live-model pass: wire the real Qdrant retriever + real Haiku into the runner, run all scaled items (~75). Unlocks Gate 3 (confidence) coverage. Est. <$1 (75 short calls; verifier needs no judge). Record the model ID + temperature (0) with the results.
+3. Golden set (TODO Phase 2): hand-written Q/A/source triples + adversarial items with `expected_behavior`. Prerequisite for any answer-quality claim.
+4. Ragas harness (TODO Phase 6): faithfulness / context precision / recall baseline on the golden set, judge model distinct from generator. This baseline is what all later improvements are measured against.
+5. Prompt optimization (TODO Phase 8): revise the system prompt ONLY here — each version gets a before/after Ragas number. Tuning earlier is unmeasurable (stand-in LLM ignores the prompt).
+6. Medical-tailored embedding swap: replace the general embedding model with a medical-domain one as a measured Phase-8-style improvement. Requires: human-approved model choice (new-dep rule in AGENTS.md — research candidates first), full re-ingest (new `chunks_vN` snapshot, never overwrite v1), re-run of retrieval comparison (Phase 4.4) AND the full Ragas + guardrail suites. Goes last because it invalidates every number measured before it; the payoff is a real before/after retrieval story.
+
 ## Open flags for human review
 - `<anything an agent wants a human to weigh in on before proceeding>`
 - The retrieval-pipeline code reached `main` (`08c64e4`) without ever passing the gate. Only the conflict fix (`fe764b2`, PR #4) is gate-validated. Decide whether the unreviewed portion needs a retroactive look.

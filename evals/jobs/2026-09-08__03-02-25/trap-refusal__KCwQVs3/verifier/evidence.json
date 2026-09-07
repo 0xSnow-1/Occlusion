@@ -1,0 +1,299 @@
+{
+  "pass": true,
+  "invalid": false,
+  "invalid_reason": null,
+  "criteria": {
+    "trap-reason-Q1": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q2": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q3": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q4": {
+      "pass": true,
+      "detail": "expected refusal/insufficient_context, got refusal/insufficient_context"
+    },
+    "trap-reason-Q5": {
+      "pass": true,
+      "detail": "expected refusal/insufficient_context, got refusal/insufficient_context"
+    },
+    "trap-reason-Q8": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q9": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q10": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q11": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q12": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q13": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q14": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q15": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q16": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q17": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q18": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q19": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q20": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q21": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q22": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "calls-Q1": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q2": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q3": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q4": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q4', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q5": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=0, got {'question_id': 'Q5', 'retriever_calls': 1, 'llm_calls': 0}"
+    },
+    "calls-Q6": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q6', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q7": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q7', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q8": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q9": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q10": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q11": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q12": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q13": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q14": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q15": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q16": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q17": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q18": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q19": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q20": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q21": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q22": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q23": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q23', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q24": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q24', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q25": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q25', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "control-Q6": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-Q7": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-Q23": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-Q24": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-Q25": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "refusal-message-Q1": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q2": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q3": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q4": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q5": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q8": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q9": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q10": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q11": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q12": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q13": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q14": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q15": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q16": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q17": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q18": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q19": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q20": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q21": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q22": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "source-clean-guardrail.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-graph.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-verify.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    }
+  }
+}

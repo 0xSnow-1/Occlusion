@@ -1,0 +1,219 @@
+{
+  "pass": true,
+  "invalid": false,
+  "invalid_reason": null,
+  "criteria": {
+    "calls-B1": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B1', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B2": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B2', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B3": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B3', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B4": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B4', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B5": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B5', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B6": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B6', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B7": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B7', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B8": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B8', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B9": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B9', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B10": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B10', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B11": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B11', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B12": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B12', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B13": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B13', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B14": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B14', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B15": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B15', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B16": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B16', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B17": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B17', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B18": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B18', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B19": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B19', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B20": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B20', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B21": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B21', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B22": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B22', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B23": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B23', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B24": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B24', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B25": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B25', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "control-B1": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B2": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B3": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B4": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B5": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B6": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B7": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B8": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B9": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B10": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B11": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B12": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B13": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B14": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B15": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B16": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B17": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B18": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B19": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B20": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B21": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B22": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B23": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B24": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B25": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "source-clean-guardrail.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-graph.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-verify.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    }
+  }
+}
