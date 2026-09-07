@@ -2,7 +2,7 @@
 
 ## Commands
 - Setup: `uv sync && cp sample.env .env` (fill keys; `.env` is gitignored — never commit it).
-- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py -q`
+- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py tests/agent/test_schemas.py -q`
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
 - Ingest pipeline: `uv run python -m src.ingest.ingestion_pipeline` (default corpus from `data/raw` plus the 11 `DEFAULT_HTML_URLS`, into on-disk Qdrant at `./data/qdrant_storage`)
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
