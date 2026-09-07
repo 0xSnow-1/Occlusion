@@ -3,6 +3,13 @@
 (Read this before touching shared code or assuming another subsystem's
 behavior. Append as you discover things. Reviewed by a human before every merge.)
 
+## Current pointer (2026-09-08 — start here in a fresh session)
+
+Refusal trilogy complete and audited at n=25 (204/204 Harbor oracle criteria).
+Next: roadmap step 2, the live-model pass (real Qdrant retriever + real Haiku
+over all 75 items, est. <$1). Read `.agents/skills/occlusion-world/SKILL.md`
+and the eval roadmap below before proposing anything.
+
 ## Interface contracts in flux
 - `<file/module>`: `<what changed, who needs to know>`
 - `src/ingest/chunking_and_embedding.py` -> `src/ingest/vector_store.py`: chunks must arrive unembedded; embedding happens at upsert time via fastembed (`models.Document`). Anyone touching chunking or the vector store needs to know.
