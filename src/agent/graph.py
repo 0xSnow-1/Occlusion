@@ -72,6 +72,10 @@ def _route_after_guardrail(state: AgentState) -> str:
 def _generate_node(llm):
     """Generate node: builds prompt with [SRC:doc_id] anchors and calls LLM."""
     def generate_node(state: AgentState) -> dict:
+        # If no chunks, return empty update (handled by decide node)
+        if not state["fused_chunks"]:
+            return {}
+        
         # Build prompt with [SRC:doc_id] anchored chunks from the versioned
         # template in prompts/ (TODO 5.2). A missing template is a broken
         # install, not a runtime hiccup — let the error surface loudly
