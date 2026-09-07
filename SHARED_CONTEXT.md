@@ -7,7 +7,7 @@ behavior. Append as you discover things. Reviewed by a human before every merge.
 - `<file/module>`: `<what changed, who needs to know>`
 - `src/ingest/chunking_and_embedding.py` -> `src/ingest/vector_store.py`: chunks must arrive unembedded; embedding happens at upsert time via fastembed (`models.Document`). Anyone touching chunking or the vector store needs to know.
 - `src/retrieve/__init__.py`: exposes `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`. The agent graph (Phase 5) will build on these; do not rename without updating this file.
-- `src/agent/schemas.py`: `RetrievedChunk` is shared by fusion and the graph; `Answer` vs `Refusal` discriminated union on `kind`. Still settling as the agent phase is built.
+- `src/agent/schemas.py` + `src/agent/state.py`: implemented and pinned by tests (Phase 5.1); the contracts now live authoritatively in `AGENTS.md`.
 
 ## Learnings
 - `<branch/date>`: `<what was discovered, why it matters to other agents>`

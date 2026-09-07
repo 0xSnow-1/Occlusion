@@ -64,8 +64,9 @@ was settled in step 1.
 - **Reciprocal Rank Fusion** merges both result lists by *rank*, not raw score —
   cosine and BM25 scores live on incompatible scales, so rank-based fusion is the
   reliable way to combine them.
-- The RAG agent generates an answer constrained by the **MedicalAnswer** Pydantic
-  schema: `{ answer, citation[], confidence }`.
+- The RAG agent generates an answer constrained by the **`Answer`** Pydantic schema
+  (`src/agent/schemas.py`, discriminated from `Refusal` on `kind`):
+  `{ answer, citations[], confidence }`.
 
 **Step 4 — Validation node (deterministic code, not an LLM).** Mechanical checks:
 schema valid · every cited doc_id actually exists in the retrieved set ·
