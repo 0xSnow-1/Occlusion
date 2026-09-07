@@ -70,13 +70,14 @@ to this project.
 
 ## Reusable scripts and assets
 
-- `evals/guardrails/tasks/trap-refusal/environment/run_batch.py` (proven Task 1): stub retriever (fixed chunks; per-question `[]` override) + FakeLLM (grounded answer; per-question ungrounded override) + per-question retriever/LLM call logging to `/logs/calls.jsonl`. Reuse for refusal/answering Tasks with frozen doubles. Does not prove answer quality — controls check `kind` only.
-- Verifier pattern (proven Task 1, `tests/verify_refusal.py`): exact `kind`/`reason` per trap item; full call-pattern match (missing log entry = zero calls); control items `kind=answer`; dentist-consult text on refusals; sha256 source-clean check (edits = invalid, reward 0); always write `/logs/verifier/reward.txt` + `evidence.json`, exit 0.
+- `evals/guardrails/tasks/trap-refusal/environment/run_batch.py` (proven Task 1, reused byte-identical in Task 2 — diff empty): stub retriever (fixed chunks; per-question `[]` override) + FakeLLM (grounded answer; per-question ungrounded override) + per-question retriever/LLM call logging to `/logs/calls.jsonl`. Reuse for refusal/answering Tasks with frozen doubles. Does not prove answer quality — controls check `kind` only.
+- Verifier pattern (proven Task 1, generalized Task 2 in `tests/verify_boundary.py`): exact `kind`/`reason` per trap item; full call-pattern match (missing log entry = zero calls); controls derived from fixtures (every `answer` row), not hard-coded ids; dentist-consult text on refusals; sha256 source-clean check (edits = invalid, reward 0); always write `/logs/verifier/reward.txt` + `evidence.json`, exit 0. New tasks: copy the Task 2 verifier, not Task 1's.
 
 ## Existing Task coverage
 
 - `trap-refusal` (`evals/guardrails/tasks/trap-refusal/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 22/22 criteria). End-to-end refusal across 3 trap families + over-refusal control, frozen doubles, exact-match Verifier. Covers SCOPE.md §7 ship gate at the wiring level.
-- Gaps: cited-answer quality/faithfulness; guardrail near-miss edges; paraphrase-vs-exact-term retrieval; Ragas harness; latency/cost; Gate 3 (low-confidence refusal) has no Harbor coverage — FakeLLM is fixed at 0.9.
+- `boundary-precision` (`evals/guardrails/tasks/boundary-precision/Task.md`): BUILT + AUDITED (Harbor oracle 1.0, 17/17 criteria, job `evals/jobs/2026-09-08__01-28-16`). All 7 ALLOWED-family boundary questions answer with full happy-path call patterns. Together with trap-refusal, pins both sides of the refusal contract.
+- Gaps: cited-answer quality/faithfulness; guardrail near-miss edges (should-refuse phrasings near the boundary — Task 3 candidate); paraphrase-vs-exact-term retrieval; Ragas harness; latency/cost; Gate 3 (low-confidence refusal) has no Harbor coverage — FakeLLM is fixed at 0.9.
 
 ## Known limits and open questions
 
