@@ -2,7 +2,7 @@
 
 ## Commands
 - Setup: `uv sync && cp sample.env .env` (fill keys; `.env` is gitignored — never commit it).
-- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py tests/agent/test_schemas.py -q`
+- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q`
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
 - Ingest pipeline: `uv run python -m src.ingest.ingestion_pipeline` (default corpus from `data/raw` plus the 11 `DEFAULT_HTML_URLS`, into on-disk Qdrant at `./data/qdrant_storage`)
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
@@ -19,7 +19,11 @@
 - `src/retrieve/` — implemented: `base.py` (Qdrant points → `RetrievedChunk`), `dense.py` (cosine top_k 20), `sparse.py` (BM25 top_k 20), `hybrid.py` (prefetch 20+20, server RRF, client-side fallback), `__init__.py` (exports `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`).
 - `src/agent/schemas.py` — implemented (Phase 5.1): `RetrievedChunk`, `Answer` (`kind`, non-empty `answer`, `citations: list[str]`, `confidence` 0–1), `Refusal` (`RefusalReason` str enum `insufficient_context`/`out_of_scope`, default patient-safe message), `CitationCheck` (fail-closed defaults), `AgentOutput` (discriminated union on `kind`).
 - `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`), default overwrite semantics (deliberately no reducers).
-- `src/agent/{graph,verify,prompts,agents}.py` — **empty stubs**. The tests under `tests/agent/` are the spec: implement to match them.
+- `src/agent/graph.py` — implemented (Phase 5.3): LangGraph wiring (guardrail, retrieve, generate, verify, decide nodes; conditional edges for flagged/empty paths).
+- `src/agent/verify.py` — implemented: `verify_citations` checks inline `[SRC:doc_id]` tokens against retrieved chunk IDs; fail-closed on zero citations or fabricated IDs.
+- `src/agent/prompts.py` — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks.
+- `src/agent/guardrail.py` — implemented (Phase 7.2): `screen_question` deterministic regex-based scope gate returning `GuardrailDecision(allowed, rule)`.
+- `src/agent/agents.py` — **empty stub**. Reserved for future multi-agent orchestration.
 - `src/eval/` — empty, planned per TODO phases.
 
 ## Contracts the tests pin (don't reinvent)
@@ -29,7 +33,7 @@
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/test_graph.py` and `test_verify.py` currently FAIL with `ImportError` (`graph.py` / `verify.py` stubs) — expected. `tests/agent/test_schemas.py` (11) and `test_fusion.py` are green; ingest + retrieve + schemas + fusion is 54 offline tests. Chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_guardrail.py` (4), `test_graph.py` (4), `test_verify.py` (6), `test_schemas.py` (10), `test_fusion.py` (4) — 28 agent tests, all green. Total offline suite is 93 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
