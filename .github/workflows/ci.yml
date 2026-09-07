@@ -14,4 +14,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: uv sync
-      - run: uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py -q
+      - run: uv run pytest tests/ingest/ tests/retrieve/ tests/agent/test_fusion.py tests/agent/test_schemas.py -q
