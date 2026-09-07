@@ -14,17 +14,25 @@ break the exact-equality contract in tests/agent/test_graph.py. If a
 future chat-history field ever arrives, that field — and only that one —
 gets `Annotated[list, operator.add]`.
 
-Flow: `question` → retrieve node writes `fused_chunks` → generate node
-writes `candidate` (a validated `Answer`) → verify node writes
-`citation_check` → routing writes `response` (an `Answer` or a
-`Refusal`). Consumers (UI, eval harness) read exactly `response`.
+Flow: `question` → guardrail node writes `guardrail` (flag → decide writes
+a terminal `Refusal`, LLM never called) → retrieve node writes
+`fused_chunks` → generate node writes `candidate` (a validated `Answer`) →
+verify node writes `citation_check` → routing writes `response` (an
+`Answer` or a `Refusal`). Consumers (UI, eval harness) read exactly
+`response`.
 """
 
 from __future__ import annotations
 
 from typing import TypedDict
 
-from src.agent.schemas import Answer, CitationCheck, Refusal, RetrievedChunk
+from src.agent.schemas import (
+    Answer,
+    CitationCheck,
+    GuardrailDecision,
+    Refusal,
+    RetrievedChunk,
+)
 
 
 class AgentState(TypedDict):
@@ -32,6 +40,9 @@ class AgentState(TypedDict):
 
     question: str
     """The user's dental question. Input only; never rewritten."""
+
+    guardrail: GuardrailDecision
+    """Deterministic pre-LLM scope check (TODO 7.2). Flagged → refuse, END."""
 
     fused_chunks: list[RetrievedChunk]
     """RRF-fused retrieval results, best first. Empty → refuse (fail closed)."""
