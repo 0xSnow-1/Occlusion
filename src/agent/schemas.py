@@ -96,6 +96,19 @@ AgentOutput = Annotated[Answer | Refusal, Field(discriminator="kind")]
 future API layer depend on this round-tripping both members."""
 
 
+class GuardrailDecision(BaseModel):
+    """Outcome of the deterministic pre-LLM guardrail (TODO 7.2).
+
+    Produced by `src/agent/guardrail.py`, never by the LLM. Defaults are
+    fail-closed: a bare `GuardrailDecision()` is NOT allowed, mirroring
+    `CitationCheck`.
+    """
+
+    allowed: bool = False
+    rule: str | None = None
+    """Which guardrail rule fired (None when allowed) — for logs and eval."""
+
+
 class CitationCheck(BaseModel):
     """Result of verifying inline `[SRC:doc_id]` tokens (TODO 5.4).
 
@@ -116,6 +129,7 @@ __all__ = [
     "AgentOutput",
     "Answer",
     "CitationCheck",
+    "GuardrailDecision",
     "Refusal",
     "RefusalReason",
     "RetrievedChunk",
