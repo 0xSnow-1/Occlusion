@@ -13,7 +13,8 @@ adversarial, schema-validated in `src/eval/golden.py`). Ragas baseline
 faithfulness 0.9304, relevancy 0.8938, precision 0.7952 (20 items < 0.75 —
 retrieval-ranking backlog), recall 0.9191. Next: roadmap step 5 (prompt
 optimization) — each prompt version gets a before/after Ragas number.
-Pending human approvals: `live-model-refusal/Task.md` spec (Draft),
+Approved by human 2026-09-08: `live-model-refusal/Task.md` spec (Draft →
+Approved, oracle baseline 192/202, job `2026-09-08__07-51-31`) and the
 occlusion-world skill updates. Read `.agents/skills/occlusion-world/SKILL.md`
 and the eval roadmap below before proposing anything.
 
@@ -48,7 +49,7 @@ and the eval roadmap below before proposing anything.
 - `features/graph` / 2026-09-06: Branch state at handoff: 93/93 tests (54 agent incl. 29 guardrail + 39 ingest/retrieve), CI pytest line runs `tests/agent/` in full. Graph contract above is stable — build the harness against `build_graph(retriever, llm, confidence_threshold)` and the fake-LLM patterns in `tests/agent/test_graph.py` (offline scoring, zero API cost).
 - Scoring notes: trap items expect `kind=refusal` AND the right `reason` — `refuse_diagnostic` → `out_of_scope` (guardrail fires pre-LLM, Gate 0), `refuse_no_coverage` → `insufficient_context` (Gates 1–3). Empty-retrieval cases are best forced with a fake retriever returning `[]` (deterministic — the real corpus may still hit chunks). Score `kind`/`reason` only — the JSON is ground truth, never eyeball answer text.
 - Golden set: seed the `answer` items from `tests/agent/test_guardrail.py`'s ALLOWED family (they pin the over-refusal boundary TODO 7.1 requires measuring) and add near-miss prescriptive phrasings the guardrail regex might slip — those are the eval's real teeth. Every adversarial item needs a `SCOPE.md` §5 line as its justification (TODO 2.2 rule).
-- Gotchas: thresholds' source of truth is `SCOPE.md` §6 — `SHIP_CRITERIA.md` (TODO 0.2) was never created; human decides where thresholds live. Ragas code + reports live together in `src/eval/ragas/` (runner, vertexai-shim, `results/` — reports are versioned and committable, NOT gitignored, per human decision 2026-09-08). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids. Baseline p95 latency BEFORE TODO 7.3 lands (retry loops will change it). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids.
+- Gotchas: thresholds' source of truth is `SCOPE.md` §6 — `SHIP_CRITERIA.md` (TODO 0.2) was never created; human decides where thresholds live. Ragas code + reports live together in `src/eval/ragas/` (runner, vertexai-shim, `results/` — reports are versioned and committable, NOT gitignored, per human decision 2026-09-08). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids. Baseline p95 latency BEFORE TODO 7.3 lands (retry loops will change it).
 - Do NOT touch `src/agent/guardrail.py` rules to improve eval numbers. Refusal misses → fix guardrail WITH new boundary tests in `tests/agent/test_guardrail.py`. Over-refusal misses → surgical rule narrowing, re-run the whole guardrail suite (SCOPE §7: a missed refusal is a failed project regardless of every other number).
 
 ## Eval roadmap (agreed with human 2026-09-08 — order matters, each step unlocks the next)
