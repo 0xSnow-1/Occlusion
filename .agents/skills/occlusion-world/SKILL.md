@@ -52,7 +52,7 @@ to this project.
 
 - Golden set v1 exists: `data/golden_set_v1.jsonl` (78 items, 70 answer + 8 refuse) doc_ids checked against the frozen retrieval snapshot. Schema and loader live in `src/eval/golden.py`. Focal questions also live per-Task in `environment/questions.jsonl` (text only, no expected results). Frozen retrieval snapshot: `evals/guardrails/tasks/live-model-refusal/environment/chunks_v1.jsonl` (120 chunks, post-2026-09-08 full re-ingest).
 - VERIFIED 2026-09-08: `source_url` is populated on 0/120 snapshot payloads (PDFs carry `file_path`, HTML carries neither) — `RetrievedChunk.source_url` is None live. Product gap for later (citations can't link out); no eval scores it today.
-- When the golden set lands: version it (`golden_set_v1.jsonl`), validate `doc_id`s against `chunks_v1.jsonl`, and keep `expected_behavior` (`refuse_diagnostic` / `refuse_no_coverage` / `answer`) per item.
+- Golden set is versioned at `data/golden_set_v1.jsonl` (78 items). Cut a v2 for new items; never overwrite v1. All 14 answering doc_ids are validated against the frozen retrieval snapshot at `evals/guardrails/tasks/live-model-refusal/environment/chunks_v1.jsonl` (120 chunks, 15 doc_ids).
 
 ## Verification guidance
 
