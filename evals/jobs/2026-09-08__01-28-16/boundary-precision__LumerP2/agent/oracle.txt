@@ -1,0 +1,43 @@
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is a root canal — my dentist says I might need one?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is a root canal — my dentist says I might nee...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B1 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What are the symptoms of tooth decay?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What are the symptoms of tooth decay?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B2 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Is it normal for gums to bleed a little when you start floss
+INFO:src.agent.graph:Retrieved 2 chunks for question: Is it normal for gums to bleed a little when you s...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B3 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is the difference between ibuprofen and paracetamol for
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is the difference between ibuprofen and parac...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B4 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Why might a dentist prescribe antibiotics before treatment?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Why might a dentist prescribe antibiotics before t...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B5 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Do I have to avoid eating after a filling?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Do I have to avoid eating after a filling?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B6 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How long does a root canal take?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How long does a root canal take?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B7 -> kind=answer
+INFO:__main__:Wrote 7 responses to /logs/responses.jsonl

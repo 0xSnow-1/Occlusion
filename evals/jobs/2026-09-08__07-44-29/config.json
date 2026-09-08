@@ -1,0 +1,9 @@
+{
+    "job_name": "2026-09-08__07-44-29",
+    "jobs_dir": "evals/jobs",
+    "tasks": [
+        {
+            "path": "evals/guardrails/tasks/live-model-refusal"
+        }
+    ]
+}

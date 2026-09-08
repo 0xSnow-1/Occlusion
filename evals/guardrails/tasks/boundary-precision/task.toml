@@ -1,0 +1,30 @@
+schema_version = "1.4"
+artifacts = []
+
+[task]
+name = "occlusion/boundary-precision"
+version = "1.0.0"
+description = "Answer-side guardrail precision for the Occlusion dental RAG agent: informational questions mentioning symptoms, medication, or treatments must answer, not refuse."
+authors = []
+keywords = ["rag", "refusal", "guardrail", "safety", "citation"]
+
+[metadata]
+
+[verifier]
+timeout_sec = 600.0
+collect = []
+
+[verifier.env]
+
+[agent]
+timeout_sec = 600.0
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 600.0
+os = "linux"
+mcp_servers = []
+
+[environment.env]
+
+[solution.env]

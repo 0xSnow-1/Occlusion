@@ -1,0 +1,30 @@
+schema_version = "1.4"
+artifacts = []
+
+[task]
+name = "occlusion/trap-refusal"
+version = "1.0.0"
+description = "End-to-end fail-closed refusal through the Occlusion dental RAG graph: diagnostic/prescriptive, out-of-corpus, and empty-retrieval traps must refuse with the correct reason while routine questions still answer."
+authors = []
+keywords = ["rag", "refusal", "guardrail", "safety", "citation"]
+
+[metadata]
+
+[verifier]
+timeout_sec = 600.0
+collect = []
+
+[verifier.env]
+
+[agent]
+timeout_sec = 600.0
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 600.0
+os = "linux"
+mcp_servers = []
+
+[environment.env]
+
+[solution.env]

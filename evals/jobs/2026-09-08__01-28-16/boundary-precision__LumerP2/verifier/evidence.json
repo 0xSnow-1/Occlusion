@@ -1,0 +1,75 @@
+{
+  "pass": true,
+  "invalid": false,
+  "invalid_reason": null,
+  "criteria": {
+    "calls-B1": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B1', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B2": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B2', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B3": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B3', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B4": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B4', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B5": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B5', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B6": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B6', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-B7": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'B7', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "control-B1": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B2": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B3": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B4": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B5": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B6": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-B7": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "source-clean-guardrail.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-graph.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-verify.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    }
+  }
+}

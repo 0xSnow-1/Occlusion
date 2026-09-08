@@ -1,0 +1,8 @@
+{
+    "task": {
+        "path": "evals/guardrails/tasks/boundary-precision"
+    },
+    "trial_name": "boundary-precision__LumerP2",
+    "trials_dir": "evals/jobs/2026-09-08__01-28-16",
+    "job_id": "9876c957-5ffa-4cd8-a022-6369613b5e4c"
+}

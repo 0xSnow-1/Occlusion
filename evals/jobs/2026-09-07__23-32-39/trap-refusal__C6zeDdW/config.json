@@ -1,0 +1,8 @@
+{
+    "task": {
+        "path": "evals/guardrails/tasks/trap-refusal"
+    },
+    "trial_name": "trap-refusal__C6zeDdW",
+    "trials_dir": "evals/jobs/2026-09-07__23-32-39",
+    "job_id": "9752dd38-5f45-4fcb-be18-9046deeb19a4"
+}

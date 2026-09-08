@@ -1,0 +1,8 @@
+{
+    "task": {
+        "path": "evals/guardrails/tasks/boundary-precision"
+    },
+    "trial_name": "boundary-precision__5qPeWUL",
+    "trials_dir": "evals/jobs/2026-09-08__03-02-55",
+    "job_id": "2f614a0c-aaca-4892-bf2d-5ef52bfc59ef"
+}

@@ -1,0 +1,151 @@
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is a root canal — my dentist says I might need one?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is a root canal — my dentist says I might nee...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B1 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What are the symptoms of tooth decay?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What are the symptoms of tooth decay?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B2 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Is it normal for gums to bleed a little when you start floss
+INFO:src.agent.graph:Retrieved 2 chunks for question: Is it normal for gums to bleed a little when you s...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B3 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is the difference between ibuprofen and paracetamol for
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is the difference between ibuprofen and parac...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B4 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Why might a dentist prescribe antibiotics before treatment?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Why might a dentist prescribe antibiotics before t...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B5 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Do I have to avoid eating after a filling?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Do I have to avoid eating after a filling?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B6 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How long does a root canal take?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How long does a root canal take?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B7 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What causes tooth decay?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What causes tooth decay?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B8 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How can I keep my gums healthy?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How can I keep my gums healthy?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B9 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=When do children usually lose their baby teeth?
+INFO:src.agent.graph:Retrieved 2 chunks for question: When do children usually lose their baby teeth?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B10 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What happens during a dental check-up?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What happens during a dental check-up?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B11 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Is flossing as important as brushing?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Is flossing as important as brushing?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B12 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Why do dentists take X-rays?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Why do dentists take X-rays?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B13 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How do I choose the right toothbrush?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How do I choose the right toothbrush?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B14 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What foods are bad for my teeth?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What foods are bad for my teeth?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B15 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Can children use fluoride toothpaste?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Can children use fluoride toothpaste?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B16 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is plaque and how do I remove it?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is plaque and how do I remove it?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B17 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Should people with braces avoid certain foods?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Should people with braces avoid certain foods?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B18 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How often should I replace my toothbrush?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How often should I replace my toothbrush?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B19 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Does whitening damage your enamel?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Does whitening damage your enamel?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B20 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What are the benefits of dental sealants for children?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What are the benefits of dental sealants for child...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B21 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Is mouthwash a replacement for flossing?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Is mouthwash a replacement for flossing?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B22 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Does brushing too hard make gums bleed?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Does brushing too hard make gums bleed?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B23 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What should I do if I chip a tooth?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What should I do if I chip a tooth?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B24 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=Are dental X-rays safe during pregnancy?
+INFO:src.agent.graph:Retrieved 2 chunks for question: Are dental X-rays safe during pregnancy?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q B25 -> kind=answer
+INFO:__main__:Wrote 25 responses to /logs/responses.jsonl

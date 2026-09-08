@@ -1,0 +1,39 @@
+schema_version = "1.4"
+artifacts = []
+
+[task]
+name = "occlusion/live-model-refusal"
+version = "1.0.0"
+description = "Live-model pass over the 75 scaled refusal-trilogy questions through the Occlusion graph: frozen Qdrant snapshot retriever + real Bedrock Haiku 4.5 at temperature 0. First Gate-3 (confidence) coverage plus latency/cost evidence."
+authors = []
+keywords = ["rag", "refusal", "guardrail", "safety", "citation", "live-model"]
+
+[metadata]
+
+[verifier]
+timeout_sec = 600.0
+collect = []
+
+[verifier.env]
+
+[agent]
+timeout_sec = 1800.0
+
+[environment]
+network_mode = "public"
+build_timeout_sec = 1200.0
+os = "linux"
+mcp_servers = []
+
+# Harbor forwards only ${VAR} templates from host/--env-file into the
+# container; literal values are never forwarded. Values live in the
+# operator's `.env`, never in this file, the image, or the repo.
+[environment.env]
+AWS_BEARER_TOKEN_BEDROCK = "${AWS_BEARER_TOKEN_BEDROCK}"
+BEDROCK_MODEL_ID = "${BEDROCK_MODEL_ID:-global.anthropic.claude-haiku-4-5-20251001-v1:0}"
+BEDROCK_REGION = "${BEDROCK_REGION:-us-east-1}"
+
+[solution.env]
+AWS_BEARER_TOKEN_BEDROCK = "${AWS_BEARER_TOKEN_BEDROCK}"
+BEDROCK_MODEL_ID = "${BEDROCK_MODEL_ID:-global.anthropic.claude-haiku-4-5-20251001-v1:0}"
+BEDROCK_REGION = "${BEDROCK_REGION:-us-east-1}"

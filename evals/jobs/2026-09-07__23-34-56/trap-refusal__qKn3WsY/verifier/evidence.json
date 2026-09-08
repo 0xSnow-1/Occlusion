@@ -1,0 +1,95 @@
+{
+  "pass": true,
+  "invalid": false,
+  "invalid_reason": null,
+  "criteria": {
+    "trap-reason-Q1": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q2": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q3": {
+      "pass": true,
+      "detail": "expected refusal/out_of_scope, got refusal/out_of_scope"
+    },
+    "trap-reason-Q4": {
+      "pass": true,
+      "detail": "expected refusal/insufficient_context, got refusal/insufficient_context"
+    },
+    "trap-reason-Q5": {
+      "pass": true,
+      "detail": "expected refusal/insufficient_context, got refusal/insufficient_context"
+    },
+    "calls-Q1": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q2": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q3": {
+      "pass": true,
+      "detail": "expected retriever=0 llm=0, got {'retriever_calls': 0, 'llm_calls': 0}"
+    },
+    "calls-Q4": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q4', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q5": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=0, got {'question_id': 'Q5', 'retriever_calls': 1, 'llm_calls': 0}"
+    },
+    "calls-Q6": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q6', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "calls-Q7": {
+      "pass": true,
+      "detail": "expected retriever=1 llm=1, got {'question_id': 'Q7', 'retriever_calls': 1, 'llm_calls': 1}"
+    },
+    "control-Q6": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "control-Q7": {
+      "pass": true,
+      "detail": "expected kind=answer, got answer"
+    },
+    "refusal-message-Q1": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q2": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q3": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q4": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "refusal-message-Q5": {
+      "pass": true,
+      "detail": "default dentist-consult message present"
+    },
+    "source-clean-guardrail.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-graph.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    },
+    "source-clean-verify.py": {
+      "pass": true,
+      "detail": "hash matches pinned revision"
+    }
+  }
+}

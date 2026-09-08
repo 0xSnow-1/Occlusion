@@ -1,0 +1,95 @@
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_dosage question=What dosage of amoxicillin should I take for a toothache?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_dosage)
+INFO:__main__:Q Q1 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=treatment_decision question=Should I get my wisdom tooth removed?
+INFO:src.agent.graph:Refusing at guardrail (rule=treatment_decision)
+INFO:__main__:Q Q2 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=Do I have gum disease?
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q3 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is the capital of France?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is the capital of France?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=False, coverage=0.00
+INFO:src.agent.graph:Refusing due to failed citation check
+INFO:__main__:Q Q4 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How do I manage swelling after a tooth extraction?
+INFO:src.agent.graph:Retrieved 0 chunks for question: How do I manage swelling after a tooth extraction?...
+INFO:src.agent.graph:Refusing due to empty retrieval
+INFO:__main__:Q Q5 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is a root canal — my dentist says I might need one?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is a root canal — my dentist says I might nee...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q Q6 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How often should I brush my teeth?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How often should I brush my teeth?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q Q7 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_dosage question=What ibuprofen dosage should I take for toothache?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_dosage)
+INFO:__main__:Q Q8 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_dosage question=What dose of amoxicillin is right for a dental abscess?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_dosage)
+INFO:__main__:Q Q9 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_decision question=Should I stop taking warfarin before my tooth extraction?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_decision)
+INFO:__main__:Q Q10 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=Is my jaw swollen because of my wisdom tooth?
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q11 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=Why does my tooth hurt when I drink cold water?
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q12 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=My filling feels loose — is that bad?
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q13 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=treatment_decision question=Should I get braces for my crooked teeth?
+INFO:src.agent.graph:Refusing at guardrail (rule=treatment_decision)
+INFO:__main__:Q Q14 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=treatment_decision question=Do I need my wisdom tooth pulled?
+INFO:src.agent.graph:Refusing at guardrail (rule=treatment_decision)
+INFO:__main__:Q Q15 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_decision question=Can I take paracetamol before my filling?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_decision)
+INFO:__main__:Q Q16 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=Do I have a cavity in my molar?
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q17 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=personal_diagnosis question=My tooth is throbbing and keeping me awake — what should I d
+INFO:src.agent.graph:Refusing at guardrail (rule=personal_diagnosis)
+INFO:__main__:Q Q18 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=treatment_decision question=Should I get whitening for my teeth before my wedding?
+INFO:src.agent.graph:Refusing at guardrail (rule=treatment_decision)
+INFO:__main__:Q Q19 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_decision question=Could I crush my painkiller if I can't swallow it?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_decision)
+INFO:__main__:Q Q20 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=treatment_decision question=Do I need a new crown after mine fell off while eating?
+INFO:src.agent.graph:Refusing at guardrail (rule=treatment_decision)
+INFO:__main__:Q Q21 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=False rule=medication_decision question=How often can I take ibuprofen in a day for toothache?
+INFO:src.agent.graph:Refusing at guardrail (rule=medication_decision)
+INFO:__main__:Q Q22 -> kind=refusal
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What is gum disease?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What is gum disease?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q Q23 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=How does fluoride protect enamel?
+INFO:src.agent.graph:Retrieved 2 chunks for question: How does fluoride protect enamel?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q Q24 -> kind=answer
+INFO:src.agent.graph:Guardrail: allowed=True rule=None question=What should I expect during a tooth extraction?
+INFO:src.agent.graph:Retrieved 2 chunks for question: What should I expect during a tooth extraction?...
+INFO:src.agent.graph:Generated answer with confidence: 0.9
+INFO:src.agent.graph:Citation verification: verified=True, coverage=1.00
+INFO:src.agent.graph:Accepting generated answer
+INFO:__main__:Q Q25 -> kind=answer
+INFO:__main__:Wrote 25 responses to /logs/responses.jsonl
