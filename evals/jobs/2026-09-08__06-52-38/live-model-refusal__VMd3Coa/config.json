@@ -1,0 +1,8 @@
+{
+    "task": {
+        "path": "evals/guardrails/tasks/live-model-refusal"
+    },
+    "trial_name": "live-model-refusal__VMd3Coa",
+    "trials_dir": "evals/jobs/2026-09-08__06-52-38",
+    "job_id": "9f766473-8ab7-4339-8aa0-4e61af0f0e27"
+}

@@ -5,9 +5,16 @@ behavior. Append as you discover things. Reviewed by a human before every merge.
 
 ## Current pointer (2026-09-08 — start here in a fresh session)
 
-Refusal trilogy complete and audited at n=25 (204/204 Harbor oracle criteria).
-Next: roadmap step 2, the live-model pass (real Qdrant retriever + real Haiku
-over all 75 items, est. <$1). Read `.agents/skills/occlusion-world/SKILL.md`
+Roadmap steps 2–4 BASELINED. Live-model pass: `live-model-refusal` 192/202
+(all 44 refusal-side pass; 10 boundary over-refusals: 5× Gate-2 no-citation,
+5× Gate-3 low-conf). Golden set: `data/golden_set_v1.jsonl` (70 answer + 8
+adversarial, schema-validated in `src/eval/golden.py`). Ragas baseline
+(`eval/results/ragas_baseline_v1.json`, Haiku generator + Sonnet judge):
+faithfulness 0.9304, relevancy 0.8938, precision 0.7952 (20 items < 0.75 —
+retrieval-ranking backlog), recall 0.9191. Next: roadmap step 5 (prompt
+optimization) — each prompt version gets a before/after Ragas number.
+Pending human approvals: `live-model-refusal/Task.md` spec (Draft),
+occlusion-world skill updates. Read `.agents/skills/occlusion-world/SKILL.md`
 and the eval roadmap below before proposing anything.
 
 ## Interface contracts in flux
