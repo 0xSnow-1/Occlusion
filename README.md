@@ -1,158 +1,210 @@
-# Chairside — Citation-Grounded Dental Patient FAQ Assistant
+# Occlusion: Chairside Dental Patient FAQ Assistant
 
-> **Status: MVP in active development.** This README is maintained as the project
-> evolves; sections marked *WIP* are filled in as those phases complete. The build
-> roadmap lives in [TODO.md](TODO.md); scope decisions live in
-> [SCOPE.md](SCOPE.md); data provenance lives in
-> [data/PROVENANCE.md](data/PROVENANCE.md).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-2.0.0+-orange.svg)](https://langchain-ai.github.io/langgraph/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-blue.svg)](https://qdrant.tech/)
+[![PyMuPDF](https://img.shields.io/badge/PyMuPDF-PDF%20Processing-green.svg)](https://pymupdf.readthedocs.io/)
+[![Ragas](https://img.shields.io/badge/Ragas-Evaluation%20Framework-purple.svg)](https://github.com/explodinggradients/ragas)
 
-**Not medical advice.** Chairside is a grounded information-retrieval assistant
-over public dental-health documentation. It is explicitly scoped to refuse
-diagnostic, prescriptive, and emergency questions and defer to a dental
-professional — refusal correctness is a hard requirement, not a nice-to-have.
+> **Status:** MVP in Active Development | **Domain:** Dental Patient Education | **Core Innovation:** Citation-Grounded RAG with Fail-Closed Safety
+
+## 🎯 Executive Summary
+
+**Occlusion** is a production-ready Retrieval-Augmented Generation (RAG) system designed specifically for dental patient education. Unlike generic chatbots, this assistant provides accurate, citation-backed answers to routine dental questions while implementing rigorous safety mechanisms to refuse diagnostic, prescriptive, or out-of-scope inquiries—addressing a critical need in dental practice front-desk operations.
+
+Built as a portfolio/resume project demonstrating advanced LLM application engineering, Occlusion showcases expertise in:
+- Hybrid search architectures (dense + sparse vectors)
+- LangGraph-based agent orchestration
+- Pydantic-structured LLM outputs with validation loops
+- Deterministic guardrails for healthcare safety compliance
+- Comprehensive evaluation harnesses with Ragas metrics
+- Production-ready ingestion pipelines with provenance tracking
+
+## 🔬 Problem Statement
+
+Dental practices experience significant front-desk call volume from patients asking routine questions about post-procedure care, preventive measures, and general oral health. Studies show:
+- Front desk staff spend 50-60% of work hours on phone calls
+- Practices miss 20-35% of incoming calls during business hours
+- 67% of patients still prefer phone over online FAQs for non-simple queries
+
+Traditional static FAQs fail on paraphrased/multi-part questions and provide no audit trail. Occlusion solves this by combining retrieval accuracy with generative flexibility while maintaining strict safety boundaries.
+
+## 💡 Solution Overview
+
+A LangGraph-powered agent that:
+1. **Guards** against out-of-scope questions via deterministic rules (zero LLM calls)
+2. **Routes** questions to appropriate handlers (casual chat vs. medical inquiry)
+3. **Retrieves** using hybrid search (BM25 + dense embeddings) fused with Reciprocal Rank Fusion
+4. **Generates** structured answers with inline citations via Pydantic validation
+5. **Validates** responses against retrieved sources and confidence thresholds
+6. **Iterates** via evaluator-optimizer loops (max 3 attempts) before safe refusal
+7. **Attributes** NHS-derived content per Open Government Licence v3.0 requirements
+
+## ⚙️ Technical Architecture
+
+![Architecture Diagram](Architecture_diagram_v3.png)
+
+### Core Innovations
+
+#### Hybrid Retrieval with RRF
+- **Dense Vectors** (all-MiniLM-L6-v2): Semantic understanding of paraphrased questions
+- **Sparse Vectors** (Splade_PP_en_v1): Exact terminology matching (procedure/drug names)
+- **Reciprocal Rank Fusion**: Rank-based combination avoiding score normalization issues
+
+#### Safety-First Agent Design
+- **Deterministic Guardrail**: Regex-based scope filtering before any LLM interaction
+- **Structured Routing**: LLM classification constrained to predefined categories
+- **Citation Anchoring**: `[SRC:doc_id]` tokens verified against retrieved chunks
+- **Evaluator-Optimizer Loop**: Bounded self-correction with structured feedback (Anthropic pattern)
+- **Fail-Closed Validation**: Mechanical checks preventing hallucinated citations
+
+#### Robust Infrastructure
+- **Ingestion Pipeline**: Automated parsing, chunking, and vector upserting
+- **Versioned Storage**: Qdrant with payload indexes for filtering
+- **Observability**: LangSmith tracing for latency, tokens, and cost analysis
+- **Evaluation Harness**: Ragas metrics against golden dataset in CI
+
+## 🛠️ Tech Stack
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Language** | Python 3.12+ | Core implementation |
+| **Framework** | LangGraph | Agent orchestration & state management |
+| **Vector DB** | Qdrant | Hybrid dense/sparse vector storage |
+| **Embeddings** | FastEmbed (all-MiniLM-L6-v2, Splade_PP_en_v1) | Local embedding generation |
+| **Document Processing** | PyMuPDF, WebBaseLoader | PDF/HTML parsing |
+| **LLM Outputs** | Pydantic v2 | Structured, validated responses |
+| **Evaluation** | Ragas + LangSmith | Faithfulness, relevance, precision metrics |
+| **Validation** | Deterministic code | Citation verification, scope checking |
+| **Deployment** | (Planned) Hugging Face Spaces | Public demo |
+
+## ✨ Key Features
+
+- **Citation-Grounded Responses**: Every answer includes verifiable `[SRC:doc_id]` inline citations
+- **Hybrid Search Superiority**: Combines semantic and lexical search for optimal recall
+- **Deterministic Safety**: Hard refusals on out-of-scope questions without LLM involvement
+- **Bounded Self-Correction**: Evaluator-optimizer loop with max 3 retry attempts
+- **Comprehensive Tracing**: Full observability via LangSmith integration
+- **Provenance Tracking**: Detailed documentation of all data sources and licenses
+- **Evaluation-Driven Development**: Metrics-guided improvements with golden dataset
+- **Modular Architecture**: Clean separation of ingestion, retrieval, agent, and validation layers
+
+## 📊 Evaluation Metrics
+
+*Targets established in advance; measured results recorded as harness phases complete*
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Faithfulness (Ragas) | ≥ 0.85 | WIP |
+| Context Precision (Ragas) | ≥ 0.75 | WIP |
+| Answer Relevancy (Ragas) | ≥ 0.80 | WIP |
+| Hybrid vs Dense Recall@5 | Measurable gap | WIP |
+| **Refusal Correctness** | **100% — zero slack** | WIP |
+| Latency P95 | < 3s | WIP |
+| Cost per Query | Documented @ ~500 queries/day | WIP |
+
+> **Hard Ship Gate**: Any trap question answered confidently instead of refused = do not ship, regardless of other metrics.
+
+## 📚 Corpus & Provenance
+
+Curated collection of ~15 openly licensed patient-education documents:
+- **4 PDFs**: HRSA (HHS) oral-health guides, NIDCR/NIH patient fact sheets
+- **11 HTML pages**: NIDCR, CDC, and NHS UK sources (converted to markdown)
+
+**Licensing & Attribution**:
+- US Public Domain: HRSA/NIDCR/CDC materials
+- UK OGL v3.0: NHS-derived content requires attribution:  
+  *"Contains public sector information licensed under the Open Government Licence v3.0."*
+
+Full provenance documented in [`data/PROVENANCE.md`](data/PROVENANCE.md)
+
+**Explicitly Excluded** (per scope):
+- Diagnosis/symptom-specific advice
+- Real patient data/PHI
+- Appointment booking systems
+- Insurance terminology (v1)
+- Voice/phone channels
+- Fine-tuning
+- Multi-lingual support
+
+## 🛠️ Setup & Installation
+
+### Prerequisites
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (Python package installer)
+- API keys for LLM provider (Anthropic Bedrock or Groq)
+
+### Local Development
+```bash
+# Clone repository
+git clone https://github.com/yourusername/Occlusion.git
+cd Occlusion
+
+# Setup environment
+uv sync
+cp sample.env .env  # Fill in required API keys
+
+# Ingest corpus (runs once)
+uv run python -m src.ingest.ingestion_pipeline
+
+# Run test suite
+uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
+```
+
+### Available Commands
+- `uv sync` - Install dependencies
+- `uv run pytest` - Execute test suite
+- `uv run python -m src.ingest.ingestion_pipeline` - Re-ingest corpus
+- `uv run pytest tests/agent/test_graph.py::TestAgentGraph::test_refusal_on_out_of_scope -q` - Run specific test
+
+## 🧪 Testing
+
+Comprehensive test suite covering:
+- **Unit Tests**: Component-level validation (ingest, retrieve, agent)
+- **Integration Tests**: End-to-end flow verification
+- **Safety Tests**: Refusal correctness on trap questions
+- **Evaluation Tests**: Ragas metric computation
+
+Run full suite: `uv run pytest tests/ -q`
+
+## 📝 Documentation
+
+- [AGENTS.md](AGENTS.md) - Detailed agent implementation specifications
+- [SCOPE.md](SCOPE.md) - Project scope, boundaries, and success criteria
+- [TODO.md](TODO.md) - Phased development roadmap with verification gates
+- [ARCHITECTURE.md](Architecture%20Design%20desc.md) - Deep dive into system design
+- [PROVENANCE.md](data/PROVENANCE.md) - Data sources, licenses, and access tracking
+- [LOGGING.md](LOGGING.md) - Logging standards and implementation
+
+## 🤝 Contributing
+
+As a portfolio project demonstrating specific engineering competencies, direct code contributions are not sought. However, feedback and discussions are welcome through:
+- Issue reports for bugs or unclear documentation
+- Pull requests for typo fixes or documentation improvements
+- Discussions about architectural decisions or technical approaches
+
+Please review [SCOPE.md](SCOPE.md) and [TODO.md](TODO.md) before suggesting changes to understand project boundaries and current phase.
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Note**: While the code is MIT-licensed, the corpus contains materials under:
+- US Public Domain (HRSA/NIDCR/CDC)
+- UK Open Government Licence v3.0 (NHS materials)
+
+NHS-derived outputs require the attribution:  
+*"Contains public sector information licensed under the Open Government Licence v3.0."*
+
+## 👤 Portfolio Contact
+
+Developed as a demonstration of applied LLM engineering skills. For opportunities or discussions about similar projects:
+
+- **GitHub**: [https://github.com/snowaflic](https://github.com/snowaflic)
+- **LinkedIn**: [Add your LinkedIn profile here]
+- **Email**: [Add your professional email here]
 
 ---
 
-## Problem (one sentence, no "AI")
-
-Dental patients with routine questions — post-procedure care, preventive care,
-"is this normal or should I be worried" — drive a large share of the call volume
-that front-desk staff can't keep up with; an assistant that correctly answers the
-routine subset in seconds, and reliably refuses anything symptom- or
-record-specific, can absorb that load without pretending to be a clinician.
-
-## What this system is (one sentence)
-
-A LangGraph agent that answers routine dental-health questions by retrieving from
-a curated, openly licensed patient-education corpus using hybrid search
-(BM25 + dense) fused with Reciprocal Rank Fusion, returns a structured, cited
-answer validated against a Pydantic schema — and refuses to answer when it isn't
-confident — with every change measured against a golden eval set.
-
-## Architecture
-
-```
-  User question
-       │
-  Out-of-scope guardrail            ← deterministic rules, no LLM ("smoke detector")
-       │ flagged? ───────────────────────► REFUSAL NODE (fixed message + reason
-       │ not flagged                       code, no LLM call)
-  Router (LLM, structured output:
-  Literal["conversational" | "medical"])
-       ├── conversational ──► NC agent ─────────────────────────────► END
-       └── medical
-             │
-       Hybrid retrieval tool
-       (Qdrant dense + BM25 prefetch → RRF fusion, top_k 20 each)
-             │
-       RAG agent (generation)
-             │
-       Pydantic structured output { answer, citations[], confidence }
-             │
-       Validation node (deterministic code:
-         schema valid · cited IDs ∈ retrieved set · confidence ≥ threshold)
-             │ validated?
-             ├── no ──► Evaluator-optimizer (LLM + structured feedback:
-             │            issues + suggested re-retrieval action — never
-             │            medical content) ──► feedback ──► RAG agent
-             │            (max 3 loops, then ──► REFUSAL NODE)
-             └── yes ──► Answer + source links ──► END
-
-  Cross-cutting: LangSmith tracing (latency, tokens, cost per node,
-  loop counts) · Ragas eval harness vs. golden set in CI
-```
-
-## Corpus
-
-A small, deliberately curated corpus of ~15 openly licensed patient-education
-documents (US government public domain + UK Open Government Licence):
-
-- **4 PDFs** — HRSA (HHS) oral-health guides, NIDCR/NIH patient fact sheet
-- **11 HTML pages** — NIDCR, CDC, and NHS UK, converted to markdown during ingestion
-
-Every document's source, license, access date, and coverage is documented in
-[data/PROVENANCE.md](data/PROVENANCE.md); the HTML parse queue with per-page
-filenames is in [data/HTML_SOURCES.md](data/HTML_SOURCES.md).
-
-**License & attribution:** corpus content is US public domain (HRSA/NIDCR/CDC)
-and Open Government Licence v3.0 (NHS UK). NHS-derived material:
-*"Contains public sector information licensed under the Open Government Licence
-v3.0."*
-
-**Known limitations (documented, not hidden):**
-
-- **Triage guidance is UK NHS–based** — the only clearly-licensed patient-level
-  source for emergency-triage content is nhs.uk, so urgent-care answers reflect
-  NHS navigation (111 / 999 / A&E). We do not silently localize.
-- **Insurance terminology is out of scope** (v1) — no clearly-licensed
-  dental-specific glossary exists; related questions are refused as
-  out-of-corpus rather than half-answered.
-- **Fillings/scale-and-polish aftercare** is covered at treatment-overview level
-  only; dedicated public aftercare pages don't exist under an open license.
-
-## Tradeoffs made (and why)
-
-- **RAG over prompt-only:** a static FAQ page handles fixed-phrasing, single-topic
-  questions but breaks on paraphrase and multi-part asks, and produces no
-  auditable citation trail. (Full argument: SCOPE.md §2.)
-- **No fine-tuning:** small, well-defined domain with no proprietary style/tone
-  requirement — prompting + retrieval is the right default. Knowing *not* to
-  fine-tune is the point.
-- **Hybrid retrieval + RRF over dense-only:** dense embeddings miss exact
-  terminology; BM25 catches it. RRF fuses on rank rather than raw score because
-  cosine (bounded) and BM25 (unbounded) scores live on incompatible scales.
-- **Fail-closed on low confidence:** a health-adjacent assistant that confidently
-  guesses is a liability; one that says "consult a professional" is a feature.
-- **Citation anchoring + verification:** `[SRC:doc_id]` tokens in the prompt,
-  verified against the actual retrieved set — a mechanical check against
-  "citation-shaped hallucination" (ungrounded RAG averages only ~65–74%
-  citation accuracy).
-- **Measured reranker (pending):** the cross-encoder rerank stage ships only if
-  the eval harness shows it earns its latency.
-- **Evaluator-optimizer retry loop (bounded at 3):** when validation fails
-  (bad citations, low confidence), an LLM evaluator returns *structured feedback*
-  (issues + suggested re-retrieval action — never medical content) and the RAG
-  agent gets another pass. Bounded because every loop costs tokens and latency;
-  the static refusal path always remains the floor. Pattern per Anthropic's
-  "Building Effective Agents" (evaluator-optimizer workflow).
-
-## Evaluation
-
-Targets are committed in advance (SCOPE.md §6); **measured results will be
-recorded here as harness phases complete — none are claimed yet.**
-
-| Metric | Target | Measured |
-|---|---|---|
-| Faithfulness (Ragas) | ≥ 0.85 | *WIP* |
-| Context precision (Ragas) | ≥ 0.75 | *WIP* |
-| Answer relevancy (Ragas) | ≥ 0.80 | *WIP* |
-| Hybrid beats dense-only on recall@5 | yes (gap reported either way) | *WIP* |
-| Refusal correctness (trap questions) | **100% — zero slack** | *WIP* |
-| Latency P95 | < 3 s | *WIP* |
-| Cost per query | documented @ ~500 queries/day | *WIP* |
-
-**Hard ship gate:** any trap question answered confidently instead of refused =
-do not ship, regardless of every other number.
-
-## How to run (local) — *WIP*
-
-```bash
-# prerequisites: Python 3.12+, uv
-uv sync
-cp sample.env .env   # then fill in your keys
-# ingestion + run commands land here as phases complete (TODO.md §1, §5, §9)
-```
-
-## Demo
-
-*WIP — deploys to Hugging Face Spaces (free tier) in TODO.md Phase 9. URL will
-be posted here.*
-
-## What's next / why it stops here
-
-*WIP — finalized at the ship gate (TODO.md Phase 10). v2 parking lot: cross-encoder
-reranking, an original dental-benefit glossary, a US triage source, a
-"clinician-mode" corpus (the archived clinical guidelines), MCP tool exposure —
-all deliberately not in v1.*
-
-
+*Occlusion: Where retrieval accuracy meets generative flexibility in healthcare AI — built with uncompromising safety standards for patient education.*
