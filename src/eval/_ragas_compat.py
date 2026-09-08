@@ -23,13 +23,20 @@ import types
 
 
 def _ensure_vertexai_stubs() -> None:
+    _need_llms_stub = True
     try:
         import langchain_community.chat_models.vertexai  # noqa: F401
-        import langchain_community.llms  # noqa: F401
-
-        return  # modules exist; nothing to do
     except ImportError:
         pass
+    else:
+        try:
+            import langchain_community.llms.vertexai  # noqa: F401
+            _need_llms_stub = False
+        except ImportError:
+            pass
+
+    if not _need_llms_stub:
+        return
 
     import langchain_community.chat_models as chat_models_pkg
     import langchain_community.llms as llms_pkg
