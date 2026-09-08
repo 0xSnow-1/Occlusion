@@ -12,8 +12,8 @@ Cost discipline: Bedrock judge calls scale with items × metrics. Always run
 without human approval.
 
 Usage:
-    uv run python -m src.eval.ragas.run_ragas --limit 3        # smoke (plumbing)
-    uv run python -m src.eval.ragas.run_ragas                  # full baseline (~70)
+    uv run python -m src.eval.run_ragas --limit 3        # smoke (plumbing)
+    uv run python -m src.eval.run_ragas                  # full baseline (~70)
 
 Requires: collection `occlusion` ingested (`scripts/run_ingest.py`),
 `AWS_BEARER_TOKEN_BEDROCK` in the environment, `data/golden_set_v1.jsonl`.
@@ -28,9 +28,9 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-import src.eval.ragas._ragas_compat  # noqa: F401  (vertexai stub; see module docstring)
+import src.eval._ragas_compat  # noqa: F401  (vertexai stub; see module docstring)
 from src.agent.graph import build_graph
 from src.eval.golden import load_golden_set
 from src.ingest.vector_store import VectorStore
@@ -169,7 +169,7 @@ def main() -> None:
     )
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--out", default="src/eval/ragas/results/ragas_baseline_v1.json")
+    parser.add_argument("--out", default="eval/results/ragas_baseline_v1.json")
     args = parser.parse_args()
 
     samples, refused = collect_samples(args.limit)
