@@ -83,7 +83,7 @@ def _generate_node(llm):
         prompt = format_dental_qa_prompt(
             question=state["question"],
             chunks=state["fused_chunks"],
-            template_name="dental_qa_base",
+            template_name="dental_qa_v2.3",
         )
         
         try:
