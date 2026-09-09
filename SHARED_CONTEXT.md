@@ -61,6 +61,18 @@ and the eval roadmap below before proposing anything.
 5. Prompt optimization (TODO Phase 8): revise the system prompt ONLY here — each version gets a before/after Ragas number. Tuning earlier is unmeasurable (stand-in LLM ignores the prompt).
 6. Medical-tailored embedding swap: replace the general embedding model with a medical-domain one as a measured Phase-8-style improvement. Requires: human-approved model choice (new-dep rule in AGENTS.md — research candidates first), full re-ingest (new `chunks_vN` snapshot, never overwrite v1), re-run of retrieval comparison (Phase 4.4) AND the full Ragas + guardrail suites. Goes last because it invalidates every number measured before it; the payoff is a real before/after retrieval story.
 
+## Subagent audit 2026-09-09 (3 parallel investigators, read-only)
+
+- Corpus gaps (verified by grep over frozen 120-chunk snapshot): B6 (post-filling diet), B10 (baby-tooth loss timing), B18 (braces + food) have ZERO answer-bearing chunks. B21 same (no "sealant" string anywhere). System refusal on these is CORRECT behavior — fail-closed working as designed. Eval-side fix needed: reclassify as no-coverage or add SCOPE-legal source material. No prompt/graph change can legitimately flip them.
+- Verifier/prompt format mismatch (real, code-fixable): `verify.py:41` reads inline `[SRC:]` tokens only, ignores `Answer.citations`; prompt few-shots teach prefixed `citations: ["SRC:..."]` while tests expect bare IDs; no normalization (case/whitespace/`SRC:`-prefix) on either side. Fix: one canonical format + normalize + state which channel counts.
+- Few-shot fabrication risk: v2.3 examples flash IDs (`toothache`, `health-info`) absent from most retrievals — model copying an example ID fails as fabricated. Example 3 sits near the amoxicillin-dosage trap family; needs a trap-side test to prove the guardrail still catches it.
+- B23 is a rank-cut victim, genuinely fixable via retrieval: both answer halves exist in-corpus but the precise chunk is 2/120 and loses the top_n=5 cut to generic bleed chunks. Candidate for top_n widening or TODO 4.3 rerank.
+- Hygiene: 0-byte `src/agent/prompts.py` shadows the `prompts/` package (masked today by `__pycache__` order; breaks under other importers). Delete it.
+- Eval contamination (committed then fixed): B5 was briefly both a prompt example and an eval item; swapped to a non-eval boundary question. Rule restated: eval questions NEVER enter the prompt; B12's flip surviving decon is the clean signal.
+- Probe variance warning: B16/B25 flipped coverage 1.00 → 0.00 between identical temp-0 runs. Single-probe numbers are untrustworthy on boundary items; use best-of-3 before claiming.
+- Repair loop (bounded 1-retry in generate node) was implemented, probed (0 conversions — model answers from head twice), and REVERTED. Graph is back to one-line v2.3 swap. Do not re-add without new evidence.
+- `test_low_confidence_fails_closed` pins current Gate-3 semantics (verified + conf 0.2 → Refusal). Coverage-based acceptance CONTRADICTS it — needs human decision + spec-test change, never a silent edit.
+
 ## Open flags for human review
 - `<anything an agent wants a human to weigh in on before proceeding>`
 - The retrieval-pipeline code reached `main` (`08c64e4`) without ever passing the gate. Only the conflict fix (`fe764b2`, PR #4) is gate-validated. Decide whether the unreviewed portion needs a retroactive look.
