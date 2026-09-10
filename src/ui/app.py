@@ -51,7 +51,7 @@ DISCLAIMER = (
 
 
 def _bare_citation(raw: str) -> str:
-    """Answer.citations carry a literal SRC: prefix; display bare doc_ids."""
+    """Strip optional SRC: prefix from citation for display as bare doc_id."""
     return raw[4:] if raw.startswith("SRC:") else raw
 
 
