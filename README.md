@@ -114,6 +114,14 @@ Latency/cost are recorded, never gated; SCOPE §6 target is P95 < 3 s and docume
 
 **Ship gate:** any trap question answered confidently instead of refused = do not ship, regardless of every other number.
 
+### Latency and cost (measured 2026-09-10)
+
+| Metric | Value | Notes |
+|---|---|---|
+| Latency P50 | 3.5 s | 12 timed calls, local Qdrant + Bedrock Haiku 4.5 |
+| Latency P95 | 4.9 s | Target under review (deploy adds cold start) |
+| Cost per query | ~$0.01 est. | ~$1 per 75-call live pass → ~$5/day @ 500 queries |
+
 ## Corpus and provenance
 
 ~15 openly licensed patient-education documents (`data/PROVENANCE.md`, `data/HTML_SOURCES.md`):
@@ -162,6 +170,15 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 93 offline tests, green: 54 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 6, `test_schemas` 11, `test_fusion` 4) + 39 ingest/retrieve.
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
+
+## Demo
+
+Deploys to Hugging Face Spaces (Docker SDK — see `Dockerfile`) in TODO.md Phase 9. Create the Space manually, then set:
+
+- SDK: Docker · hardware: CPU basic (free) · port 7860
+- Secrets (never in the repo): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION`
+
+The image bakes the Qdrant index at build time (`data/qdrant_storage/` is gitignored and cannot be bundled). URL will be posted here once live.
 
 ## Docs
 

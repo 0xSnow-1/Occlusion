@@ -73,6 +73,14 @@ and the eval roadmap below before proposing anything.
 - Repair loop (bounded 1-retry in generate node) was implemented, probed (0 conversions — model answers from head twice), and REVERTED. Graph is back to one-line v2.3 swap. Do not re-add without new evidence.
 - `test_low_confidence_fails_closed` pins current Gate-3 semantics (verified + conf 0.2 → Refusal). Coverage-based acceptance CONTRADICTS it — needs human decision + spec-test change, never a silent edit.
 
+## Latency & cost baseline (2026-09-10, pre-deploy)
+
+- Method: 4 corpus-grounded replacement items (RB6/RB10/RB18/RB21, the B6/B10/B18/B21 rebuilds) × 3 trials = 12 timed `graph.invoke` calls over the production path (repo-local Qdrant `./data/qdrant_storage`, 120 points post re-ingest, hybrid retriever, Bedrock Haiku 4.5 @ temp 0, threshold 0.7). Probe script in `/tmp/latency_probe/lat.py` (NOT committed — rerun from scratch for the next measurement). 12/12 `kind=answer`, zero generation failures.
+- Sorted seconds: 2.39, 2.39, 2.51, 2.67, 2.82, 3.44, 3.58, 3.97, 4.68, 4.82, 4.82, 4.95. **p50 ≈ 3.5s, p95 ≈ 4.9s.**
+- Gate verdict: SCOPE §6 wants P95 < 3s — MISSED on local hardware. Driver is Bedrock round-trip (retrieval is ms; two-citation RB21 answers cluster ~4.8s). Deploy adds cold start, never subtracts — staging MUST re-measure before any ship claim. Recalibrating the 3s target is a human decision (same rule as Gate-3); record the why, never silent-edit.
+- Cost: ~$1 per 75-call live pass (prior `live-model-refusal` evidence) → this batch ≈ $0.15 → **~$0.01/query** README estimate. Tokens-per-call were NOT captured (probe logged latency/kind only) — next measurement should record usage metadata for a real cost table.
+- Image verification (2026-09-10): `docker build -t occlusion-space .` succeeded (12GB, 4.11GB content); baked index holds **136 points, not 120** — the CDC `about` page served its real content at build time (17 chunks) instead of the "Access Denied" stub frozen in `chunks_v1.jsonl` (1 chunk). All other doc_ids match exactly. Superset, so demo-safe, but the Space index ≠ the eval snapshot — eval numbers were measured on 120. Container boot with `--env-file .env`: `/_stcore/health` 200, zero tracebacks. Lesson: live-HTML sources make build-time indexes non-deterministic; if eval-demo parity ever matters, vendor the HTML snapshot instead of fetching at build.
+
 ## Open flags for human review
 - `<anything an agent wants a human to weigh in on before proceeding>`
 - The retrieval-pipeline code reached `main` (`08c64e4`) without ever passing the gate. Only the conflict fix (`fe764b2`, PR #4) is gate-validated. Decide whether the unreviewed portion needs a retroactive look.
