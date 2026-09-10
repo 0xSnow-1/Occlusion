@@ -50,10 +50,6 @@ DISCLAIMER = (
 )
 
 
-def _bare_citation(raw: str) -> str:
-    """Strip optional SRC: prefix from citation for display as bare doc_id."""
-    return raw[4:] if raw.startswith("SRC:") else raw
-
 
 @st.cache_resource(show_spinner="Connecting to knowledge base…")
 def get_pipeline():
@@ -157,8 +153,9 @@ def render_assistant(question: str, state: dict) -> None:
                 text=f"Confidence {response.confidence:.2f} "
                 f"(threshold {CONFIDENCE_THRESHOLD:.2f})",
             )
+            check = state["check"]
             chips = " · ".join(
-                f"`{_bare_citation(c)}`" for c in response.citations
+                f"`{c}`" for c in check.cited_ids
             )
             st.caption(f"Sources: {chips}" if chips else "Sources: none")
             with st.expander(
