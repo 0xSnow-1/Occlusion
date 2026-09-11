@@ -196,6 +196,7 @@ def render_assistant(question: str, state: dict) -> None:
                     key=f"slot-{iso}-{len(st.session_state.messages)}",
                 ):
                     st.session_state.picked_slot = iso
+                    st.session_state.booking_question = question
                     st.rerun()
         elif response.kind == "answer":
             st.markdown(response.answer)
@@ -262,6 +263,8 @@ def main() -> None:
         st.session_state.runs = []
     if "picked_slot" not in st.session_state:
         st.session_state.picked_slot = None
+    if "booking_question" not in st.session_state:
+        st.session_state.booking_question = None
 
     try:
         graph, points = get_pipeline()
@@ -309,6 +312,7 @@ def main() -> None:
             st.session_state.messages = []
             st.session_state.runs = []
             st.session_state.picked_slot = None
+            st.session_state.booking_question = None
             st.rerun()
 
     for turn in st.session_state.messages:
@@ -330,7 +334,7 @@ def main() -> None:
                 if not name.strip() or not email.strip():
                     st.error("Name and email are required.")
                 else:
-                    full_q = f"{st.session_state.messages[-1]['content']} {st.session_state.picked_slot}"
+                    full_q = f"{st.session_state.booking_question} {st.session_state.picked_slot}"
                     state = run_question(
                         graph, full_q, Contact(name=name.strip(), email=email.strip())
                     )
@@ -339,9 +343,11 @@ def main() -> None:
                     )
                     _log_run(state)
                     st.session_state.picked_slot = None
+                    st.session_state.booking_question = None
                     st.rerun()
         if st.button("Clear selected slot"):
             st.session_state.picked_slot = None
+            st.session_state.booking_question = None
             st.rerun()
 
     prompt = st.chat_input("Ask a routine dental-care question…")
