@@ -94,3 +94,14 @@ Spec: `SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` n
 Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
 no fake slots ever, booking failure degrades to callback list. Next: tools + state + node
 test-first per SPEC_V2 §9, then callback list + scoreboard.
+
+## V2 step 1 done (2026-09-11 — booking tools foundation, mocked HTTP only)
+- `src/agent/tools.py` (new): stdlib `urllib` only, zero new deps (pyproject untouched).
+- Base `https://api.cal.com/v2`, headers `Authorization: Bearer` + `cal-api-version: 2024-08-13`, 10 s timeout.
+- Key read from env at call time; missing key returns `[]` / `ok=False` with no network call.
+- Never raises into the graph; never logs the key or headers (test-pinned via `caplog`).
+- Defensive parsing: event `length`/`lengthInMinutes`/`duration_min` variants; slots dict-of-lists or flat list; booking `uid`/`id`, `startTime`/`start`.
+- `schemas.py`: `EventType`/`Slot`/`BookingIntent`/`BookingReceipt`/`Contact` verbatim per SPEC_V2 §4.
+- `state.py`: 4 new fields, overwrite only, no reducers.
+- Tests: `tests/agent/test_tools.py` 9 tests mocked; suite 109/109 green (was 100).
+- Graph untouched: no booking node yet, Q&A path byte-identical. Next: booking node + `test_booking_graph.py`.
