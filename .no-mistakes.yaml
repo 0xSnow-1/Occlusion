@@ -1,0 +1,9 @@
+# Per-repo no-mistakes overrides.
+
+# Pin the test baseline to the repository's canonical offline suite
+# (see AGENTS.md and .github/workflows/ci.yml) instead of leaving each
+# gate agent to improvise. The configured command is a baseline only:
+# because runs always supply --intent, the Test step still runs its
+# intent-targeted evidence agent on top of it.
+commands:
+  test: 'uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q'

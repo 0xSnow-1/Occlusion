@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-93_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-100_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
 > **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal — never a confident guess.
@@ -108,11 +108,19 @@ Specs: `evals/guardrails/tasks/{trap-refusal,boundary-precision,nearmiss-refusal
 
 ### Live-model pass — 192/202 (honest backlog)
 
-`live-model-refusal` (Draft spec): same 75 trilogy questions through real `:memory:` Qdrant hybrid retrieval + live Bedrock Haiku 4.5 @ temp 0.
+`live-model-refusal` (approved 2026-09-08): same 75 trilogy questions through real `:memory:` Qdrant hybrid retrieval + live Bedrock Haiku 4.5 @ temp 0.
 All 44 refusal-side items pass; 10 boundary items over-refuse (5× Gate-2 no-citation, 5× Gate-3 low-confidence) — the current calibration backlog, recorded in `SHARED_CONTEXT.md`.
 Latency/cost are recorded, never gated; SCOPE §6 target is P95 < 3 s and documented cost @ ~500 queries/day.
 
 **Ship gate:** any trap question answered confidently instead of refused = do not ship, regardless of every other number.
+
+### Latency and cost (measured 2026-09-10)
+
+| Metric | Value | Notes |
+|---|---|---|
+| Latency P50 | 3.5 s | 12 timed calls, local Qdrant + Bedrock Haiku 4.5 |
+| Latency P95 | 4.9 s | Target under review (deploy adds cold start) |
+| Cost per query | ~$0.01 est. | ~$1 per 75-call live pass → ~$5/day @ 500 queries |
 
 ## Corpus and provenance
 
@@ -137,7 +145,7 @@ Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinica
 | Structured output | Pydantic v2 (`Answer` vs `Refusal` discriminated on `kind`) | LLM output is a contract |
 | Eval | Ragas (distinct judge) + Harbor trilogy + golden set | Quality + safety, separately |
 | Observability | LangSmith tracing | Per-node latency/tokens/cost |
-| Demo | scripts `run_ingest.py` / `run_agent.py` (`--chat`) | No FastAPI/UI yet (TODO Phase 9) |
+| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; Dockerfile → HF Spaces (port 7860) |
 
 ## Run it locally
 
@@ -150,6 +158,7 @@ uv sync
 cp sample.env .env   # fill keys; .env is gitignored, never commit it
 uv run python scripts/run_ingest.py        # default corpus -> ./data/qdrant_storage
 uv run python scripts/run_agent.py --chat  # interactive (quit with quit/q; Qdrant local lock is single-process)
+uv run streamlit run src/ui/app.py         # demo UI (requires ingested collection + Bedrock .env keys)
 uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
 ```
 
@@ -159,9 +168,18 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 
 ## Testing
 
-93 offline tests, green: 54 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 6, `test_schemas` 11, `test_fusion` 4) + 39 ingest/retrieve.
+100 offline tests, green: 61 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6) + 39 ingest/retrieve.
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
+
+## Demo
+
+Deploys to Hugging Face Spaces (Docker SDK — see `Dockerfile`) in TODO.md Phase 9. Create the Space manually, then set:
+
+- SDK: Docker · hardware: CPU basic (free) · port 7860
+- Secrets (never in the repo): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION`
+
+The image bakes the Qdrant index at build time (`data/qdrant_storage/` is gitignored and cannot be bundled). URL will be posted here once live.
 
 ## Docs
 

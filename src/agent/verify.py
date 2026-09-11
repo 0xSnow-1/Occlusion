@@ -24,6 +24,17 @@ def extract_citations(text: str) -> List[str]:
     return re.findall(pattern, text)
 
 
+def normalize_doc_id(raw: str) -> str:
+    """Canonicalize a doc_id for comparison.
+
+    Strips surrounding whitespace and a stray ``SRC:`` prefix so the
+    model's two taught styles (``[SRC:x]`` inline vs ``"SRC:x"`` in the
+    citations list) compare equal. Case is preserved: ingest doc_ids
+    are case-sensitive file stems / URL segments.
+    """
+    return raw.strip().removeprefix("SRC:")
+
+
 def verify_citations(answer: Answer, retrieved_chunks: List[RetrievedChunk]) -> CitationCheck:
     """Verify that all cited doc_ids in answer exist in retrieved chunks.
     
@@ -37,11 +48,12 @@ def verify_citations(answer: Answer, retrieved_chunks: List[RetrievedChunk]) -> 
     Returns:
         CitationCheck with verification results
     """
-    # Extract cited IDs from answer
-    cited_ids = extract_citations(answer.answer)
-    
+    # Extract cited IDs from answer, then normalize both sides so the
+    # prompt's two taught styles compare equal (see normalize_doc_id).
+    cited_ids = [normalize_doc_id(c) for c in extract_citations(answer.answer)]
+
     # Get set of retrieved doc_ids for fast lookup
-    retrieved_ids = {chunk.doc_id for chunk in retrieved_chunks}
+    retrieved_ids = {normalize_doc_id(chunk.doc_id) for chunk in retrieved_chunks}
     
     # Track verification metrics
     fabricated_ids = []
@@ -95,6 +107,7 @@ def strip_fabricated_tokens(text: str, fabricated_ids: List[str]) -> str:
 
 __all__ = [
     "extract_citations",
+    "normalize_doc_id",
     "verify_citations", 
     "strip_fabricated_tokens",
 ]

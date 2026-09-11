@@ -3,6 +3,7 @@
 from src.agent.schemas import Answer, RetrievedChunk
 from src.agent.verify import (
     extract_citations,
+    normalize_doc_id,
     strip_fabricated_tokens,
     verify_citations,
 )
@@ -61,3 +62,16 @@ def test_strip_fabricated_tokens_masks_only_bad_ids():
     text = "Real [SRC:ada-guide-001] fake [SRC:fake-001] end"
     cleaned = strip_fabricated_tokens(text, ["fake-001"])
     assert cleaned == "Real [SRC:ada-guide-001] fake  end"
+
+
+def test_citation_style_variants_normalize():
+    # The prompt teaches two styles ([SRC:x] inline vs "SRC:x" in the
+    # citations list); both must compare equal, as must stray spaces.
+    assert normalize_doc_id("SRC:ada-guide-001") == "ada-guide-001"
+    assert normalize_doc_id("  ada-guide-001  ") == "ada-guide-001"
+    assert normalize_doc_id("ada-guide-001") == "ada-guide-001"
+    answer = _answer("Claim [SRC:SRC:ada-guide-001] and [SRC: nih-2017 ].")
+    check = verify_citations(answer, RETRIEVED)
+    assert check.verified
+    assert check.coverage == 1.0
+    assert check.fabricated_ids == []

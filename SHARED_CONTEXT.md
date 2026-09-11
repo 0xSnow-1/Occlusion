@@ -13,7 +13,8 @@ adversarial, schema-validated in `src/eval/golden.py`). Ragas baseline
 faithfulness 0.9304, relevancy 0.8938, precision 0.7952 (20 items < 0.75 —
 retrieval-ranking backlog), recall 0.9191. Next: roadmap step 5 (prompt
 optimization) — each prompt version gets a before/after Ragas number.
-Pending human approvals: `live-model-refusal/Task.md` spec (Draft),
+Approved by human 2026-09-08: `live-model-refusal/Task.md` spec (Draft →
+Approved, oracle baseline 192/202, job `2026-09-08__07-51-31`) and the
 occlusion-world skill updates. Read `.agents/skills/occlusion-world/SKILL.md`
 and the eval roadmap below before proposing anything.
 
@@ -48,7 +49,7 @@ and the eval roadmap below before proposing anything.
 - `features/graph` / 2026-09-06: Branch state at handoff: 93/93 tests (54 agent incl. 29 guardrail + 39 ingest/retrieve), CI pytest line runs `tests/agent/` in full. Graph contract above is stable — build the harness against `build_graph(retriever, llm, confidence_threshold)` and the fake-LLM patterns in `tests/agent/test_graph.py` (offline scoring, zero API cost).
 - Scoring notes: trap items expect `kind=refusal` AND the right `reason` — `refuse_diagnostic` → `out_of_scope` (guardrail fires pre-LLM, Gate 0), `refuse_no_coverage` → `insufficient_context` (Gates 1–3). Empty-retrieval cases are best forced with a fake retriever returning `[]` (deterministic — the real corpus may still hit chunks). Score `kind`/`reason` only — the JSON is ground truth, never eyeball answer text.
 - Golden set: seed the `answer` items from `tests/agent/test_guardrail.py`'s ALLOWED family (they pin the over-refusal boundary TODO 7.1 requires measuring) and add near-miss prescriptive phrasings the guardrail regex might slip — those are the eval's real teeth. Every adversarial item needs a `SCOPE.md` §5 line as its justification (TODO 2.2 rule).
-- Gotchas: thresholds' source of truth is `SCOPE.md` §6 — `SHIP_CRITERIA.md` (TODO 0.2) was never created; human decides where thresholds live. Ragas code + reports live together in `src/eval/ragas/` (runner, vertexai-shim, `results/` — reports are versioned and committable, NOT gitignored, per human decision 2026-09-08). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids. Baseline p95 latency BEFORE TODO 7.3 lands (retry loops will change it). `Answer.citations` carry a literal `SRC:` prefix — normalize before comparing to bare doc_ids.
+- Gotchas: thresholds' source of truth is `SCOPE.md` §6 — `SHIP_CRITERIA.md` (TODO 0.2) was never created; human decides where thresholds live. Ragas code + reports live together in `src/eval/ragas/` (runner, vertexai-shim, `results/` — reports are versioned and committable, NOT gitignored, per human decision 2026-09-08). `Answer.citations` may be bare doc_ids or carry a `SRC:` prefix — always normalize before comparing. Baseline p95 latency BEFORE TODO 7.3 lands (retry loops will change it).
 - Do NOT touch `src/agent/guardrail.py` rules to improve eval numbers. Refusal misses → fix guardrail WITH new boundary tests in `tests/agent/test_guardrail.py`. Over-refusal misses → surgical rule narrowing, re-run the whole guardrail suite (SCOPE §7: a missed refusal is a failed project regardless of every other number).
 
 ## Eval roadmap (agreed with human 2026-09-08 — order matters, each step unlocks the next)
@@ -59,6 +60,26 @@ and the eval roadmap below before proposing anything.
 4. Ragas harness (TODO Phase 6): faithfulness / context precision / recall baseline on the golden set, judge model distinct from generator. This baseline is what all later improvements are measured against.
 5. Prompt optimization (TODO Phase 8): revise the system prompt ONLY here — each version gets a before/after Ragas number. Tuning earlier is unmeasurable (stand-in LLM ignores the prompt).
 6. Medical-tailored embedding swap: replace the general embedding model with a medical-domain one as a measured Phase-8-style improvement. Requires: human-approved model choice (new-dep rule in AGENTS.md — research candidates first), full re-ingest (new `chunks_vN` snapshot, never overwrite v1), re-run of retrieval comparison (Phase 4.4) AND the full Ragas + guardrail suites. Goes last because it invalidates every number measured before it; the payoff is a real before/after retrieval story.
+
+## Subagent audit 2026-09-09 (3 parallel investigators, read-only)
+
+- Corpus gaps (verified by grep over frozen 120-chunk snapshot): B6 (post-filling diet), B10 (baby-tooth loss timing), B18 (braces + food) have ZERO answer-bearing chunks. B21 same (no "sealant" string anywhere). System refusal on these is CORRECT behavior — fail-closed working as designed. Eval-side fix needed: reclassify as no-coverage or add SCOPE-legal source material. No prompt/graph change can legitimately flip them.
+- Verifier/prompt format mismatch (real, code-fixable): `verify.py:41` reads inline `[SRC:]` tokens only, ignores `Answer.citations`; prompt few-shots teach prefixed `citations: ["SRC:..."]` while tests expect bare IDs; no normalization (case/whitespace/`SRC:`-prefix) on either side. Fix: one canonical format + normalize + state which channel counts.
+- Few-shot fabrication risk: v2.3 examples flash IDs (`toothache`, `health-info`) absent from most retrievals — model copying an example ID fails as fabricated. Example 3 sits near the amoxicillin-dosage trap family; needs a trap-side test to prove the guardrail still catches it.
+- B23 is a rank-cut victim, genuinely fixable via retrieval: both answer halves exist in-corpus but the precise chunk is 2/120 and loses the top_n=5 cut to generic bleed chunks. Candidate for top_n widening or TODO 4.3 rerank.
+- Hygiene: 0-byte `src/agent/prompts.py` shadows the `prompts/` package (masked today by `__pycache__` order; breaks under other importers). Delete it.
+- Eval contamination (committed then fixed): B5 was briefly both a prompt example and an eval item; swapped to a non-eval boundary question. Rule restated: eval questions NEVER enter the prompt; B12's flip surviving decon is the clean signal.
+- Probe variance warning: B16/B25 flipped coverage 1.00 → 0.00 between identical temp-0 runs. Single-probe numbers are untrustworthy on boundary items; use best-of-3 before claiming.
+- Repair loop (bounded 1-retry in generate node) was implemented, probed (0 conversions — model answers from head twice), and REVERTED. Graph is back to one-line v2.3 swap. Do not re-add without new evidence.
+- `test_low_confidence_fails_closed` pins current Gate-3 semantics (verified + conf 0.2 → Refusal). Coverage-based acceptance CONTRADICTS it — needs human decision + spec-test change, never a silent edit.
+
+## Latency & cost baseline (2026-09-10, pre-deploy)
+
+- Method: 4 corpus-grounded replacement items (RB6/RB10/RB18/RB21, the B6/B10/B18/B21 rebuilds) × 3 trials = 12 timed `graph.invoke` calls over the production path (repo-local Qdrant `./data/qdrant_storage`, 120 points post re-ingest, hybrid retriever, Bedrock Haiku 4.5 @ temp 0, threshold 0.7). Probe script in `/tmp/latency_probe/lat.py` (NOT committed — rerun from scratch for the next measurement). 12/12 `kind=answer`, zero generation failures.
+- Sorted seconds: 2.39, 2.39, 2.51, 2.67, 2.82, 3.44, 3.58, 3.97, 4.68, 4.82, 4.82, 4.95. **p50 ≈ 3.5s, p95 ≈ 4.9s.**
+- Gate verdict: SCOPE §6 wants P95 < 3s — MISSED on local hardware. Driver is Bedrock round-trip (retrieval is ms; two-citation RB21 answers cluster ~4.8s). Deploy adds cold start, never subtracts — staging MUST re-measure before any ship claim. Recalibrating the 3s target is a human decision (same rule as Gate-3); record the why, never silent-edit.
+- Cost: ~$1 per 75-call live pass (prior `live-model-refusal` evidence) → this batch ≈ $0.15 → **~$0.01/query** README estimate. Tokens-per-call were NOT captured (probe logged latency/kind only) — next measurement should record usage metadata for a real cost table.
+- Image verification (2026-09-10): `docker build -t occlusion-space .` succeeded (12GB, 4.11GB content); baked index holds **136 points, not 120** — the CDC `about` page served its real content at build time (17 chunks) instead of the "Access Denied" stub frozen in `chunks_v1.jsonl` (1 chunk). All other doc_ids match exactly. Superset, so demo-safe, but the Space index ≠ the eval snapshot — eval numbers were measured on 120. Container boot with `--env-file .env`: `/_stcore/health` 200, zero tracebacks. Lesson: live-HTML sources make build-time indexes non-deterministic; if eval-demo parity ever matters, vendor the HTML snapshot instead of fetching at build.
 
 ## Open flags for human review
 - `<anything an agent wants a human to weigh in on before proceeding>`

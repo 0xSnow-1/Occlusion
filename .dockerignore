@@ -1,0 +1,16 @@
+# Keep the Space image lean and secret-free (ingest output is rebuilt
+# inside the image; credentials arrive as Space secrets at run time).
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+data/qdrant_storage/
+data/parsed/
+data/embeddings_cache/
+evals/jobs/
+eval/results/
+eval_results/
+.gitignore

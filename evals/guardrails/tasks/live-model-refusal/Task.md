@@ -1,6 +1,12 @@
 # Task: live-model-refusal
 
-**Status:** Draft
+**Status:** Approved (2026-09-08)
+
+<!-- Oracle baseline: evals/jobs/2026-09-08__07-51-31 — 192/202. All 44
+refusal-side criteria pass; 10 boundary misses classified agent-capability
+failures (5× Gate-2 no-citation, 5× Gate-3 low-conf), zero task defects.
+Two earlier jobs (06-52-38, 07-44-29) are INVALID records
+(NoCredentialsError). -->
 
 <!--
 Keep this control-plane spec beside task.toml. Do not copy or mount it into the
