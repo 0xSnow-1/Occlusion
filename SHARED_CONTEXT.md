@@ -124,3 +124,8 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 - `.env` holds `CAL_URL=https://cal.com/ahmed-gamal-7acpyz/doctor` (username candidate `ahmed-gamal-7acpyz`, event slug `doctor`). No `CAL_USERNAME` / `CAL_API_KEY` / `CAL_TIMEZONE` keys in `.env` yet.
 - User-reported local time 12:00am; commit tz is +0800. IANA clinic timezone still UNCONFIRMED — do not guess (candidates differ: Asia/Manila vs Africa/Cairo). Ask before the live check.
 - `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Live check stays blocked until key + IANA tz + test event type are confirmed.
+
+## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
+- API key: log in at cal.com → Settings → Security (API keys; some accounts show Settings → Developer → API keys) → Create new API key → copy the `cal_live_...` value (shown once). Paste into local `.env` as `CAL_API_KEY=...`. Test keys start `cal_`, live keys `cal_live_`. Rate limit 120 req/min on API-key tier.
+- Username + event slug: read off the booking link `cal.com/<username>/<slug>`. Event Type ID: open the event's settings, numbers between slashes in the URL bar.
+- Timezone: "12:00am" is a time, not a zone — need the IANA city name (e.g. `Asia/Manila`, `Africa/Cairo`). Find it in cal.com → Settings → General → Timezone, or match the city in the phone's Date & Time settings.
