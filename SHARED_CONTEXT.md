@@ -86,3 +86,11 @@ and the eval roadmap below before proposing anything.
 - The retrieval-pipeline code reached `main` (`08c64e4`) without ever passing the gate. Only the conflict fix (`fe764b2`, PR #4) is gate-validated. Decide whether the unreviewed portion needs a retroactive look.
 - `.github/workflows/ci.yml` now exists and runs the offline suite on push/PR; the CI gate is no longer a manual approve/skip, so observe it rather than skipping it.
 - RESOLVED 2026-09-06: the amoxicillin-style gap (refusal content delivered as kind=answer) is fixed — Phase 7.2's deterministic pre-LLM guardrail was pulled forward and ships with 29 pinned tests, including the TODO 7.2 boundary family (informational symptom/treatment mentions must still answer). Over-refusal rate still needs measuring against the golden set in Phase 7.4.
+
+## V2 pointer (2026-09-11 — receptionist pivot, supersedes Path B draft above)
+
+Spec: `SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` node via
+`src/agent/tools.py` on real cal.com API v2 (slots + booking, `CAL_API_KEY` in `.env` only).
+Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
+no fake slots ever, booking failure degrades to callback list. Next: tools + state + node
+test-first per SPEC_V2 §9, then callback list + scoreboard.
