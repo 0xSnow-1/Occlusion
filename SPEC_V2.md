@@ -46,15 +46,26 @@ Pure server-side wrappers around cal.com API v2. No LLM, no prompt, no UI code.
 
 Rules (all test-pinned):
 
-- Auth: `Authorization: Bearer <CAL_API_KEY>` + `cal-api-version: 2024-08-13` headers,
-  key read from env at call time, never logged, never committed.
+- Auth: `Authorization: Bearer <CAL_API_KEY>` + per-endpoint `cal-api-version`
+  header (amended 2026-09-12 after live probes — one shared version 404s):
+  event-types `2024-06-14`, slots `2024-09-04`, bookings `2024-08-13`.
+  Key read from env at call time, never logged, never committed.
+- Transport: `User-Agent` must be a browser string — api.cal.com sits behind
+  Cloudflare bot checks and answers stock `Python-urllib/3.x` with 403/1010.
 - Timeout 10 s per call; HTTP/network/auth errors return `BookingReceipt(ok=False, error=...)`
   or empty slot list — never raise into the graph.
 - Rate limit 120 req/min (cal.com API-key tier) is respected; no retry storm — one attempt,
   failure surfaces to the user as "calendar unavailable, leave details for callback."
 - Times are ISO-8601 UTC on the wire; timezone conversion happens once at the UI boundary
   using `CAL_TIMEZONE`. The tool layer stores UTC only.
+- Slots wire shape (live 2026-09-12): bare date-map
+  `{"data": {"2026-09-14": [{"start": "2026-09-14T09:00:00.000+08:00"}]}}`
+  with `start` key and numeric offsets — parser must accept it.
+- Booking payload: `attendee.timeZone` (from `CAL_TIMEZONE`) is REQUIRED (400
+  without it); top-level `notes` is REJECTED (400) and must not be sent.
 - A slot the API did not return must never be confirmed. No fallback invention.
+- Cancel (live-check only, not wired into the graph):
+  `POST /v2/bookings/{uid}/cancel` + `{"cancellationReason": ...}`.
 
 ## 4. Schemas (`src/agent/schemas.py` additions)
 

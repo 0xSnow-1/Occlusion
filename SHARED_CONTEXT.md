@@ -89,11 +89,18 @@ and the eval roadmap below before proposing anything.
 
 ## V2 pointer (2026-09-11 — receptionist pivot, supersedes Path B draft above)
 
-Spec: `SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` node via
-`src/agent/tools.py` on real cal.com API v2 (slots + booking, `CAL_API_KEY` in `.env` only).
+Spec: `SPEC_V2.md` (amended 2026-09-12 with owner approval — see amendment log below).
+Q&A + guardrail + Gates 0-3 frozen; parallel `booking` node via `src/agent/tools.py`
+on real cal.com API v2 (slots + booking, `CAL_API_KEY` in `.env` only).
 Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
-no fake slots ever, booking failure degrades to callback list. Next: tools + state + node
-test-first per SPEC_V2 §9, then callback list + scoreboard.
+no fake slots ever, booking failure degrades to callback list.
+DONE: tools + state + booking node + callback list + scoreboard + UI + live check (§9).
+OPEN: pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-runs.
+
+## V2 amendments log (spec changes need owner sign-off — record them here)
+- 2026-09-12 (approved by owner "amend the spec"): SPEC_V2 §3 rewritten for live reality —
+  per-endpoint cal-api-version, browser User-Agent, slots wire shape, booking payload rules,
+  cancel endpoint. Single shared `2024-08-13` header was wrong and 404s two endpoints.
 
 ## V2 step 1 done (2026-09-11 — booking tools foundation, mocked HTTP only)
 - `src/agent/tools.py` (new): stdlib `urllib` only, zero new deps (pyproject untouched).
@@ -129,7 +136,20 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 - 2026-09-12: `.env` fixed (renamed `API_KEY` → `CAL_API_KEY`, added `CAL_USERNAME=ahmed-gamal-7acpyz`, `CAL_TIMEZONE=Asia/Manila`). Key verified clean (41 chars, `cal_live_` + 32 hex, no whitespace).
 - 2026-09-12 LIVE CHECK PASSED (SPEC_V2 §9, probe in /tmp only, never committed): 4 events incl. `doctor` id 7034024 (15 min); 160 slots over 7d in Asia/Manila (first 2026-09-14T09:00+08:00); book-then-cancel 201 + 200 on 2026-09-14T01:00Z with immediate cancel; past-time booking 400 → `ok=False`. Calendar holds only 3 cancelled V2-test records, zero live bookings.
 - Live-found API facts (code + tests updated, suite 122/122): (1) Cloudflare blocks stock urllib UA with 403/1010 — browser UA header added to tools.py (test-pinned). (2) cal-api-version is PER-ENDPOINT: event-types 2024-06-14, slots 2024-09-04, bookings 2024-08-13 — SPEC_V2 §3's single version 404s on event-types/slots; needs owner sign-off as spec amendment. (3) Slots wire shape is bare date-map `{"data": {"2026-09-14": [{"start": ...}]}}` with `start` key (+08:00 offsets) — parser + live-shape test added. (4) POST /bookings rejects top-level `notes` (400) — no longer sent. (5) attendee.timeZone REQUIRED (400 without) — now sent from CAL_TIMEZONE. (6) 409 "already has booking or not available" on slots adjacent to just-cancelled tests — fail-soft `ok=False` + callback offer is the correct handling; fresh slots book fine.
-- `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Live check stays blocked until key + IANA tz + test event type are confirmed.
+- `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Commit `572c7e9` is the live-proven tools state.
+- SECURITY FLAG 2026-09-12: owner pasted the live key in chat to show it was saved. Chat history now holds it — recommend refresh via cal.com Settings → Security and updating the one `.env` line. No action taken without owner word.
+
+## V2 live API contract (authoritative 2026-09-12 — trust this over any doc snippet)
+- Base `https://api.cal.com/v2`. Every call needs BOTH headers: `Authorization: Bearer <key>` AND the endpoint-family `cal-api-version` AND a browser `User-Agent` (stock urllib gets Cloudflare 403 error 1010).
+- Version table (wrong value → HTTP 404 `NotFoundException`, NOT 401 — do not chase auth on a 404):
+  `GET /v2/event-types` → `2024-06-14`; `GET /v2/slots` → `2024-09-04`; `POST /v2/bookings` and `POST /v2/bookings/{uid}/cancel` → `2024-08-13`.
+- Account (live): username `ahmed-gamal-7acpyz`, tz `Asia/Manila`, 4 events — `30min` id 7033891, `15min` id 7033890, `secret` id 7033892, `doctor` id 7034024 (15 min, the V2 test event).
+- Slots request: `GET /v2/slots?eventTypeId=&start=&end=&timeZone=` with full ISO datetimes; response is a BARE date-map `{"status":"success","data":{"2026-09-14":[{"start":"2026-09-14T09:00:00.000+08:00"}]}}` — no `slots` wrapper, entries keyed `start` (also accept `time`/`startTime` defensively), offsets like `+08:00` must parse.
+- Booking request: `{"eventTypeId","start","attendee":{"name","email","timeZone"}}`. `attendee.timeZone` REQUIRED (400 without); top-level `notes` FORBIDDEN (400 "should not exist"); undeliverable attendee domain 400 `email_domain_cannot_receive_mail` (reserved domains like example.com fail — use the owner's own address for tests so no third party gets mail).
+- Booking answers: 201 + `data.uid` on success; 400 past-time (fail-soft `ok=False`); 409 `ConflictException` "already has booking or not available" on slots adjacent to just-cancelled tests (fail-soft + callback offer; fresh slots book fine — do NOT retry-storm a 409).
+- Cancel: `POST /v2/bookings/{uid}/cancel` + `{"cancellationReason"}` → 200. List: `GET /v2/bookings?take=` shows `cancelled` test records (3 on file from the live check, zero live).
+- Live-check proof (probe in /tmp only, never committed): 160 slots/7d; book 2026-09-14T01:00Z → 201 → cancel → 200; past-time → 400 → `ok=False`. Suite 122/122 after every tools fix.
+- Debugging ladder for future sessions: 403/1010 = UA missing (not the key); 404 on a known path = wrong cal-api-version; 400 = read the error body (notes/timeZone/domain); 409 = pick a fresh slot, never force it.
 
 ## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
 - API key: log in at cal.com → Settings → Security (API keys; some accounts show Settings → Developer → API keys) → Create new API key → copy the `cal_live_...` value (shown once). Paste into local `.env` as `CAL_API_KEY=...`. Test keys start `cal_`, live keys `cal_live_`. Rate limit 120 req/min on API-key tier.
