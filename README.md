@@ -108,7 +108,7 @@ Specs: `evals/guardrails/tasks/{trap-refusal,boundary-precision,nearmiss-refusal
 
 ### Live-model pass — 192/202 (honest backlog)
 
-`live-model-refusal` (Draft spec): same 75 trilogy questions through real `:memory:` Qdrant hybrid retrieval + live Bedrock Haiku 4.5 @ temp 0.
+`live-model-refusal` (approved 2026-09-08): same 75 trilogy questions through real `:memory:` Qdrant hybrid retrieval + live Bedrock Haiku 4.5 @ temp 0.
 All 44 refusal-side items pass; 10 boundary items over-refuse (5× Gate-2 no-citation, 5× Gate-3 low-confidence) — the current calibration backlog, recorded in `SHARED_CONTEXT.md`.
 Latency/cost are recorded, never gated; SCOPE §6 target is P95 < 3 s and documented cost @ ~500 queries/day.
 
@@ -145,7 +145,7 @@ Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinica
 | Structured output | Pydantic v2 (`Answer` vs `Refusal` discriminated on `kind`) | LLM output is a contract |
 | Eval | Ragas (distinct judge) + Harbor trilogy + golden set | Quality + safety, separately |
 | Observability | LangSmith tracing | Per-node latency/tokens/cost |
-| Demo | scripts `run_ingest.py` / `run_agent.py` (`--chat`) | No FastAPI/UI yet (TODO Phase 9) |
+| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; Dockerfile → HF Spaces (port 7860) |
 
 ## Run it locally
 
@@ -158,6 +158,7 @@ uv sync
 cp sample.env .env   # fill keys; .env is gitignored, never commit it
 uv run python scripts/run_ingest.py        # default corpus -> ./data/qdrant_storage
 uv run python scripts/run_agent.py --chat  # interactive (quit with quit/q; Qdrant local lock is single-process)
+uv run streamlit run src/ui/app.py         # demo UI (requires ingested collection + Bedrock .env keys)
 uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
 ```
 

@@ -157,7 +157,7 @@ The eval harness, golden set, and CI wiring are defined phase by phase in `TODO.
 
 Diagnosis or symptom-specific advice, real patient records / PHI, appointment booking, insurance-terminology coverage, voice, fine-tuning, and multi-lingual support are out of scope.
 The parking lot (cross-encoder rerank, original dental-benefit glossary, US triage source, clinician-mode corpus, MCP exposure, front-desk dashboard, multi-turn memory) lives in `SCOPE.md` §9.
-No FastAPI service or demo UI exists yet (TODO Phase 9).
+No FastAPI service exists yet (Phase 9.2 remains optional); a Streamlit demo UI ships in `src/ui/app.py` (Phase 9.1), deployed via `Dockerfile` to HF Spaces at port 7860.
 
 ## 10. File map
 

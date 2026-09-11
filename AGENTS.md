@@ -21,7 +21,7 @@
 - `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `guardrail`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`), default overwrite semantics (deliberately no reducers).
 - `src/agent/graph.py` — implemented (Phase 5.3): LangGraph wiring (guardrail, retrieve, generate, verify, decide nodes; conditional edges for flagged/empty paths).
 - `src/agent/verify.py` — implemented: `verify_citations` checks inline `[SRC:doc_id]` tokens against retrieved chunk IDs; fail-closed on zero citations or fabricated IDs.
-- `src/agent/prompts.py` — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks.
+- `src/agent/prompts/` (package) — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks; versioned templates (`.md`) loaded via `load_prompt_template`.
 - `src/agent/guardrail.py` — implemented (Phase 7.2): `screen_question` deterministic regex-based scope gate returning `GuardrailDecision(allowed, rule)`.
 - `src/agent/agents.py` — **empty stub**. Reserved for future multi-agent orchestration.
 - `src/eval/` — empty, planned per TODO phases.
