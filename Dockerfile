@@ -31,7 +31,8 @@ COPY data/PROVENANCE.md data/HTML_SOURCES.md ./data/
 RUN uv sync --frozen --no-dev
 
 # Bake the Qdrant index into the image (needs build-time network: 11 HTML
-# sources + fastembed model downloads). 28 pages -> 120 chunks -> 120 points.
+# sources + fastembed model downloads). Live-HTML sources may vary; measured
+# at 136 points (136 chunks from 28 pages; eval snapshot = 120 points).
 RUN uv run python scripts/run_ingest.py
 
 EXPOSE 7860
