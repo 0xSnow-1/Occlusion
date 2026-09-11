@@ -153,6 +153,14 @@ OPEN: pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-r
 - 2026-09-12 E2E DEMO PASSED: local index was EMPTY (0 points — env reset), re-ingested to 42 pages / 181 chunks / 181 points via `uv run python -m src.ingest.ingestion_pipeline`. `scripts/run_agent.py` had a latent double-open bug (`main` + `answer_questions` each built a QdrantClient on the same path → exclusive-lock crash); fixed by passing the client through (commit below). Live runs: booking question → real slot offer Answer (no LLM call); Q&A question → cited Answer conf 0.9. Demo: `uv run python scripts/run_agent.py --chat` or one-shot with a quoted question; UI: `uv run streamlit run src/ui/app.py`.
 - NOTE: booking demo matched the FIRST event ("30 min meeting") because no event slug/title contains "cleaning" — substring fallback per design. Owner events are 30min/15min/secret/doctor; a real "cleaning" visit type does not exist yet.
 
+## V2 UI session (2026-09-12 — owner demoing live, fixes from their feedback)
+- Confirm-booking crashed with `KeyError: 'content'`: after slot pick, `messages[-1]` is the assistant turn (keys question/state, no content). Fixed by storing `booking_question` in session state at pick time; cleared on confirm/clear. Commit `c6ab5d0`.
+- Slot offer was a raw ISO dump + vertical buttons. Now: node text hidden in UI, day-grouped grid of time buttons (4 per row, `Asia/Manila` labels, wire stays UTC ISO). UI-only, no graph/test changes. Commit `a5c2547`.
+- "Try one" suggested row (5 buttons: brushing, flossing, gum disease, dry mouth, booking demo). Brushing + booking verified live; flossing/gum/dry-mouth UNVERIFIED (owner's running app held the Qdrant lock, CLI locked out) — owner clicks are the verification; swap any that refuse. Commit `e691284`.
+- Source chips showed `dry-mouth` ×9: chips rendered every citation token. Fixed with `dict.fromkeys` (same pattern the chunk line already used). Commit `0d509bc`.
+- Deeper thread (not now): model repeats one source many times in an answer. Harmless for verification, revisit in the Ragas re-run.
+- Qdrant LOCAL lock vs Streamlit: while the UI session lives, ALL CLI index access fails (exclusive lock). Demo rule: one accessor at a time; close the app (or Clear + quit) before CLI runs.
+
 ## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
 - API key: log in at cal.com → Settings → Security (API keys; some accounts show Settings → Developer → API keys) → Create new API key → copy the `cal_live_...` value (shown once). Paste into local `.env` as `CAL_API_KEY=...`. Test keys start `cal_`, live keys `cal_live_`. Rate limit 120 req/min on API-key tier.
 - Username + event slug: read off the booking link `cal.com/<username>/<slug>`. Event Type ID: open the event's settings, numbers between slashes in the URL bar.
