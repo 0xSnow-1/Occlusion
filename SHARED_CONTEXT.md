@@ -123,6 +123,9 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 ## Owner cal.com facts (2026-09-12 — from local .env + user message, secrets excluded)
 - `.env` holds `CAL_URL=https://cal.com/ahmed-gamal-7acpyz/doctor` (username candidate `ahmed-gamal-7acpyz`, event slug `doctor`). No `CAL_USERNAME` / `CAL_API_KEY` / `CAL_TIMEZONE` keys in `.env` yet.
 - User-reported local time 12:00am; commit tz is +0800. IANA clinic timezone still UNCONFIRMED — do not guess (candidates differ: Asia/Manila vs Africa/Cairo). Ask before the live check.
+- 2026-09-12: user confirmed clinic timezone `Asia/Manila` (they typed "Maila", read as Manila typo; matches +0800 commits). Still to add to `.env`: `CAL_TIMEZONE=Asia/Manila`, `CAL_USERNAME=ahmed-gamal-7acpyz`.
+- 2026-09-12: user said key saved but `.env` has NO `CAL_API_KEY` line yet (checked by name). Exact line needed: `CAL_API_KEY=cal_live_...` with no spaces around `=`. Note: existing `.env` lines with spaces around `=` break shell sourcing — keep new lines spaceless.
+- Cancel endpoint for the live check confirmed (docs): `POST /v2/bookings/{uid}/cancel` + `{"cancellationReason": ...}` with owner Bearer key.
 - `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Live check stays blocked until key + IANA tz + test event type are confirmed.
 
 ## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
