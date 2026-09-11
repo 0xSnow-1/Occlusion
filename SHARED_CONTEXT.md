@@ -32,7 +32,7 @@ and the eval roadmap below before proposing anything.
 
 ## Learnings
 - `<branch/date>`: `<what was discovered, why it matters to other agents>`
-- `feature/retrieve` / 2026-09-06: commit `08c64e4` landed `chunking_and_embedding.py` with 7 unresolved conflict hunk (SyntaxError, broke all of `tests/ingest/`). Cause: rebase restored a file one side had deleted. Fixed in `fe764b2` by keeping the chunk-only side. Lesson: never commit a rebase/merge result without running the offline suite.
+- `feature/retrieve` / 2026-09-06: commit `08c64e4` landed `chunking_and_embedding.py` with 7 unresolved conflict hunks (SyntaxError, broke all of `tests/ingest/`). Cause: rebase restored a file one side had deleted. Fixed in `fe764b2` by keeping the chunk-only side. Lesson: never commit a rebase/merge result without running the offline suite.
 - `feature/retrieve` / 2026-09-06: pushing feature work straight to `main` permanently escapes the no-mistakes gate (it only validates feature-to-base diffs). Carry work between branches with `git checkout -b <new> <old>` instead; `main` is written to only by merging PRs.
 - 2026-09-06: pipeline review model must support forced structured output (`tool_choice`). `ling-3.0-flash-fin-free` and `muse-spark-1.3-contributor-free` fail; `opencode/big-pickle` works. See `~/.no-mistakes/config.yaml`.
 - 2026-09-06: every pipeline run parks at the CI gate (`unknown flag: --slurp` from `gh api` 2.45.0). `.github/workflows/ci.yml` now exists and runs the offline suite on push/PR; observe the CI gate rather than skipping it until the pipeline reading is fixed.
