@@ -231,7 +231,7 @@ def render_assistant(question: str, state: dict) -> None:
             )
             check = state["check"]
             chips = " · ".join(
-                f"`{c}`" for c in check.cited_ids
+                f"`{c}`" for c in dict.fromkeys(check.cited_ids)
             )
             st.caption(f"Sources: {chips}" if chips else "Sources: none")
             with st.expander(
