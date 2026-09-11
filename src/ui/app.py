@@ -188,16 +188,32 @@ def render_assistant(question: str, state: dict) -> None:
                 f"UID `{receipt.uid}`. A confirmation email was sent by cal.com."
             )
         elif response.kind == "answer" and slots:
-            st.markdown(response.answer)
-            for s in slots[:8]:
+            st.markdown(f"I found **{len(slots)}** open times. Pick one to continue:")
+            grouped: dict[str, list] = {}
+            for s in slots[:16]:
                 iso = s.start_utc.isoformat() if hasattr(s.start_utc, "isoformat") else str(s.start_utc)
-                if st.button(
-                    f"Book {_display_slot(iso)} ({CAL_TIMEZONE})",
-                    key=f"slot-{iso}-{len(st.session_state.messages)}",
-                ):
-                    st.session_state.picked_slot = iso
-                    st.session_state.booking_question = question
-                    st.rerun()
+                try:
+                    dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+                    local = dt.astimezone(ZoneInfo(CAL_TIMEZONE))
+                    day = local.strftime("%a %d %b")
+                    label = local.strftime("%H:%M")
+                except (ValueError, TypeError):
+                    day, label = iso, iso
+                grouped.setdefault(day, []).append((iso, label))
+            n = 0
+            for day, items in grouped.items():
+                st.caption(f"**{day}** ({CAL_TIMEZONE})")
+                for i in range(0, len(items), 4):
+                    cols = st.columns(4)
+                    for col, (iso, label) in zip(cols, items[i : i + 4]):
+                        with col:
+                            if st.button(label, key=f"slot-{iso}-{len(st.session_state.messages)}-{n}"):
+                                st.session_state.picked_slot = iso
+                                st.session_state.booking_question = question
+                                st.rerun()
+                        n += 1
         elif response.kind == "answer":
             st.markdown(response.answer)
             st.progress(
