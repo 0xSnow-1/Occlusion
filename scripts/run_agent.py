@@ -77,8 +77,11 @@ def build_qdrant_client() -> tuple[QdrantClient, str]:
     return store.client, COLLECTION_NAME
 
 
-def answer_questions(questions: list[str]) -> None:
-    client, collection_name = build_qdrant_client()
+def answer_questions(
+    questions: list[str], client=None, collection_name: str = COLLECTION_NAME
+) -> None:
+    if client is None:
+        client, collection_name = build_qdrant_client()
     retriever = make_retriever(client, collection_name, variant="hybrid")
     graph = build_graph(retriever=retriever, llm=haiku, confidence_threshold=0.7)
 
@@ -169,7 +172,7 @@ def main() -> None:
         return
 
     questions = [" ".join(args.question)] if args.question else DEMO_QUESTIONS
-    answer_questions(questions)
+    answer_questions(questions, client, collection_name)
 
 
 if __name__ == "__main__":
