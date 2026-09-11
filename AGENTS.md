@@ -33,7 +33,7 @@
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/test_guardrail.py` (29), `test_graph.py` (4), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4) — 55 agent tests, all green. Total offline suite is 94 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_guardrail.py` (29), `test_graph.py` (4), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6) — 61 agent tests, all green. Total offline suite is 100 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
