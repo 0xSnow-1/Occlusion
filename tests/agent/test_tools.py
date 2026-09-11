@@ -41,6 +41,7 @@ class TestListEventTypes:
         def fake_urlopen(req, timeout=10):
             seen["auth"] = req.get_header("Authorization")
             seen["version"] = req.get_header("Cal-api-version")
+            seen["agent"] = req.get_header("User-agent")
             return _resp(body)
 
         with patch.object(tools.urllib.request, "urlopen", fake_urlopen):
@@ -50,7 +51,8 @@ class TestListEventTypes:
         assert out[0].slug == "checkup"
         assert out[0].duration_min == 30
         assert seen["auth"] == "Bearer test-key"
-        assert seen["version"] == "2024-08-13"
+        assert seen["version"] == "2024-06-14"  # event-types pins its own version
+        assert "Mozilla" in (seen["agent"] or "")
 
     def test_api_down_returns_empty(self, monkeypatch):
         monkeypatch.setenv("CAL_API_KEY", "test-key")
@@ -77,6 +79,21 @@ class TestGetSlots:
         assert out[0].eventTypeId == 456
         assert out[0].start_utc.isoformat().startswith("2026-09-12T09:00:00")
 
+    def test_parses_live_bare_date_map_with_start_key(self, monkeypatch):
+        """Exact wire shape seen live 2026-09-12: data is a bare date-map,
+        entries carry 'start' (not 'time'), offsets like +08:00."""
+        monkeypatch.setenv("CAL_API_KEY", "test-key")
+        body = {
+            "status": "success",
+            "data": {"2026-09-14": [{"start": "2026-09-14T09:00:00.000+08:00"}]},
+        }
+        with patch.object(
+            tools.urllib.request, "urlopen", lambda req, timeout=10: _resp(body)
+        ):
+            out = tools.get_slots(7034024, "2026-09-12T00:00:00Z", "2026-09-19T00:00:00Z", "Asia/Manila")
+        assert len(out) == 1
+        assert out[0].start_utc.isoformat().startswith("2026-09-14T09:00:00")
+
     def test_api_down_returns_empty(self, monkeypatch):
         monkeypatch.setenv("CAL_API_KEY", "test-key")
 
@@ -98,14 +115,20 @@ class TestCreateBooking:
                 "startTime": "2026-09-12T09:30:00Z",
             },
         }
-        with patch.object(
-            tools.urllib.request, "urlopen", lambda req, timeout=10: _resp(body)
-        ):
+        seen = {}
+
+        def fake_urlopen(req, timeout=10):
+            seen["payload"] = json.loads(req.data.decode("utf-8"))
+            return _resp(body)
+
+        with patch.object(tools.urllib.request, "urlopen", fake_urlopen):
             receipt = tools.create_booking(456, "2026-09-12T09:30:00Z", "Ana", "ana@mail.com")
         assert receipt.ok is True
         assert receipt.uid == "abc123"
         assert receipt.title == "Cleaning"
         assert receipt.start_utc.isoformat().startswith("2026-09-12T09:30:00")
+        assert "notes" not in seen["payload"]  # live API 400s on top-level notes
+        assert seen["payload"]["attendee"]["timeZone"] == "UTC"  # required live
 
     def test_api_down_returns_ok_false(self, monkeypatch):
         monkeypatch.setenv("CAL_API_KEY", "test-key")

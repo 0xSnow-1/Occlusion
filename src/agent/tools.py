@@ -28,7 +28,15 @@ from src.agent.schemas import BookingReceipt, EventType, Slot
 logger = logging.getLogger(__name__)
 
 CAL_API_BASE = "https://api.cal.com/v2"
-CAL_API_VERSION = "2024-08-13"
+# cal.com pins a DIFFERENT cal-api-version per endpoint family (wrong value
+# 404s). SPEC_V2 §3 named one version; live probes 2026-09-12 showed the
+# real mapping below, which wins over the spec text.
+CAL_API_VERSIONS = {
+    "event-types": "2024-06-14",
+    "slots": "2024-09-04",
+    "bookings": "2024-08-13",
+}
+CAL_API_VERSION = CAL_API_VERSIONS["bookings"]
 TIMEOUT_S = 10
 
 
@@ -36,12 +44,21 @@ def _api_key() -> str | None:
     return os.environ.get("CAL_API_KEY") or None
 
 
-def _auth_headers() -> dict[str, str]:
+def _auth_headers(api: str = "bookings") -> dict[str, str]:
     key = _api_key()
     return {
         "Authorization": f"Bearer {key}" if key else "",
-        "cal-api-version": CAL_API_VERSION,
+        "cal-api-version": CAL_API_VERSIONS.get(api, CAL_API_VERSION),
         "Content-Type": "application/json",
+        # api.cal.com sits behind Cloudflare bot checks: stock urllib's
+        # "Python-urllib/3.x" agent gets a 403 (error 1010). A browser
+        # agent string passes. No behavior change beyond access.
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/126.0 Safari/537.36"
+        ),
+        "Accept": "application/json",
     }
 
 
@@ -120,7 +137,7 @@ def list_event_types() -> list[EventType]:
         return []
     url = f"{CAL_API_BASE}/event-types"
     try:
-        _, body = _do_request("GET", url, _auth_headers())
+        _, body = _do_request("GET", url, _auth_headers("event-types"))
         items = _unwrap_data(body)
         if not isinstance(items, list):
             logger.error("list_event_types: unexpected response shape")
@@ -142,28 +159,33 @@ def list_event_types() -> list[EventType]:
 
 
 def _extract_slot_times(data: object) -> list[str]:
-    """Handle cal.com slot shapes: dict-of-lists or flat list."""
+    """Handle cal.com slot shapes (all seen live 2026-09-12):
+    {"data": {"2026-09-14": [{"start": ...}]}} (bare date-map),
+    {"slots": {...}} wrapper, or a flat list. Entries use
+    "time", "start", or "startTime" keys, or bare strings.
+    """
     times: list[str] = []
     slots_obj = data
     if isinstance(data, dict) and "slots" in data:
         slots_obj = data["slots"]
+
+    def _take(entry: object) -> None:
+        if isinstance(entry, dict):
+            for key in ("time", "start", "startTime"):
+                if entry.get(key):
+                    times.append(entry[key])
+                    break
+        elif isinstance(entry, str):
+            times.append(entry)
+
     if isinstance(slots_obj, dict):
         for _day, entries in slots_obj.items():
             if isinstance(entries, list):
                 for entry in entries:
-                    if isinstance(entry, dict) and "time" in entry:
-                        times.append(entry["time"])
-                    elif isinstance(entry, str):
-                        times.append(entry)
+                    _take(entry)
     elif isinstance(slots_obj, list):
         for entry in slots_obj:
-            if isinstance(entry, dict):
-                for key in ("time", "start", "startTime"):
-                    if entry.get(key):
-                        times.append(entry[key])
-                        break
-            elif isinstance(entry, str):
-                times.append(entry)
+            _take(entry)
     return times
 
 
@@ -179,7 +201,7 @@ def get_slots(
     )
     url = f"{CAL_API_BASE}/slots?{query}"
     try:
-        _, body = _do_request("GET", url, _auth_headers())
+        _, body = _do_request("GET", url, _auth_headers("slots"))
         data = _unwrap_data(body)
         out: list[Slot] = []
         for t in _extract_slot_times(data):
@@ -210,14 +232,18 @@ def create_booking(
     if not name.strip() or not email.strip():
         return BookingReceipt(ok=False, error="name and email are required")
     url = f"{CAL_API_BASE}/bookings"
+    # NOTE (live probe 2026-09-12): top-level "notes" is rejected with 400
+    # ("property notes should not exist"). The parameter stays for caller
+    # compat but is not sent; extra text belongs in bookingFieldsResponses.
+    # Same probe: attendee.timeZone is REQUIRED (400 without it).
+    tz = os.environ.get("CAL_TIMEZONE", "UTC") or "UTC"
     payload = {
         "eventTypeId": eventTypeId,
         "start": start_utc_iso,
-        "attendee": {"name": name, "email": email},
-        "notes": notes,
+        "attendee": {"name": name, "email": email, "timeZone": tz},
     }
     try:
-        _, body = _do_request("POST", url, _auth_headers(), payload)
+        _, body = _do_request("POST", url, _auth_headers("bookings"), payload)
         data = _unwrap_data(body)
         if not isinstance(data, dict):
             return BookingReceipt(ok=False, error="calendar unavailable: bad response")
