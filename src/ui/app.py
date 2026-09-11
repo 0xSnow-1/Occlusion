@@ -56,6 +56,14 @@ DISCLAIMER = (
     "Always consult a dentist for decisions about your own care."
 )
 
+SUGGESTED = [
+    "How often should I brush my teeth?",
+    "Is flossing really necessary?",
+    "What are the signs of gum disease?",
+    "What causes dry mouth?",
+    "Can I book a cleaning tomorrow morning?",
+]
+
 
 
 @st.cache_resource(show_spinner="Connecting to knowledge base…")
@@ -367,7 +375,16 @@ def main() -> None:
             st.rerun()
 
     prompt = st.chat_input("Ask a routine dental-care question…")
-    if prompt:
+    picked = None
+    st.caption("Try one:")
+    cols = st.columns(len(SUGGESTED))
+    for col, q in zip(cols, SUGGESTED):
+        with col:
+            if st.button(q, key=f"try-{q[:20]}"):
+                picked = q
+    pending = picked or prompt
+    if pending:
+        prompt = pending
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
