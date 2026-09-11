@@ -119,3 +119,8 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 - `src/ui/app.py`: booking stage in status; slot buttons (display in CAL_TIMEZONE, wire stays UTC ISO); in-chat name/email confirm; receipt success view; refusal callback form; sidebar scoreboard + staff table + CSV; counts-only run log. Syntax-checked; streamlit not in offline suite.
 - Suite 121/121 green. `.gitignore` gains `data/callbacks.jsonl` + `eval/results/`.
 - Still open (need owner): live cal.com check (§9: slots fetch, book-then-cancel, past-time) + pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-runs.
+
+## Owner cal.com facts (2026-09-12 — from local .env + user message, secrets excluded)
+- `.env` holds `CAL_URL=https://cal.com/ahmed-gamal-7acpyz/doctor` (username candidate `ahmed-gamal-7acpyz`, event slug `doctor`). No `CAL_USERNAME` / `CAL_API_KEY` / `CAL_TIMEZONE` keys in `.env` yet.
+- User-reported local time 12:00am; commit tz is +0800. IANA clinic timezone still UNCONFIRMED — do not guess (candidates differ: Asia/Manila vs Africa/Cairo). Ask before the live check.
+- `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Live check stays blocked until key + IANA tz + test event type are confirmed.
