@@ -112,3 +112,10 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 - Booking node: event_slug substring match else first event; ISO time scraped from question + contact name/email triggers create_booking; slot offer lists real slots; every failure is ok=False + callback-worded Refusal, never a fake UID.
 - Tests: `tests/agent/test_booking_graph.py` 4 tests (skip LLM/retrieval, book with contact, double-book callback, Q&A unchanged). Suite 113/113 green; test_graph/guardrail/verify unmodified.
 - Next: callback list + scoreboard (SPEC_V2 §8).
+
+## V2 step 3 done (2026-09-11 — callback list + scoreboard + UI, no live calls)
+- `src/agent/callbacks.py` (new): `append_callback`/`read_callbacks` over `data/callbacks.jsonl` (gitignored); stores name/phone + question_hash (never raw text) + reason + UTC timestamp; logs reason only, never PHI. 5 tests.
+- `src/eval/deflection.py` (new): pure `summarize_runs` over counts-only records (handled/booked/callback + p50/p95 + $/day at 500). 3 tests in tests/agent (keeps CI paths unchanged).
+- `src/ui/app.py`: booking stage in status; slot buttons (display in CAL_TIMEZONE, wire stays UTC ISO); in-chat name/email confirm; receipt success view; refusal callback form; sidebar scoreboard + staff table + CSV; counts-only run log. Syntax-checked; streamlit not in offline suite.
+- Suite 121/121 green. `.gitignore` gains `data/callbacks.jsonl` + `eval/results/`.
+- Still open (need owner): live cal.com check (§9: slots fetch, book-then-cancel, past-time) + pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-runs.

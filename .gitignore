@@ -24,6 +24,8 @@ build/
 data/parsed/
 data/embeddings_cache/
 data/qdrant_storage/
+data/callbacks.jsonl
+eval/results/
 
 # --- AI stack reference docs ---
 ai-stack/

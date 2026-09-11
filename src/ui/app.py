@@ -17,6 +17,7 @@ import logging
 import os
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
 
 # Streamlit runs this file with src/ui/ (not the repo root) on sys.path,
@@ -29,7 +30,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from zoneinfo import ZoneInfo
+
+from src.agent.callbacks import append_callback, read_callbacks
 from src.agent.graph import build_graph
+from src.agent.schemas import Contact
+from src.eval.deflection import summarize_runs
 from src.ingest.vector_store import VectorStore
 from src.retrieve import make_retriever
 
@@ -38,6 +44,7 @@ logger = logging.getLogger(__name__)
 COLLECTION_NAME = "occlusion"
 QDRANT_PATH = "./data/qdrant_storage"
 CONFIDENCE_THRESHOLD = 0.7
+CAL_TIMEZONE = os.getenv("CAL_TIMEZONE", "UTC") or "UTC"
 BEDROCK_MODEL_ID = os.getenv(
     "BEDROCK_MODEL_ID", "global.anthropic.claude-haiku-4-5-20251001-v1:0"
 )
@@ -78,7 +85,7 @@ def get_pipeline():
     return graph, points
 
 
-def run_question(graph, question: str) -> dict:
+def run_question(graph, question: str, contact: Contact | None = None) -> dict:
     """Stream one question through the graph, updating a status container per
     node, and return the final response + evidence for rendering/history."""
     stages = {
@@ -87,16 +94,22 @@ def run_question(graph, question: str) -> dict:
         "generate": "Drafting answer",
         "verify": "Verifying citations",
         "decide": "Applying safety gates",
+        "booking": "Checking calendar",
     }
     state: dict = {
         "response": None,
         "chunks": [],
         "check": None,
         "gen_confidence": None,
+        "slots": [],
+        "receipt": None,
     }
     t0 = time.monotonic()
+    payload_in: dict = {"question": question}
+    if contact is not None:
+        payload_in["contact"] = contact
     with st.status("Working…", expanded=True) as status:
-        for update in graph.stream({"question": question}, stream_mode="updates"):
+        for update in graph.stream(payload_in, stream_mode="updates"):
             for node, payload in update.items():
                 label = stages.get(node, node)
                 if node == "guardrail":
@@ -105,8 +118,17 @@ def run_question(graph, question: str) -> dict:
                         if not payload["guardrail"].allowed
                         else "in scope"
                     )
-                    status.update(label=f"{label}: {flag}")
-                    status.write(f"Guardrail: {flag}.")
+                    intent = payload.get("booking_intent")
+                    extra = " + booking intent" if intent is not None and intent.wants_booking else ""
+                    status.update(label=f"{label}: {flag}{extra}")
+                    status.write(f"Guardrail: {flag}{extra}.")
+                elif node == "booking":
+                    state["slots"] = payload.get("slots", [])
+                    state["receipt"] = payload.get("booking_receipt")
+                    state["response"] = payload["response"]
+                    status.update(
+                        label=f"{label}: {len(state['slots'])} slots", state="complete"
+                    )
                 elif node == "retrieve":
                     state["chunks"] = payload["fused_chunks"]
                     status.update(
@@ -142,11 +164,40 @@ def run_question(graph, question: str) -> dict:
     return state
 
 
+def _display_slot(iso_utc: str) -> str:
+    """Convert a UTC ISO time to clinic tz for display only (wire stays UTC)."""
+    try:
+        dt = datetime.fromisoformat(iso_utc.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+        return dt.astimezone(ZoneInfo(CAL_TIMEZONE)).strftime("%a %d %b %H:%M")
+    except (ValueError, TypeError):
+        return iso_utc
+
+
 def render_assistant(question: str, state: dict) -> None:
-    """Render one assistant turn: answer/refusal + trust panel."""
+    """Render one assistant turn: answer/refusal/booking + trust panel."""
     response = state["response"]
     with st.chat_message("assistant"):
-        if response.kind == "answer":
+        receipt = state.get("receipt")
+        slots = state.get("slots", [])
+        if receipt is not None and receipt.ok:
+            when = receipt.start_utc.isoformat() if receipt.start_utc else ""
+            st.success(
+                f"Booked {receipt.title or 'appointment'} at {when} UTC. "
+                f"UID `{receipt.uid}`. A confirmation email was sent by cal.com."
+            )
+        elif response.kind == "answer" and slots:
+            st.markdown(response.answer)
+            for s in slots[:8]:
+                iso = s.start_utc.isoformat() if hasattr(s.start_utc, "isoformat") else str(s.start_utc)
+                if st.button(
+                    f"Book {_display_slot(iso)} ({CAL_TIMEZONE})",
+                    key=f"slot-{iso}-{len(st.session_state.messages)}",
+                ):
+                    st.session_state.picked_slot = iso
+                    st.rerun()
+        elif response.kind == "answer":
             st.markdown(response.answer)
             st.progress(
                 min(max(response.confidence, 0.0), 1.0),
@@ -181,6 +232,21 @@ def render_assistant(question: str, state: dict) -> None:
             )
 
 
+def _log_run(state: dict) -> None:
+    """Append a counts-only run record for the scoreboard (no text stored)."""
+    response = state["response"]
+    receipt = state.get("receipt")
+    if receipt is not None and receipt.ok:
+        outcome = "booked"
+    elif response.kind == "answer":
+        outcome = "handled"
+    else:
+        outcome = "callback"
+    st.session_state.runs.append(
+        {"outcome": outcome, "latency_s": state.get("latency_s", 0.0)}
+    )
+
+
 def main() -> None:
     st.set_page_config(
         page_title="Occlusion — Dental FAQ",
@@ -192,6 +258,10 @@ def main() -> None:
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "runs" not in st.session_state:
+        st.session_state.runs = []
+    if "picked_slot" not in st.session_state:
+        st.session_state.picked_slot = None
 
     try:
         graph, points = get_pipeline()
@@ -211,8 +281,34 @@ def main() -> None:
         )
         st.write(f"Model `{BEDROCK_MODEL_ID}` @ temperature 0")
         st.write(f"Refusal threshold `{CONFIDENCE_THRESHOLD:.2f}`")
+        score = summarize_runs(st.session_state.runs)
+        st.header("Scoreboard (this session)")
+        st.write(
+            f"Answered **{score['handled']}** · Booked **{score['booked']}** · "
+            f"Callback **{score['callback']}** · p50 **{score['p50_latency_s']}s** · "
+            f"p95 **{score['p95_latency_s']}s** · ~$**{score['cost_per_day_usd']}**/day @500"
+        )
+        st.header("Callback list (staff)")
+        rows = read_callbacks()
+        if rows:
+            st.table(rows[-10:])
+            st.download_button(
+                "Download CSV",
+                data="name,phone,question_hash,reason,timestamp\n"
+                + "".join(
+                    f"{r.get('name','')},{r.get('phone','')},{r.get('question_hash','')},"
+                    f"{r.get('reason','')},{r.get('timestamp','')}\n"
+                    for r in rows
+                ),
+                file_name="callbacks.csv",
+                mime="text/csv",
+            )
+        else:
+            st.caption("No callbacks yet.")
         if st.button("Clear conversation"):
             st.session_state.messages = []
+            st.session_state.runs = []
+            st.session_state.picked_slot = None
             st.rerun()
 
     for turn in st.session_state.messages:
@@ -221,6 +317,32 @@ def main() -> None:
                 st.markdown(turn["content"])
         else:
             render_assistant(turn["question"], turn["state"])
+
+    if st.session_state.picked_slot:
+        st.info(
+            f"Selected {_display_slot(st.session_state.picked_slot)} ({CAL_TIMEZONE}). "
+            "Enter your details to confirm — or pick another slot above."
+        )
+        with st.form("confirm-booking"):
+            name = st.text_input("Name")
+            email = st.text_input("Email")
+            if st.form_submit_button("Confirm booking"):
+                if not name.strip() or not email.strip():
+                    st.error("Name and email are required.")
+                else:
+                    full_q = f"{st.session_state.messages[-1]['content']} {st.session_state.picked_slot}"
+                    state = run_question(
+                        graph, full_q, Contact(name=name.strip(), email=email.strip())
+                    )
+                    st.session_state.messages.append(
+                        {"role": "assistant", "question": full_q, "state": state}
+                    )
+                    _log_run(state)
+                    st.session_state.picked_slot = None
+                    st.rerun()
+        if st.button("Clear selected slot"):
+            st.session_state.picked_slot = None
+            st.rerun()
 
     prompt = st.chat_input("Ask a routine dental-care question…")
     if prompt:
@@ -231,7 +353,24 @@ def main() -> None:
         st.session_state.messages.append(
             {"role": "assistant", "question": prompt, "state": state}
         )
+        _log_run(state)
         render_assistant(prompt, state)
+        if state["response"].kind == "refusal":
+            with st.form(f"callback-{len(st.session_state.messages)}"):
+                st.write("Leave details and we will call you back:")
+                cb_name = st.text_input("Name")
+                cb_phone = st.text_input("Phone")
+                if st.form_submit_button("Request callback"):
+                    if not cb_name.strip() or not cb_phone.strip():
+                        st.error("Name and phone are required.")
+                    else:
+                        append_callback(
+                            cb_name.strip(),
+                            cb_phone.strip(),
+                            prompt,
+                            state["response"].reason,
+                        )
+                        st.success("Thanks — we will call you back.")
 
 
 if __name__ == "__main__":
