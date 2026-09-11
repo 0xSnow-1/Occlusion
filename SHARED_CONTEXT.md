@@ -105,3 +105,10 @@ test-first per SPEC_V2 §9, then callback list + scoreboard.
 - `state.py`: 4 new fields, overwrite only, no reducers.
 - Tests: `tests/agent/test_tools.py` 9 tests mocked; suite 109/109 green (was 100).
 - Graph untouched: no booking node yet, Q&A path byte-identical. Next: booking node + `test_booking_graph.py`.
+
+## V2 step 2 done (2026-09-11 — booking node + routing, mocked tools only)
+- `src/agent/booking_intent.py` (new): deterministic regex, no LLM. Strict AND rule (booking word + day hint or visit word) so Q&A like "available services" or "what is a filling?" never misroutes. Strong phrases ("book an appointment") always count.
+- `graph.py`: guardrail node also writes fresh `booking_intent`; `_route_after_guardrail` returns booking when allowed + wants_booking (flagged still wins). New `booking` node -> END, never calls LLM or retrieval. `build_graph` takes optional injectable tool fns (defaults to real tools.py) so existing 2-arg calls are untouched.
+- Booking node: event_slug substring match else first event; ISO time scraped from question + contact name/email triggers create_booking; slot offer lists real slots; every failure is ok=False + callback-worded Refusal, never a fake UID.
+- Tests: `tests/agent/test_booking_graph.py` 4 tests (skip LLM/retrieval, book with contact, double-book callback, Q&A unchanged). Suite 113/113 green; test_graph/guardrail/verify unmodified.
+- Next: callback list + scoreboard (SPEC_V2 §8).
