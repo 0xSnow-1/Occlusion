@@ -13,6 +13,7 @@ itself validates nothing.
 from __future__ import annotations
 
 from enum import Enum
+from datetime import datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, TypeAdapter, field_validator
@@ -125,12 +126,63 @@ class CitationCheck(BaseModel):
     coverage: float = Field(default=0.0, ge=0, le=1)
 
 
+class EventType(BaseModel):
+    """One bookable visit type from cal.com (SPEC_V2 §4)."""
+
+    id: int
+    slug: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    duration_min: int = Field(ge=1)
+
+
+class Slot(BaseModel):
+    """One real open time returned by cal.com (SPEC_V2 §4, UTC on the wire)."""
+
+    start_utc: datetime
+    eventTypeId: int
+
+
+class BookingIntent(BaseModel):
+    """Parsed booking desire; produced by intent parse inside guardrail routing."""
+
+    wants_booking: bool = False
+    event_slug: str | None = None
+    day_hint: str | None = None
+
+
+class BookingReceipt(BaseModel):
+    """Proof a booking worked or failed (SPEC_V2 §4).
+
+    `ok=False` is the only failure channel — no exceptions cross into
+    graph state. A slot the API did not return must never be confirmed.
+    """
+
+    ok: bool = False
+    uid: str | None = None
+    title: str | None = None
+    start_utc: datetime | None = None
+    error: str | None = None
+
+
+class Contact(BaseModel):
+    """Attendee details collected in-chat before booking confirm."""
+
+    name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+
+
 __all__ = [
     "AgentOutput",
     "Answer",
+    "BookingIntent",
+    "BookingReceipt",
     "CitationCheck",
+    "Contact",
+    "EventType",
     "GuardrailDecision",
     "Refusal",
     "RefusalReason",
     "RetrievedChunk",
+    "Slot",
 ]

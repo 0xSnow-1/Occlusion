@@ -86,3 +86,90 @@ and the eval roadmap below before proposing anything.
 - The retrieval-pipeline code reached `main` (`08c64e4`) without ever passing the gate. Only the conflict fix (`fe764b2`, PR #4) is gate-validated. Decide whether the unreviewed portion needs a retroactive look.
 - `.github/workflows/ci.yml` now exists and runs the offline suite on push/PR; the CI gate is no longer a manual approve/skip, so observe it rather than skipping it.
 - RESOLVED 2026-09-06: the amoxicillin-style gap (refusal content delivered as kind=answer) is fixed — Phase 7.2's deterministic pre-LLM guardrail was pulled forward and ships with 29 pinned tests, including the TODO 7.2 boundary family (informational symptom/treatment mentions must still answer). Over-refusal rate still needs measuring against the golden set in Phase 7.4.
+
+## V2 pointer (2026-09-11 — receptionist pivot, supersedes Path B draft above)
+
+Spec: `SPEC_V2.md` (amended 2026-09-12 with owner approval — see amendment log below).
+Q&A + guardrail + Gates 0-3 frozen; parallel `booking` node via `src/agent/tools.py`
+on real cal.com API v2 (slots + booking, `CAL_API_KEY` in `.env` only).
+Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
+no fake slots ever, booking failure degrades to callback list.
+DONE: tools + state + booking node + callback list + scoreboard + UI + live check (§9).
+OPEN: pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-runs.
+
+## V2 amendments log (spec changes need owner sign-off — record them here)
+- 2026-09-12 (approved by owner "amend the spec"): SPEC_V2 §3 rewritten for live reality —
+  per-endpoint cal-api-version, browser User-Agent, slots wire shape, booking payload rules,
+  cancel endpoint. Single shared `2024-08-13` header was wrong and 404s two endpoints.
+
+## V2 step 1 done (2026-09-11 — booking tools foundation, mocked HTTP only)
+- `src/agent/tools.py` (new): stdlib `urllib` only, zero new deps (pyproject untouched).
+- Base `https://api.cal.com/v2`, headers `Authorization: Bearer` + `cal-api-version: 2024-08-13`, 10 s timeout.
+- Key read from env at call time; missing key returns `[]` / `ok=False` with no network call.
+- Never raises into the graph; never logs the key or headers (test-pinned via `caplog`).
+- Defensive parsing: event `length`/`lengthInMinutes`/`duration_min` variants; slots dict-of-lists or flat list; booking `uid`/`id`, `startTime`/`start`.
+- `schemas.py`: `EventType`/`Slot`/`BookingIntent`/`BookingReceipt`/`Contact` verbatim per SPEC_V2 §4.
+- `state.py`: 4 new fields, overwrite only, no reducers.
+- Tests: `tests/agent/test_tools.py` 9 tests mocked; suite 109/109 green (was 100).
+- Graph untouched: no booking node yet, Q&A path byte-identical. Next: booking node + `test_booking_graph.py`.
+
+## V2 step 2 done (2026-09-11 — booking node + routing, mocked tools only)
+- `src/agent/booking_intent.py` (new): deterministic regex, no LLM. Strict AND rule (booking word + day hint or visit word) so Q&A like "available services" or "what is a filling?" never misroutes. Strong phrases ("book an appointment") always count.
+- `graph.py`: guardrail node also writes fresh `booking_intent`; `_route_after_guardrail` returns booking when allowed + wants_booking (flagged still wins). New `booking` node -> END, never calls LLM or retrieval. `build_graph` takes optional injectable tool fns (defaults to real tools.py) so existing 2-arg calls are untouched.
+- Booking node: event_slug substring match else first event; ISO time scraped from question + contact name/email triggers create_booking; slot offer lists real slots; every failure is ok=False + callback-worded Refusal, never a fake UID.
+- Tests: `tests/agent/test_booking_graph.py` 4 tests (skip LLM/retrieval, book with contact, double-book callback, Q&A unchanged). Suite 113/113 green; test_graph/guardrail/verify unmodified.
+- Next: callback list + scoreboard (SPEC_V2 §8).
+
+## V2 step 3 done (2026-09-11 — callback list + scoreboard + UI, no live calls)
+- `src/agent/callbacks.py` (new): `append_callback`/`read_callbacks` over `data/callbacks.jsonl` (gitignored); stores name/phone + question_hash (never raw text) + reason + UTC timestamp; logs reason only, never PHI. 5 tests.
+- `src/eval/deflection.py` (new): pure `summarize_runs` over counts-only records (handled/booked/callback + p50/p95 + $/day at 500). 3 tests in tests/agent (keeps CI paths unchanged).
+- `src/ui/app.py`: booking stage in status; slot buttons (display in CAL_TIMEZONE, wire stays UTC ISO); in-chat name/email confirm; receipt success view; refusal callback form; sidebar scoreboard + staff table + CSV; counts-only run log. Syntax-checked; streamlit not in offline suite.
+- Suite 121/121 green. `.gitignore` gains `data/callbacks.jsonl` + `eval/results/`.
+- Still open (need owner): live cal.com check (§9: slots fetch, book-then-cancel, past-time) + pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-runs.
+
+## Owner cal.com facts (2026-09-12 — from local .env + user message, secrets excluded)
+- `.env` holds `CAL_URL=https://cal.com/ahmed-gamal-7acpyz/doctor` (username candidate `ahmed-gamal-7acpyz`, event slug `doctor`). No `CAL_USERNAME` / `CAL_API_KEY` / `CAL_TIMEZONE` keys in `.env` yet.
+- User-reported local time 12:00am; commit tz is +0800. IANA clinic timezone still UNCONFIRMED — do not guess (candidates differ: Asia/Manila vs Africa/Cairo). Ask before the live check.
+- 2026-09-12: user confirmed clinic timezone `Asia/Manila` (they typed "Maila", read as Manila typo; matches +0800 commits). Still to add to `.env`: `CAL_TIMEZONE=Asia/Manila`, `CAL_USERNAME=ahmed-gamal-7acpyz`.
+- 2026-09-12: user said key saved but `.env` has NO `CAL_API_KEY` line yet (checked by name). Exact line needed: `CAL_API_KEY=cal_live_...` with no spaces around `=`. Note: existing `.env` lines with spaces around `=` break shell sourcing — keep new lines spaceless.
+- Cancel endpoint for the live check confirmed (docs): `POST /v2/bookings/{uid}/cancel` + `{"cancellationReason": ...}` with owner Bearer key.
+- 2026-09-12: `.env` fixed (renamed `API_KEY` → `CAL_API_KEY`, added `CAL_USERNAME=ahmed-gamal-7acpyz`, `CAL_TIMEZONE=Asia/Manila`). Key verified clean (41 chars, `cal_live_` + 32 hex, no whitespace).
+- 2026-09-12 LIVE CHECK PASSED (SPEC_V2 §9, probe in /tmp only, never committed): 4 events incl. `doctor` id 7034024 (15 min); 160 slots over 7d in Asia/Manila (first 2026-09-14T09:00+08:00); book-then-cancel 201 + 200 on 2026-09-14T01:00Z with immediate cancel; past-time booking 400 → `ok=False`. Calendar holds only 3 cancelled V2-test records, zero live bookings.
+- Live-found API facts (code + tests updated, suite 122/122): (1) Cloudflare blocks stock urllib UA with 403/1010 — browser UA header added to tools.py (test-pinned). (2) cal-api-version is PER-ENDPOINT: event-types 2024-06-14, slots 2024-09-04, bookings 2024-08-13 — SPEC_V2 §3's single version 404s on event-types/slots; needs owner sign-off as spec amendment. (3) Slots wire shape is bare date-map `{"data": {"2026-09-14": [{"start": ...}]}}` with `start` key (+08:00 offsets) — parser + live-shape test added. (4) POST /bookings rejects top-level `notes` (400) — no longer sent. (5) attendee.timeZone REQUIRED (400 without) — now sent from CAL_TIMEZONE. (6) 409 "already has booking or not available" on slots adjacent to just-cancelled tests — fail-soft `ok=False` + callback offer is the correct handling; fresh slots book fine.
+- `CAL_API_KEY` value never enters repo files, logs, or SHARED_CONTEXT. Commit `572c7e9` is the live-proven tools state.
+- SECURITY FLAG 2026-09-12: owner pasted the live key in chat to show it was saved. Chat history now holds it — recommend refresh via cal.com Settings → Security and updating the one `.env` line. No action taken without owner word.
+
+## V2 live API contract (authoritative 2026-09-12 — trust this over any doc snippet)
+- Base `https://api.cal.com/v2`. Every call needs BOTH headers: `Authorization: Bearer <key>` AND the endpoint-family `cal-api-version` AND a browser `User-Agent` (stock urllib gets Cloudflare 403 error 1010).
+- Version table (wrong value → HTTP 404 `NotFoundException`, NOT 401 — do not chase auth on a 404):
+  `GET /v2/event-types` → `2024-06-14`; `GET /v2/slots` → `2024-09-04`; `POST /v2/bookings` and `POST /v2/bookings/{uid}/cancel` → `2024-08-13`.
+- Account (live): username `ahmed-gamal-7acpyz`, tz `Asia/Manila`, 4 events — `30min` id 7033891, `15min` id 7033890, `secret` id 7033892, `doctor` id 7034024 (15 min, the V2 test event).
+- Slots request: `GET /v2/slots?eventTypeId=&start=&end=&timeZone=` with full ISO datetimes; response is a BARE date-map `{"status":"success","data":{"2026-09-14":[{"start":"2026-09-14T09:00:00.000+08:00"}]}}` — no `slots` wrapper, entries keyed `start` (also accept `time`/`startTime` defensively), offsets like `+08:00` must parse.
+- Booking request: `{"eventTypeId","start","attendee":{"name","email","timeZone"}}`. `attendee.timeZone` REQUIRED (400 without); top-level `notes` FORBIDDEN (400 "should not exist"); undeliverable attendee domain 400 `email_domain_cannot_receive_mail` (reserved domains like example.com fail — use the owner's own address for tests so no third party gets mail).
+- Booking answers: 201 + `data.uid` on success; 400 past-time (fail-soft `ok=False`); 409 `ConflictException` "already has booking or not available" on slots adjacent to just-cancelled tests (fail-soft + callback offer; fresh slots book fine — do NOT retry-storm a 409).
+- Cancel: `POST /v2/bookings/{uid}/cancel` + `{"cancellationReason"}` → 200. List: `GET /v2/bookings?take=` shows `cancelled` test records (3 on file from the live check, zero live).
+- Live-check proof (probe in /tmp only, never committed): 160 slots/7d; book 2026-09-14T01:00Z → 201 → cancel → 200; past-time → 400 → `ok=False`. Suite 122/122 after every tools fix.
+- Debugging ladder for future sessions: 403/1010 = UA missing (not the key); 404 on a known path = wrong cal-api-version; 400 = read the error body (notes/timeZone/domain); 409 = pick a fresh slot, never force it.
+- 2026-09-12 E2E DEMO PASSED: local index was EMPTY (0 points — env reset), re-ingested to 42 pages / 181 chunks / 181 points via `uv run python -m src.ingest.ingestion_pipeline`. `scripts/run_agent.py` had a latent double-open bug (`main` + `answer_questions` each built a QdrantClient on the same path → exclusive-lock crash); fixed by passing the client through (commit below). Live runs: booking question → real slot offer Answer (no LLM call); Q&A question → cited Answer conf 0.9. Demo: `uv run python scripts/run_agent.py --chat` or one-shot with a quoted question; UI: `uv run streamlit run src/ui/app.py`.
+- NOTE: booking demo matched the FIRST event ("30 min meeting") because no event slug/title contains "cleaning" — substring fallback per design. Owner events are 30min/15min/secret/doctor; a real "cleaning" visit type does not exist yet.
+
+## V2 UI session (2026-09-12 — owner demoing live, fixes from their feedback)
+- Confirm-booking crashed with `KeyError: 'content'`: after slot pick, `messages[-1]` is the assistant turn (keys question/state, no content). Fixed by storing `booking_question` in session state at pick time; cleared on confirm/clear. Commit `c6ab5d0`.
+- Slot offer was a raw ISO dump + vertical buttons. Now: node text hidden in UI, day-grouped grid of time buttons (4 per row, `Asia/Manila` labels, wire stays UTC ISO). UI-only, no graph/test changes. Commit `a5c2547`.
+- "Try one" suggested row (5 buttons: brushing, flossing, gum disease, dry mouth, booking demo). Brushing + booking verified live; flossing/gum/dry-mouth UNVERIFIED (owner's running app held the Qdrant lock, CLI locked out) — owner clicks are the verification; swap any that refuse. Commit `e691284`.
+- Source chips showed `dry-mouth` ×9: chips rendered every citation token. Fixed with `dict.fromkeys` (same pattern the chunk line already used). Commit `0d509bc`.
+- Deeper thread (not now): model repeats one source many times in an answer. Harmless for verification, revisit in the Ragas re-run.
+- Qdrant LOCAL lock vs Streamlit: while the UI session lives, ALL CLI index access fails (exclusive lock). Demo rule: one accessor at a time; close the app (or Clear + quit) before CLI runs.
+
+## V2 booking-routing fix rounds (2026-09-12 — no-mistakes review fixes, SPEC_V2 §2 amended to match)
+- Final rule: a booking word must carry a concrete signal (strong phrase / ISO time / day hint / first-person visit).
+  Advice/timing frames (how soon, how frequently, when can scheduling-window phrasing) and plain can-i "my appointment" timing questions stay on the V1 Q&A path; `reschedule` never books.
+  Impersonal/imperative requests ("any appointments available next week", "slots open tomorrow") reach the booking node.
+- Test pins: `tests/agent/test_booking_graph.py` (18 tests) + `test_tools.py` (10).
+  Suite now 136 offline tests (97 agent).
+  Live §9 re-check (book-then-cancel, past-time) needs `CAL_API_KEY` populated in the `.env` of whichever worktree runs it.
+
+## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
+- API key: log in at cal.com → Settings → Security (API keys; some accounts show Settings → Developer → API keys) → Create new API key → copy the `cal_live_...` value (shown once). Paste into local `.env` as `CAL_API_KEY=...`. Test keys start `cal_`, live keys `cal_live_`. Rate limit 120 req/min on API-key tier.
+- Username + event slug: read off the booking link `cal.com/<username>/<slug>`. Event Type ID: open the event's settings, numbers between slashes in the URL bar.
+- Timezone: "12:00am" is a time, not a zone — need the IANA city name (e.g. `Asia/Manila`, `Africa/Cairo`). Find it in cal.com → Settings → General → Timezone, or match the city in the phone's Date & Time settings.

@@ -28,10 +28,14 @@ from typing import TypedDict
 
 from src.agent.schemas import (
     Answer,
+    BookingIntent,
+    BookingReceipt,
     CitationCheck,
+    Contact,
     GuardrailDecision,
     Refusal,
     RetrievedChunk,
+    Slot,
 )
 
 
@@ -58,5 +62,17 @@ class AgentState(TypedDict):
 
     confidence_threshold: float
     """Confidence gate; injected as a default by `build_graph`."""
+
+    booking_intent: BookingIntent | None
+    """Parsed booking desire; written by intent parse inside guardrail routing."""
+
+    slots: list[Slot]
+    """Real open times from get_slots; written by the booking node."""
+
+    booking_receipt: BookingReceipt | None
+    """Proof a booking worked or failed; written by the booking node."""
+
+    contact: Contact | None
+    """Attendee details collected in-chat before booking confirm."""
 
 __all__ = ["AgentState"]

@@ -49,7 +49,7 @@ Cutting these isn't a limitation to apologize for in the README — it's the jud
 |---|---|
 | Diagnosis or symptom-specific advice | The LLM should never be the thing deciding whether a symptom is serious. This is a hard line, not a soft one. |
 | Any real patient records / PHI | No real patient data touches this system, anywhere. Corpus is 100% public patient-education material. This sidesteps HIPAA obligations by construction, not by promise — say this explicitly in the README. |
-| Appointment booking / scheduling integration | Different problem, different system (calendar APIs, practice management software). Not this project. |
+| Appointment booking / scheduling integration | Different problem, different system (calendar APIs, practice management software). Not this project. (V2 exception: the AI-receptionist pivot — real cal.com booking per `SPEC_V2.md` — deliberately breaks this line under its own spec.) |
 | Insurance terminology — general or plan-specific | **Descoped for v1.** No clearly-licensed dental-specific glossary exists (NADP's is all-rights-reserved), and the CMS Uniform Glossary covers general medical coverage, not dental benefits. Rather than ship a half-covered category, "what's a deductible" will be refused as out-of-corpus. Revisit in v2 with an original, clearly-labeled glossary (see §9). |
 | Voice/phone channel | Text only. Voice is a UI problem layered on top of the same retrieval core — not worth the added complexity for an MVP whose point is retrieval quality and evaluation. |
 | Fine-tuning | Prompting + retrieval is the right default; nothing about this task (small, well-defined domain, no proprietary style/tone requirement) justifies fine-tuning. Knowing *not* to reach for it is itself the signal. |
@@ -75,13 +75,15 @@ Treat these as first-pass targets to recalibrate once you have a real golden-set
 
 **Do not ship, no matter how good everything else looks, if:** any trap question in the golden set gets a confident, non-refused answer it shouldn't have gotten. Fix that before touching anything else.
 
-**Stop-building trigger:** once the above is true and basic tracing (LangSmith) is live, stop. Move to the next portfolio project. Don't add voice, don't add booking, don't add multi-lingual — that's polish, and polish belongs in a "v2 ideas" section at the bottom of the README, not in the build queue.
+**Stop-building trigger:** once the above is true and basic tracing (LangSmith) is live, stop. Move to the next portfolio project. Don't add voice, don't add booking, don't add multi-lingual — that's polish, and polish belongs in a "v2 ideas" section at the bottom of the README, not in the build queue. (V2 exception: booking per `SPEC_V2.md` is the one deliberate pivot past this line; voice and multi-lingual remain out.)
 
 ## 8. What "done" looks like for this document
 
 This scope file is done when you can read it back in six weeks and know, without re-deriving it, what you were building and why you said no to everything else. If a feature idea comes up mid-build, it goes in §9 below, not into the code.
 
 ## 9. v2 / parking lot (do not build now)
+
+> V2 (AI Receptionist — Q&A plus real cal.com booking, callback list, scoreboard) is built under its own spec (`SPEC_V2.md`); the list below retains the parking-lot ideas that are still not built.
 
 - Cross-encoder reranking on top of RRF
 - Original dental-benefit glossary (project-authored, clearly labeled in the corpus) to revisit insurance terminology
