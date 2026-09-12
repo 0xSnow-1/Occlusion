@@ -28,14 +28,19 @@ Intent detection for V2 is deterministic regex, not an LLM classifier:
 - Booking needs an action request, not just keywords. A booking word
   (`book|appointment|available|slot|schedule|reservation`) counts when it
   carries a concrete signal: a strong phrase (`book|schedule|make` +
-  `appointment|visit|slot`), a picked ISO time, or a day hint
-  (`tomorrow|today|monday|...|next week|morning|afternoon|evening`). Impersonal
-  and imperative requests count too — "any appointments available next week",
-  "slots open tomorrow", "book a cleaning tomorrow" reach the booking node
-  without first-person framing.
-- Informational phrasings that merely carry booking words stay on the V1 Q&A
-  path (`How often should I schedule my check-up?`, `How soon can I book a
-  cleaning after a filling?`).
+  `appointment|visit|slot`), a picked ISO time, a day hint
+  (`tomorrow|today|monday|...|next week|morning|afternoon|evening`), or a
+  visit keyword (`checkup|cleaning|hygiene|tooth pain|emergency|filling`)
+  tied to first-person booking language ("Can I book a cleaning?").
+  Impersonal and imperative requests count too — "any appointments
+  available next week", "slots open tomorrow", "book a cleaning tomorrow"
+  reach the booking node without first-person framing.
+- Advice- and timing-shaped sentences never route to booking, even with
+  booking words: frequency/scheduling-window frames (`how often|how long|
+  how soon|how frequently|when should|when can`) and post-procedure timing
+  stay on the V1 Q&A path (`How often should I schedule my check-up?`,
+  `How soon can I book a cleaning after a filling?`, `Can I schedule a
+  cleaning right after a filling?`).
 - `reschedule`/`re-schedule` is a SPEC_V2 §11 non-goal: it never creates a
   new appointment and never enters the booking node.
 - Everything else follows the V1 Q&A path. An LLM intent classifier is deferred to V2.1.
