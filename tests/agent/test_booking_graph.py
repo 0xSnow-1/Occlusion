@@ -169,6 +169,8 @@ def test_qa_path_unchanged_and_booking_tools_untouched():
         "How often should I schedule my check-up?",
         "When should I book my next cleaning?",
         "Can I reschedule my cleaning appointment for tomorrow?",
+        "How soon can I book a cleaning after a filling?",
+        "Can I schedule a cleaning right after a filling?",
     ],
 )
 def test_informational_and_reschedule_questions_stay_on_qa_path(question):
@@ -196,3 +198,41 @@ def test_informational_and_reschedule_questions_stay_on_qa_path(question):
     assert llm.calls == 1
     assert isinstance(out["response"], Answer)
     assert out.get("booking_receipt") is None
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Any appointments available next week?",
+        "Do you have any slots open tomorrow?",
+        "Book a cleaning tomorrow morning!",
+    ],
+)
+def test_impersonal_and_imperative_requests_reach_booking_node(question):
+    retriever = CountingRetriever()
+    llm = CountingLLM(
+        Answer(answer="unused [SRC:ada-guide-001].", citations=["ada-guide-001"], confidence=0.9)
+    )
+    tool_calls = {"slots": 0, "book": 0}
+
+    def fake_slots(eventTypeId, start, end, timeZone):
+        tool_calls["slots"] += 1
+        return [_slot()]
+
+    graph = build_graph(
+        retriever=retriever,
+        llm=llm,
+        list_event_types_fn=lambda: [EVENT],
+        get_slots_fn=fake_slots,
+        create_booking_fn=lambda *a: (_ for _ in ()).throw(
+            AssertionError(f"must not book without contact: {question!r}")
+        ),
+    )
+    out = graph.invoke({"question": question})
+    assert retriever.calls == 0
+    assert llm.calls == 0
+    assert tool_calls["slots"] == 1
+    assert isinstance(out["response"], Answer)
+    assert "2026-09-12" in out["response"].answer
+    assert len(out["slots"]) == 1
+    assert out["booking_receipt"] is None

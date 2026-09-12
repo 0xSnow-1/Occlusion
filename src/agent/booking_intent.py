@@ -2,12 +2,16 @@
 
 Booking is only ever an action request, never an informational question:
 a booking word alone ("available services") or a visit word alone
-("what is a filling?") is NOT booking. Booking needs a strong phrase
-("book an appointment"), or first-person framing tied to a day hint, a
-picked ISO time, or a visit type ("Can I book a cleaning tomorrow morning?").
-Advice-shaped sentences stay on the Q&A path even when they carry booking
-words ("How often should I schedule my check-up?"), and reschedule is a
-SPEC_V2 §11 non-goal that never books a new appointment.
+("what is a filling?") is NOT booking. A booking word counts when it
+carries a concrete signal: a strong phrase ("book an appointment"), a
+picked ISO time, or a day hint ("book a cleaning tomorrow morning").
+Impersonal and imperative requests count too — "any appointments
+available next week", "slots open tomorrow", and "book a cleaning
+tomorrow" all reach the booking node with no first-person framing.
+Informational phrasings that merely carry booking words ("How often
+should I schedule my check-up?", "How soon can I book a cleaning after
+a filling?") stay on the V1 Q&A path, and reschedule is a SPEC_V2 §11
+non-goal that never books a new appointment.
 """
 
 from __future__ import annotations
@@ -36,12 +40,6 @@ _STRONG_PHRASE = re.compile(
     r"|\bmake\b.*\b(appointment|reservation)\b",
     re.IGNORECASE,
 )
-_FIRST_PERSON = re.compile(r"\b(i|i'd|i'll|i've|me|my|we|us|our)\b", re.IGNORECASE)
-_ADVICE_FRAME = re.compile(
-    r"\b(how often|how long|how should|when should|should i|why|which|"
-    r"is it|does it|do i need|necessary|recommend\w*)\b",
-    re.IGNORECASE,
-)
 _RESCHEDULE = re.compile(r"reschedul\w*|re-schedul\w*", re.IGNORECASE)
 _ISO_TIME = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:?\d{2})?")
 
@@ -53,17 +51,10 @@ def parse_booking_intent(question: str) -> BookingIntent:
         return BookingIntent(wants_booking=False)
     day_m = _DAY_HINT.search(q)
     visit_m = _VISIT_KW.search(q)
-    advice = _ADVICE_FRAME.search(q)
-    first_person = _FIRST_PERSON.search(q)
     iso_m = _ISO_TIME.search(q)
     strong = _STRONG_PHRASE.search(q)
-    wants = False
-    if not advice:
-        wants = bool(strong) or bool(_BOOKING_WORD.search(q) and iso_m) or bool(
-            _BOOKING_WORD.search(q)
-            and first_person
-            and (day_m or visit_m)
-        )
+    book_word = _BOOKING_WORD.search(q)
+    wants = bool(strong) or bool(book_word and iso_m) or bool(book_word and day_m)
     intent = BookingIntent(
         wants_booking=wants,
         event_slug=visit_m.group(0).lower() if visit_m and wants else None,
