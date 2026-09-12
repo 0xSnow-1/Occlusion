@@ -222,7 +222,7 @@ def _booking_node(list_event_types_fn=None, get_slots_fn=None, create_booking_fn
             "response": Answer(
                 answer=(
                     f"Available {event.title} times (UTC): {times}. "
-                    "Reply with the time you want plus your name and email to confirm."
+                    "Choose a time in the booking panel and enter your name and email to confirm."
                 ),
                 citations=[],
                 confidence=1.0,

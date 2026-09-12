@@ -6,6 +6,8 @@ double-book falls back to a callback offer.
 
 from datetime import datetime, timezone
 
+import pytest
+
 from src.agent.graph import build_graph
 from src.agent.schemas import (
     Answer,
@@ -158,3 +160,39 @@ def test_qa_path_unchanged_and_booking_tools_untouched():
     assert llm.calls == 1
     assert isinstance(out["response"], Answer)
     assert out["citation_check"].verified
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "How often should adults schedule dental cleanings?",
+        "How often should I schedule my check-up?",
+        "When should I book my next cleaning?",
+        "Can I reschedule my cleaning appointment for tomorrow?",
+    ],
+)
+def test_informational_and_reschedule_questions_stay_on_qa_path(question):
+    retriever = CountingRetriever()
+    llm = CountingLLM(
+        Answer(
+            answer="SDF arrests early caries [SRC:ada-guide-001].",
+            citations=["ada-guide-001"],
+            confidence=0.9,
+        )
+    )
+
+    def _boom(*a, **k):
+        raise AssertionError(f"must never reach cal.com: {question!r}")
+
+    graph = build_graph(
+        retriever=retriever,
+        llm=llm,
+        list_event_types_fn=_boom,
+        get_slots_fn=_boom,
+        create_booking_fn=_boom,
+    )
+    out = graph.invoke({"question": question})
+    assert retriever.calls == 1
+    assert llm.calls == 1
+    assert isinstance(out["response"], Answer)
+    assert out.get("booking_receipt") is None

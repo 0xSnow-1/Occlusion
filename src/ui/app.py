@@ -46,6 +46,7 @@ logger = logging.getLogger(__name__)
 COLLECTION_NAME = "occlusion"
 QDRANT_PATH = "./data/qdrant_storage"
 CONFIDENCE_THRESHOLD = 0.7
+STAFF_CODE = os.getenv("STAFF_CODE", "") or ""
 CAL_TIMEZONE = os.getenv("CAL_TIMEZONE", "UTC") or "UTC"
 BEDROCK_MODEL_ID = os.getenv(
     "BEDROCK_MODEL_ID", "global.anthropic.claude-haiku-4-5-20251001-v1:0"
@@ -289,6 +290,37 @@ def _callback_csv(rows: list[dict]) -> str:
     return buf.getvalue()
 
 
+def render_staff_callbacks() -> None:
+    """Staff-only callback view (SPEC_V2 §8). Fail-closed: without a
+    configured STAFF_CODE, or until the code is entered, no callback
+    record is rendered or downloadable."""
+    if not STAFF_CODE:
+        st.caption(
+            "Staff callback view needs `STAFF_CODE` set in .env. "
+            "Callback records are never shown without it."
+        )
+        return
+    if not st.session_state.get("staff_unlocked"):
+        entered = st.text_input("Staff code", type="password", key="staff_code_input")
+        if entered and entered == STAFF_CODE:
+            st.session_state.staff_unlocked = True
+            st.rerun()
+        elif entered:
+            st.error("Incorrect staff code.")
+        return
+    rows = read_callbacks()
+    if rows:
+        st.table(rows[-10:])
+        st.download_button(
+            "Download CSV",
+            data=_callback_csv(rows),
+            file_name="callbacks.csv",
+            mime="text/csv",
+        )
+    else:
+        st.caption("No callbacks yet.")
+
+
 def main() -> None:
     st.set_page_config(
         page_title="Occlusion — Dental FAQ",
@@ -306,6 +338,8 @@ def main() -> None:
         st.session_state.picked_slot = None
     if "booking_question" not in st.session_state:
         st.session_state.booking_question = None
+    if "staff_unlocked" not in st.session_state:
+        st.session_state.staff_unlocked = False
 
     try:
         graph, points = get_pipeline()
@@ -333,17 +367,7 @@ def main() -> None:
             f"p95 **{score['p95_latency_s']}s** · ~$**{score['cost_per_day_usd']}**/day @500"
         )
         st.header("Callback list (staff)")
-        rows = read_callbacks()
-        if rows:
-            st.table(rows[-10:])
-            st.download_button(
-                "Download CSV",
-                data=_callback_csv(rows),
-                file_name="callbacks.csv",
-                mime="text/csv",
-            )
-        else:
-            st.caption("No callbacks yet.")
+        render_staff_callbacks()
         if st.button("Clear conversation"):
             st.session_state.messages = []
             st.session_state.runs = []

@@ -25,9 +25,15 @@ guardrail (existing, deterministic pre-LLM)
 
 Intent detection for V2 is deterministic regex, not an LLM classifier:
 
-- Booking signals: `book|appointment|available|slot|schedule|reschedule` plus day hints
-  (`tomorrow|monday|next week|morning|afternoon`) or visit keywords
+- Booking needs an action request, not just keywords. Either a strong phrase
+  (`book|schedule|make` + `appointment|visit|slot`), or first-person framing
+  (`I|me|my|we|us`) tied to a day hint (`tomorrow|monday|next week|morning|afternoon`),
+  a picked ISO time, or a visit keyword
   (`checkup|check-up|cleaning|hygiene|tooth pain|emergency|filling`).
+- Advice-shaped sentences never route to booking, even with booking words
+  (`How often should I schedule my check-up?` stays on the V1 Q&A path).
+- `reschedule`/`re-schedule` is a SPEC_V2 §11 non-goal: it never creates a
+  new appointment and never enters the booking node.
 - Everything else follows the V1 Q&A path. An LLM intent classifier is deferred to V2.1.
 
 `_route_after_guardrail` in `src/agent/graph.py` is extended to return
@@ -137,7 +143,9 @@ ever gets `Annotated[list, operator.add]`.
 
 - Callback capture: `contact (name/phone) + question_hash + reason + timestamp` appended to
   `data/callbacks.jsonl` (gitignored; no raw PHI in logs). Staff view = sidebar table + CSV
-  download. This is the escalation path for every refusal and every failed booking.
+  download, gated by a `STAFF_CODE` env/secret shared only with staff — unset keeps the view
+  locked for everyone (fail-closed, patient PII never public). This is the escalation path for
+  every refusal and every failed booking.
 - Scoreboard: per-session and totals of `handled (answer) / booked (receipt ok) /
   callback (refusal or booking fail)`, plus P50/P95 latency and $/query at 500/day.
   Computed in `src/eval/deflection.py` from structured run logs (counts only, no text).
