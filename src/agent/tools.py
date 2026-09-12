@@ -4,8 +4,12 @@ Pure server-side HTTP, no LLM, no prompts, no UI code. Stdlib only
 (`urllib`) so no new dependency is needed.
 
 Safety rules (all test-pinned):
-- Auth header `Authorization: Bearer <CAL_API_KEY>` + version header
-  `cal-api-version: 2024-08-13`; key read from env at call time.
+- Auth header `Authorization: Bearer <CAL_API_KEY>` + per-endpoint
+  `cal-api-version` header (event-types 2024-06-14, slots 2024-09-04,
+  bookings 2024-08-13; a single shared version 404s two endpoints).
+  Key read from env at call time, never logged, never committed.
+- `User-Agent` must be a browser string: api.cal.com sits behind
+  Cloudflare bot checks and blocks stock `Python-urllib/3.x` with 403/1010.
 - 10 s timeout per call; any HTTP / network / auth / parse error returns
   `[]` (slots / event types) or `BookingReceipt(ok=False, error=...)`.
 - Never raise into the graph; never log the key or full headers.

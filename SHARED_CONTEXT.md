@@ -161,6 +161,14 @@ OPEN: pyproject forbidden-dep removal (§10, needs approval) + Harbor/Ragas re-r
 - Deeper thread (not now): model repeats one source many times in an answer. Harmless for verification, revisit in the Ragas re-run.
 - Qdrant LOCAL lock vs Streamlit: while the UI session lives, ALL CLI index access fails (exclusive lock). Demo rule: one accessor at a time; close the app (or Clear + quit) before CLI runs.
 
+## V2 booking-routing fix rounds (2026-09-12 — no-mistakes review fixes, SPEC_V2 §2 amended to match)
+- Final rule: a booking word must carry a concrete signal (strong phrase / ISO time / day hint / first-person visit).
+  Advice/timing frames (how soon, how frequently, when can scheduling-window phrasing) and plain can-i "my appointment" timing questions stay on the V1 Q&A path; `reschedule` never books.
+  Impersonal/imperative requests ("any appointments available next week", "slots open tomorrow") reach the booking node.
+- Test pins: `tests/agent/test_booking_graph.py` (18 tests) + `test_tools.py` (10).
+  Suite now 136 offline tests (97 agent).
+  Live §9 re-check (book-then-cancel, past-time) needs `CAL_API_KEY` populated in the `.env` of whichever worktree runs it.
+
 ## How to obtain cal.com facts (researched 2026-09-12, cal.com API v2 docs)
 - API key: log in at cal.com → Settings → Security (API keys; some accounts show Settings → Developer → API keys) → Create new API key → copy the `cal_live_...` value (shown once). Paste into local `.env` as `CAL_API_KEY=...`. Test keys start `cal_`, live keys `cal_live_`. Rate limit 120 req/min on API-key tier.
 - Username + event slug: read off the booking link `cal.com/<username>/<slug>`. Event Type ID: open the event's settings, numbers between slashes in the URL bar.

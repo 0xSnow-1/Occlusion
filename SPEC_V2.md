@@ -1,6 +1,6 @@
 # SPEC_V2 — Occlusion V2: AI Receptionist (Q&A + Real cal.com Booking)
 
-> Status: spec, not yet implemented. V1 (`spec.md` + code on `main`) is untouched by this file.
+> Status: spec, implemented on branch `feature/New-v2` (live API facts updated 2026-09-12 — see `SHARED_CONTEXT.md` "V2 live API contract"). V1 (`spec.md` + code on `main`) is untouched by this file.
 > V2 adds a parallel booking path on a real cal.com calendar. Q&A retrieval, guardrail,
 > verification, and Gates 0–3 stay exactly as pinned by `tests/agent/*`.
 > Related: `SCOPE.md` (problem + refusal taxonomy), `TODO.md` (build order),
@@ -136,7 +136,7 @@ ever gets `Annotated[list, operator.add]`.
 
 ## 6. Graph (`src/agent/graph.py` changes)
 
-- New `booking` node: resolve `event_slug -> eventTypeId` (via `list_event_types` cache),
+- New `booking` node: resolve `event_slug -> eventTypeId` (via `list_event_types`),
   default window next 7 days in `CAL_TIMEZONE`, call `get_slots`; if the user already picked
   a time and `contact` has name+email, call `create_booking` and write `booking_receipt`.
 - Double-book / past-time / API-down all yield `BookingReceipt(ok=False, error=...)`; the

@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-100_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-136_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
 > **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal — never a confident guess.
@@ -48,7 +48,11 @@ Validation gates (deterministic code):
 ```
 
 - Entry node is `guardrail` (`src/agent/guardrail.py`, `screen_question` → `GuardrailDecision`). No tokens spent on refusals.
-- `build_graph(retriever, llm, confidence_threshold)` takes any `(query, *, top_n) -> list[RetrievedChunk]` retriever plus an LLM exposing `.with_structured_output(Answer)`.
+- `build_graph(retriever, llm, confidence_threshold)` takes any `(query, *, top_n) -> list[RetrievedChunk]` retriever plus an LLM exposing `.with_structured_output(Answer)`; V2 adds optional injected booking tools and a parallel `booking` node.
+- **V2 — AI Receptionist** (`SPEC_V2.md`): deterministic booking-intent routing in the guardrail opens a `booking` node (`src/agent/tools.py`, real cal.com API v2 slots + book, `CAL_API_KEY` in `.env`).
+  The UI renders a slot grid, confirms with name + email, and shows a receipt; failures degrade to a staff callback list (`data/callbacks.jsonl`, `STAFF_CODE`-gated) plus a session scoreboard.
+  A slot the API did not return is never confirmed.
+  V1 Q&A, guardrail, verification, and Gates 0–3 are byte-identical.
 - `verify_citations` fails closed on zero citations or any fabricated ID; `coverage = matches / total`.
 - Cross-cutting: LangSmith tracing, versioned prompts in `src/agent/prompts/`, logging per `LOGGING.md` (no `print()` in library code).
 
@@ -162,13 +166,15 @@ uv run streamlit run src/ui/app.py         # demo UI (requires ingested collecti
 uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
 ```
 
+V2 booking keys (documented in `sample.env`): `CAL_API_KEY` (cal.com v2), `CAL_TIMEZONE` (IANA clinic tz), and `STAFF_CODE` (unlocks the staff callback view; unset keeps it locked). Without `CAL_API_KEY` the agent never calls cal.com and booking degrades to a callback offer.
+
 Single test: `uv run pytest tests/agent/test_guardrail.py -q`.
 Ragas smoke (needs Bedrock + ingested collection): `uv run python -m src.eval.ragas.run_ragas --limit 3`.
 CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `main`. Full Ragas/Harbor evals run on demand (cost discipline: judge calls scale with items × metrics).
 
 ## Testing
 
-100 offline tests, green: 61 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6) + 39 ingest/retrieve.
+136 offline tests, green: 97 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6; V2: `test_tools` 10, `test_booking_graph` 18, `test_callbacks` 5, `test_deflection` 3) + 39 ingest/retrieve.
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
 
@@ -184,6 +190,7 @@ The image bakes the Qdrant index at build time (`data/qdrant_storage/` is gitign
 ## Docs
 
 - `spec.md` — as-built technical reference (code + tests win over older docs)
+- `SPEC_V2.md` — V2 AI Receptionist spec (Q&A + real cal.com booking)
 - `SCOPE.md` — scope, refusal taxonomy, ship/kill criteria, v2 parking lot
 - `TODO.md` — phased roadmap with per-task verify gates
 - `AGENTS.md` — module contracts, test pins, gotchas
