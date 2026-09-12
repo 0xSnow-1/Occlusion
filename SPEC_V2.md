@@ -35,6 +35,11 @@ Intent detection for V2 is deterministic regex, not an LLM classifier:
   Impersonal and imperative requests count too — "any appointments
   available next week", "slots open tomorrow", "book a cleaning tomorrow"
   reach the booking node without first-person framing.
+- A reference to the caller's own appointment with no booking action
+  verb (`book|schedule`) is never a booking signal: "Can I drink coffee
+  the morning of my appointment?", "Can I eat lunch before my afternoon
+  appointment?", and "Can I floss right before my appointment today?"
+  stay on the V1 Q&A path.
 - Advice- and timing-shaped sentences never route to booking, even with
   booking words: frequency/scheduling-window frames (`how often|how long|
   how soon|how frequently|when should|when can`) and post-procedure timing

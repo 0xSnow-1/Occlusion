@@ -11,8 +11,12 @@ available next week", "slots open tomorrow", and "book a cleaning
 tomorrow" reach the booking node with no first-person framing.
 Advice- and timing-shaped sentences stay on the Q&A path even when they
 carry booking words ("How often should I schedule my check-up?", "How
-soon can I book a cleaning after a filling?"), and reschedule is a
-SPEC_V2 §11 non-goal that never books a new appointment.
+soon can I book a cleaning after a filling?"). A reference to the
+caller's own appointment ("Can I drink coffee the morning of my
+appointment?", "Can I floss right before my appointment today?") is a
+timing question, never a booking request, unless the verb is a booking
+action. Reschedule is a SPEC_V2 §11 non-goal that never books a new
+appointment.
 """
 
 from __future__ import annotations
@@ -42,6 +46,10 @@ _STRONG_PHRASE = re.compile(
     re.IGNORECASE,
 )
 _FIRST_PERSON = re.compile(r"\b(i|i'd|i'll|i've|me|my|we|us|our)\b", re.IGNORECASE)
+_POSSESSED_APPT = re.compile(
+    r"\bmy ([a-z'-]+ ){0,2}(appointment|check-?up|cleaning|visit)\b", re.IGNORECASE
+)
+_BOOK_ACTION = re.compile(r"\b(book|schedul\w*)\b", re.IGNORECASE)
 _ADVICE_FRAME = re.compile(
     r"\b(how often|how long|how soon|how frequently|how should|when should|"
     r"when can|should i|why|which|is it|does it|do i need|necessary|"
@@ -63,8 +71,9 @@ def parse_booking_intent(question: str) -> BookingIntent:
     iso_m = _ISO_TIME.search(q)
     strong = _STRONG_PHRASE.search(q)
     book_word = _BOOKING_WORD.search(q)
+    own_appt = _POSSESSED_APPT.search(q) is not None and _BOOK_ACTION.search(q) is None
     wants = False
-    if book_word and not _ADVICE_FRAME.search(q):
+    if book_word and not _ADVICE_FRAME.search(q) and not own_appt:
         wants = bool(strong) or bool(iso_m) or bool(day_m) or bool(
             _FIRST_PERSON.search(q) and visit_m
         )

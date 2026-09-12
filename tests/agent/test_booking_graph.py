@@ -171,6 +171,9 @@ def test_qa_path_unchanged_and_booking_tools_untouched():
         "Can I reschedule my cleaning appointment for tomorrow?",
         "How soon can I book a cleaning after a filling?",
         "Can I schedule a cleaning right after a filling?",
+        "Can I drink coffee the morning of my appointment?",
+        "Can I eat lunch before my afternoon appointment?",
+        "Can I floss right before my appointment today?",
     ],
 )
 def test_informational_and_reschedule_questions_stay_on_qa_path(question):
@@ -206,6 +209,8 @@ def test_informational_and_reschedule_questions_stay_on_qa_path(question):
         "Any appointments available next week?",
         "Do you have any slots open tomorrow?",
         "Book a cleaning tomorrow morning!",
+        "Can I book my appointment for next week?",
+        "Can I book a cleaning today?",
     ],
 )
 def test_impersonal_and_imperative_requests_reach_booking_node(question):
