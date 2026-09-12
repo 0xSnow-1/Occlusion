@@ -13,6 +13,8 @@ and Bedrock credentials in `.env` (`AWS_BEARER_TOKEN_BEDROCK`).
 
 from __future__ import annotations
 
+import csv
+import io
 import logging
 import os
 import sys
@@ -272,6 +274,21 @@ def _log_run(state: dict) -> None:
     )
 
 
+def _callback_csv(rows: list[dict]) -> str:
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["name", "phone", "question_hash", "reason", "timestamp"])
+    for r in rows:
+        cells = [
+            str(r.get(k, "") or "")
+            for k in ("name", "phone", "question_hash", "reason", "timestamp")
+        ]
+        writer.writerow(
+            ["'" + c if c.startswith(("=", "+", "-", "@")) else c for c in cells]
+        )
+    return buf.getvalue()
+
+
 def main() -> None:
     st.set_page_config(
         page_title="Occlusion — Dental FAQ",
@@ -321,12 +338,7 @@ def main() -> None:
             st.table(rows[-10:])
             st.download_button(
                 "Download CSV",
-                data="name,phone,question_hash,reason,timestamp\n"
-                + "".join(
-                    f"{r.get('name','')},{r.get('phone','')},{r.get('question_hash','')},"
-                    f"{r.get('reason','')},{r.get('timestamp','')}\n"
-                    for r in rows
-                ),
+                data=_callback_csv(rows),
                 file_name="callbacks.csv",
                 mime="text/csv",
             )
