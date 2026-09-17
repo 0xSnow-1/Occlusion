@@ -99,7 +99,6 @@ This callable is the seam the graph retrieval node calls (`src/agent/graph.py`),
 
 `src/agent/schemas.py` implements `RetrievedChunk`, `Answer`, `Refusal` (plus the `RefusalReason` enum), `AgentOutput` (discriminated union on `kind`), `CitationCheck`, and `GuardrailDecision`.
 `state.py`, `graph.py`, `verify.py`, `guardrail.py`, and the `prompts/` package are implemented as described below.
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration (see §10).
 
 ### 5.1 Schemas (`tests/agent/test_schemas.py`)
 
@@ -144,9 +143,8 @@ Clinical guidelines and the CMS glossary were archived out of the v1 corpus and 
 
 Python 3.12+ with `uv` is required, and `pyproject.toml` sets `pythonpath = ["."]` so imports read as `src.*`.
 The pinned models are dense `sentence-transformers/all-MiniLM-L6-v2` and sparse `prithivida/Splade_PP_en_v1`, each referenced from exactly one constant in `src/ingest/vector_store.py`.
-Runtime configuration comes from `.env` (gitignored, never committed), whose keys are listed in `sample.env`: `QDRANT_URL` / `QDRANT_API_KEY`, one generation provider (`BEDROCK_*` or `GROQ_API_KEY`), a distinct `JUDGE_MODEL_ID` for Ragas, and LangSmith tracing keys.
-Known drift: `pyproject.toml` currently pins `copilotkit`, `ag-ui-langgraph`, `ddgs`, and `duckduckgo-search`, which `AGENTS.md` explicitly forbids without user approval.
-Those dependencies must be justified and approved or removed; no new dependency may be added without explicit user approval.
+Runtime configuration comes from `.env` (gitignored, never committed), whose keys are listed and grouped in `sample.env` (spaceless `KEY=value`): the Q&A-only set is `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` (Qdrant runs repo-local path mode, so no Qdrant Cloud keys); eval reads `BEDROCK_JUDGE_MODEL_ID` as the Ragas judge (bare `JUDGE_MODEL_ID` is not read by any code); observability uses `LANGSMITH_API_KEY` / `LANGSMITH_TRACING` / `LANGSMITH_PROJECT`, with `LANGSMITH_TRACING` canonical for the pinned langsmith SDK (the legacy `LANGCHAIN_TRACING_V2` alias is not read); booking-only keys (`CAL_*`, `STAFF_CODE`) are read by nothing on this line.
+No new dependency may be added without explicit user approval.
 
 ## 8. Evaluation and ship gate
 
@@ -167,6 +165,5 @@ No FastAPI service exists yet (Phase 9.2 remains optional); a Streamlit demo UI 
 `src/ingest/` holds the write path (`document_parser.py`, `chunking_and_embedding.py`, `vector_store.py`, `ingestion_pipeline.py`).
 `src/retrieve/` holds the read path (`base.py`, `dense.py`, `sparse.py`, `hybrid.py`, `__init__.py` with `make_retriever`).
 `src/agent/` holds the implemented agent: `schemas.py` (all contracts), `state.py` (graph working memory), `graph.py` (guardrail entry node, retrieve/generate/verify/decide nodes, Gates 0–3), `verify.py` (fail-closed citation check), `guardrail.py` (deterministic pre-LLM scope gate), `fusion.py` (client-side RRF fallback), and the `prompts/` package of versioned templates (`dental_qa_v2.3` is the graph default).
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration.
 `src/eval/` holds the golden-set loader (`golden.py`) and the Ragas harness (`ragas/`, runner plus versioned `results/`).
 `tests/ingest/`, `tests/retrieve/`, and `tests/agent/` (fusion, schemas, verify, graph, prompts, guardrail) cover implemented code.
