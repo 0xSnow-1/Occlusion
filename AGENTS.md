@@ -46,6 +46,6 @@
 ## Parallel lanes (one branch per worktree)
 - `~/Occlusion` is the branch factory: create each lane branch from the base, then switch straight back so the name is free. A branch can be open in only one folder at a time.
 - Each lane works in its own worktree on its own branch and opens its own PR. Base every lane on the same point so lanes stay merge-compatible.
-- Handoff notes: each lane writes `.agents/handoffs/<branch>.md` plus its PR body. Never edit `SHARED_CONTEXT.md` from a parallel lane. Whoever merges last consolidates all handoff files into `SHARED_CONTEXT.md` in one sequential commit.
+- Handoff notes: each lane writes `.agents/handoffs/<branch>.md` plus its PR body. Every handoff file starts with three header lines: `Branch: <name>`, `Date: <YYYY-MM-DD>`, `Scope: <one line>`. Never edit `SHARED_CONTEXT.md` from a parallel lane. Whoever merges last consolidates all handoff files into `SHARED_CONTEXT.md` in one sequential commit, ordered by merge sequence from `git log`.
 
 (End of file - total 51 lines)
