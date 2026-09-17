@@ -129,3 +129,10 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Verify: `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 111/111 green (100 main-line + 11 new: 5 `test_source_url.py`, 6 `test_ogl_disclaimer.py`); `tests/agent/test_graph.py`, `test_verify.py` untouched; `git log --all --full-history -- .env` empty.
 - For B5: README source-link + OGL wording must match the behavior above (links, not chips; exact OGL sentence in disclaimer + answer footer). README is yours alone — no other agent touches it.
 - Next agent: B5 `fix/v1-readme-demo` bases on this branch after it merges to `main` (or on this branch directly), per audit merge order.
+
+## B5 handoff (2026-09-17 — done, committed, UNMERGED; last in merge order)
+
+- Branch `fix/v1-readme-demo` (from `fix/v1-source-links-ogl` @ `7cb352a`, i.e. on top of B3+B2+B4+B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B5, blockers 1/2/5 + wording 6/7/8/9, README only): contacts placeholder deleted (no LinkedIn/email invented); Demo states no public URL yet + local try order + cold-start note + 136-point baked index vs 120-chunk eval snapshot; Run-locally documents `--pdf-only` zero-credential path vs full ingest + Bedrock-only prereqs (Groq dropped) + single-process Qdrant lock; latency/cost + index parity wording matches SCOPE §6; source-link + OGL wording matches B3 behavior; badge + test count 100 → 111; humanizer pass (no em/en dashes in prose, code blocks untouched, no facts invented).
+- Verify: pre-commit `git status --short` showed only README.md; commit `b2d42fc` is README-only; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` 111/111 green; `run_ingest.py --help`, `run_agent.py --help`, `streamlit --version` all run; secret scan hits only key names, `git log --all --full-history -- .env` empty. `cp sample.env .env` + live Bedrock chat/boot deliberately NOT run here — record in PR body smoke.
+- For owner: merge B5 last so README wording lands on top of B1-B4. Next agent starts from this branch.
