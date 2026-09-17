@@ -113,7 +113,7 @@ This callable is the seam the graph retrieval node calls (`src/agent/graph.py`),
 ### 5.2 Citation verification (`tests/agent/test_verify.py`)
 
 Inline citation tokens take the form `[SRC:doc_id]`.
-`extract_citations` parses every such token in order, including repeats, and normalizes a stray `SRC:` prefix plus surrounding whitespace so the inline and `citations`-list styles compare equal.
+`extract_citations` parses every such token in order, including repeats; `verify_citations` then feeds each id through `normalize_doc_id`, which strips a stray `SRC:` prefix plus surrounding whitespace so the inline and `citations`-list styles compare equal.
 `verify_citations(answer, retrieved)` checks each cited id against the retrieved set.
 Zero citations or any fabricated id yields `verified=False` (fail closed).
 `coverage` equals `matches / total`, and `strip_fabricated_tokens` masks only the bad tokens (kept test-pinned but deliberately NOT wired into the graph — the graph refuses instead).
