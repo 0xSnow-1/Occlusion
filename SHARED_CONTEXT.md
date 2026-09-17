@@ -121,3 +121,11 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Verify: `rg -l "copilotkit|ag_ui|ddgs|duckduckgo" src/ scripts/ tests/` zero; `uv sync --frozen` exit 0; `pyproject.toml` parses; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` 100/100 green (main-line count).
 - Deliberately NOT done: local `.env` files still carry stale keys (`JUDGE_MODEL_ID`, `LANGCHAIN_TRACING_V2`, spaced `CAL_URL `) — local-only, never committed; each dev reconciles their own `.env` from the new `sample.env`. README untouched (B5 owns it).
 - Next agent: base your branch on `fix/v1-env-deps` (`git checkout -b fix/v1-source-links-ogl fix/v1-env-deps`), NOT on `main`, so B2 travels with you.
+
+## B3 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-source-links-ogl` (from `fix/v1-env-deps` @ `2298466`, i.e. on top of B2+B4+B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B3, blockers 6/7): `document_parser.py` writes `source_url` on every doc (HTML = page URL, PDF = file path + `file_path`); `retrieve/base.py` resolves `source_url` preferred, `file_path`/`source` fallback (frozen eval snapshot untouched, legacy payloads still link); `src/ui/app.py` renders clickable `[doc_id](url)` source links (chip fallback) + exact OGL sentence `Contains public sector information licensed under the Open Government Licence v3.0.` in `DISCLAIMER` and under every answer; new `OGL_ATTRIBUTION`/`citation_link`/`format_answer_footer` helpers (footer is Streamlit-free for tests).
+- Verify: `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 111/111 green (100 main-line + 11 new: 5 `test_source_url.py`, 6 `test_ogl_disclaimer.py`); `tests/agent/test_graph.py`, `test_verify.py` untouched; `git log --all --full-history -- .env` empty.
+- For B5: README source-link + OGL wording must match the behavior above (links, not chips; exact OGL sentence in disclaimer + answer footer). README is yours alone — no other agent touches it.
+- Next agent: B5 `fix/v1-readme-demo` bases on this branch after it merges to `main` (or on this branch directly), per audit merge order.
