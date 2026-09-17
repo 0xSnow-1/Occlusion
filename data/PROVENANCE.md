@@ -52,11 +52,12 @@ redistributed):
 
 ## What is deliberately NOT in the corpus
 
-*TODO: list the topics/sources you chose to exclude and why (scope alignment with
-SCOPE.md §4–5).*
+- General-medical insurance terminology: the CMS Uniform Glossary is archived (see above) — insurance was descoped for v1 per SCOPE.md §5, and a "what's a deductible"-style question is a `refuse_no_coverage` golden item.
+- Clinical guidelines and dosage charts: 9 files archived (see above) — v1 is patient-education framing per SCOPE.md §4; retained locally as a v2 "clinician-mode corpus" candidate.
+- Copyrighted Q&A sources: MedlinePlus `/ency/`, ADA MouthHealthy, Colgate, WebMD, the NADP glossary, and per-Trust leaflets — rejected per the sourcing block above and SCOPE.md §5; do not re-research.
 
 ## Known gaps / currency
 
-*TODO: how current is this material? Any guideline updates expected? Any topics
-patients ask about that this corpus cannot answer? (These become your
-`refuse_no_coverage` golden-set items.)*
+- Sources accessed 2026-08-30; per-page review dates live in `HTML_SOURCES.md`.
+- The frozen eval snapshot holds 120 chunks; the Docker image bakes a 136-point superset index (the CDC `about` page served its full content at build time instead of the 1-chunk "Access Denied" stub) — demo-safe, but eval numbers were measured on 120.
+- Verified zero-coverage topics (system refusal here is correct fail-closed behavior, not a bug; they back `refuse_no_coverage` golden items until SCOPE-legal material is added): post-filling diet, baby-tooth loss timing, braces plus food, sealants.
