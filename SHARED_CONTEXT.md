@@ -94,3 +94,13 @@ Spec: `SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` n
 Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
 no fake slots ever, booking failure degrades to callback list. Next: tools + state + node
 test-first per SPEC_V2 §9, then callback list + scoreboard.
+
+## B1 handoff (2026-09-17 — done, committed, UNMERGED; read before starting B2-B5)
+
+- Branch `fix/v1-docs-sync` (from `main` @ `a7442e1`), commits `1ce2bb9` (B1 work) + note commit below.
+Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix/v1-docs-sync`, NOT on `main`.
+- Done: `spec.md` §§2/3.2/4.5/5/10 rewritten as-built (claims verified against code); `TODO.md` tracker checked for phases 1-5 + 7 with dated notes; `data/PROVENANCE.md` TODOs filled (zero hits); `SCOPE.md` §6 latency measurement + Docker/eval index parity notes recorded.
+- Verify: `rg -n "empty stub|not yet implemented|merge-conflict|TODO:" spec.md data/PROVENANCE.md` returns zero hits; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 100/100 green on this line (the audit's "136" was measured on `feature/New-v2`, which carries extra V2 tests — 100 is the correct `main`-line count).
+- Deliberately NOT done (do not duplicate): `AGENTS.md` untouched incl. the `:7` ingest-command drift (B4 owns all of `AGENTS.md`); `SHIP_CRITERIA.md` not created (human decision); latency-target recalibration recorded as pending owner decision in `SCOPE.md` §6.
+- For B5: README wording for latency + Docker/eval divergence must match the `SCOPE.md` §6 notes above.
+- Full task spec lives on `feature/New-v2` as `AUDIT_REPORT.md` §6 (not on this line yet) — view with `git show feature/New-v2:AUDIT_REPORT.md` (or commit `14a7098`).
