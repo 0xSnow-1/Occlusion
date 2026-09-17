@@ -104,3 +104,11 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Deliberately NOT done (do not duplicate): `AGENTS.md` untouched incl. the `:7` ingest-command drift (B4 owns all of `AGENTS.md`); `SHIP_CRITERIA.md` not created (human decision); latency-target recalibration recorded as pending owner decision in `SCOPE.md` §6.
 - For B5: README wording for latency + Docker/eval divergence must match the `SCOPE.md` §6 notes above.
 - Full task spec lives on `feature/New-v2` as `AUDIT_REPORT.md` §6 (not on this line yet) — view with `git show feature/New-v2:AUDIT_REPORT.md` (or commit `14a7098`).
+
+## B4 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-hygiene` (from `fix/v1-docs-sync` @ `563ef56`, i.e. on top of B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B4, blockers 10/11/12/14): `src/agent/agents.py` DELETED (owner: LangGraph was never going there, stub useless) with its `AGENTS.md` bullet removed — grep confirms zero imports; `.gitignore` no longer ignores `LOGGING.md`/`AGENTIC_WORKFLOW.md`/`Agentic_AI_Engineering_Reference.md` (kept `data/raw/_archive/`); `AGENTS.md` lint line now mentions `.no-mistakes.yaml` + `treehouse.toml`.
+- Deliberately NOT done: root `SKILL (7).md` artifact exists only on `feature/New-v2` (committed in `14a7098`), never on this line — nothing to rename/delete here; `git status --short` is artifact-free. `git log --all --full-history -- .env` is empty (blocker 14 clean).
+- Verify: `git check-ignore -v .env data/qdrant_storage` still ignored; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 100/100 green (main-line count; 136 is the `feature/New-v2` line).
+- Next agent: base your branch on `fix/v1-hygiene` (`git checkout -b <next> fix/v1-hygiene`), NOT on `main`, so B4 travels with you. Do NOT re-add `agents.py` without owner approval.

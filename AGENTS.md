@@ -23,7 +23,6 @@
 - `src/agent/verify.py` — implemented: `verify_citations` checks inline `[SRC:doc_id]` tokens against retrieved chunk IDs; fail-closed on zero citations or fabricated IDs.
 - `src/agent/prompts/` (package) — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks; versioned templates (`.md`) loaded via `load_prompt_template`.
 - `src/agent/guardrail.py` — implemented (Phase 7.2): `screen_question` deterministic regex-based scope gate returning `GuardrailDecision(allowed, rule)`.
-- `src/agent/agents.py` — **empty stub**. Reserved for future multi-agent orchestration.
 - `src/eval/` — empty, planned per TODO phases.
 
 ## Contracts the tests pin (don't reinvent)
@@ -37,7 +36,7 @@
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
-- No lint, typecheck, or `opencode.json` in repo (CI exists: `.github/workflows/ci.yml`). Streamlit UI at `src/ui/app.py` (Dockerfile for HF Spaces at port 7860).
+- No lint, typecheck, or `opencode.json` in repo (CI exists: `.github/workflows/ci.yml`; test baseline pinned in `.no-mistakes.yaml`; worktree pool configured in `treehouse.toml`). Streamlit UI at `src/ui/app.py` (Dockerfile for HF Spaces at port 7860).
 
 ## Scope guards (from SCOPE.md / PROVENANCE.md)
 - Refusal correctness on trap questions is the hard ship gate (100%, zero slack) — never answer diagnostic/prescriptive or out-of-corpus questions confidently.
