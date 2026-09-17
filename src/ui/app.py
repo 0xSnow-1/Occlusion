@@ -62,7 +62,7 @@ def citation_link(doc_id: str, source_url: str | None) -> str:
     Falls back to a bare backticked chip for legacy chunks whose payload
     predates `source_url` (e.g. the frozen eval snapshot).
     """
-    if source_url:
+    if source_url and source_url.startswith(("http://", "https://")):
         return f"[{doc_id}]({source_url})"
     return f"`{doc_id}`"
 
@@ -75,9 +75,6 @@ def _source_url_for(chunks, doc_id: str) -> str | None:
         ):
             return c.source_url
     return None
-
-
-
 
 
 @st.cache_resource(show_spinner="Connecting to knowledge base…")
