@@ -112,3 +112,12 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Deliberately NOT done: root `SKILL (7).md` artifact exists only on `feature/New-v2` (committed in `14a7098`), never on this line — nothing to rename/delete here; `git status --short` is artifact-free. `git log --all --full-history -- .env` is empty (blocker 14 clean).
 - Verify: `git check-ignore -v .env data/qdrant_storage` still ignored; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 100/100 green (main-line count; 136 is the `feature/New-v2` line).
 - Next agent: base your branch on `fix/v1-hygiene` (`git checkout -b <next> fix/v1-hygiene`), NOT on `main`, so B4 travels with you. Do NOT re-add `agents.py` without owner approval.
+
+## B2 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-env-deps` (from `fix/v1-hygiene` @ `787990a`, i.e. on top of B4+B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B2, blockers 3/4): `sample.env` rewritten to runtime reality — Q&A-only active keys are `AWS_BEARER_TOKEN_BEDROCK`/`BEDROCK_MODEL_ID`/`BEDROCK_REGION` (Qdrant is repo-local path mode, so the Cloud pair is dropped); judge resolved to `BEDROCK_JUDGE_MODEL_ID` (what `run_ragas.py:46` reads — bare `JUDGE_MODEL_ID` is dead); tracing resolved to `LANGSMITH_TRACING` (canonical for pinned langsmith — `LANGCHAIN_TRACING_V2` is legacy); `GROQ_API_KEY`/Google/Tavily/DB-URI keys dropped (zero readers); all lines spaceless; commented minimal sets for eval vs booking (V2-only, nothing on this line reads them).
+- Dep cut with explicit owner approval (AGENTS.md new-dep rule, on record): `copilotkit`, `ag-ui-langgraph`, `ddgs`, `duckduckgo-search` removed from `pyproject.toml`; `uv lock` also shed orphans (`ag-ui-*`, `primp`, `partialjson`). Zero imports in `src/`/`scripts/`/`tests/` before and after.
+- Verify: `rg -l "copilotkit|ag_ui|ddgs|duckduckgo" src/ scripts/ tests/` zero; `uv sync --frozen` exit 0; `pyproject.toml` parses; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` 100/100 green (main-line count).
+- Deliberately NOT done: local `.env` files still carry stale keys (`JUDGE_MODEL_ID`, `LANGCHAIN_TRACING_V2`, spaced `CAL_URL `) — local-only, never committed; each dev reconciles their own `.env` from the new `sample.env`. README untouched (B5 owns it).
+- Next agent: base your branch on `fix/v1-env-deps` (`git checkout -b fix/v1-source-links-ogl fix/v1-env-deps`), NOT on `main`, so B2 travels with you.
