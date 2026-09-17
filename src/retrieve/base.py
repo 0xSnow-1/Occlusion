@@ -34,12 +34,22 @@ def points_to_chunks(points: Iterable[Any] | None) -> list[RetrievedChunk]:
             continue
 
         doc_id = payload.get("doc_id") or str(point_id)
+        # Blocker 6 (B3): prefer the canonical source_url written at
+        # ingest time; fall back to legacy payload keys so points ingested
+        # before source_url existed (incl. the frozen eval snapshot, which
+        # carries the loader-native "source") still resolve to a link.
+        # The snapshot itself is deliberately left untouched.
+        source_url = (
+            payload.get("source_url")
+            or payload.get("file_path")
+            or payload.get("source")
+        )
         chunks.append(
             RetrievedChunk(
                 doc_id=str(doc_id),
                 text=text,
                 score=float(score) if score is not None else None,
-                source_url=payload.get("source_url"),
+                source_url=source_url,
                 title=payload.get("title"),
             )
         )

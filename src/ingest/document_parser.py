@@ -25,6 +25,11 @@ def load_all_PDFS(PDFS_directory: str) -> List[Any]:
             doc_id = pdf_file.stem
             for doc in loaded:
                 doc.metadata["doc_id"] = doc_id
+                # Blockers 6 (B3): carry the file path so fresh-ingest
+                # payloads yield a non-empty RetrievedChunk.source_url.
+                # PyMuPDFLoader already sets metadata["source"]; keep both.
+                doc.metadata.setdefault("file_path", str(pdf_file))
+                doc.metadata.setdefault("source_url", str(pdf_file))
             logger.debug(f"Assigned doc_id={doc_id} to {len(loaded)} pages")
             logger.info(f"Loaded {len(loaded)} pages from: {pdf_file}")
             documents.extend(loaded)
@@ -50,6 +55,11 @@ def load_all_websites(URL_links: list[str]) -> List[Any]:
             doc_id = link.split("/")[-2] or link.split("/")[-1]
             for doc in loaded:
                 doc.metadata["doc_id"] = doc_id
+                # Blocker 6 (B3): the real page URL is the source link.
+                # WebBaseLoader sets metadata["source"]; source_url is the
+                # canonical key the retriever and UI read.
+                doc.metadata["source_url"] = link
+                doc.metadata.setdefault("title", doc_id)
             logger.info(f"Loaded {len(loaded)} file for {link}")
             documents.extend(loaded)
         except Exception as e:
