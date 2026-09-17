@@ -14,8 +14,12 @@ A LangGraph agent that answers routine dental-health questions by retrieving fro
 
 ```text
 User question
+  |-- flagged (decision-shaped / out-of-scope) --> Refusal(OUT_OF_SCOPE) --> END
+  |
+Guardrail (deterministic pre-LLM regex, src/agent/guardrail.py; retrieval and LLM never run when flagged)
   |
 Hybrid retrieval (Qdrant dense top_k 20 + sparse top_k 20, server-side RRF, client-side rrf_fuse fallback)
+  |-- empty --> Refusal(INSUFFICIENT_CONTEXT) --> END
   |
 RAG generation (LLM with structured output -> Answer { answer, citations, confidence })
   |
