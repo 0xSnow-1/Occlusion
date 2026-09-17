@@ -7,7 +7,6 @@ from src.ui.app import (
     DISCLAIMER,
     OGL_ATTRIBUTION,
     citation_link,
-    format_answer_footer,
 )
 
 EXACT = (
@@ -26,23 +25,6 @@ class TestOglDisclaimer:
 
     def test_disclaimer_contains_exact_sentence(self):
         assert EXACT in DISCLAIMER
-
-
-class TestAnswerFooter:
-    def test_footer_renders_links_and_ogl(self):
-        footer = format_answer_footer(
-            [_chunk(), _chunk(doc_id="gum-disease", url="https://www.nhs.uk/conditions/gum-disease/")]
-        )
-
-        assert "[dental-abscess](https://www.nhs.uk/conditions/dental-abscess/)" in footer
-        assert "[gum-disease](https://www.nhs.uk/conditions/gum-disease/)" in footer
-        assert EXACT in footer
-
-    def test_footer_empty_chunks_still_carries_ogl(self):
-        footer = format_answer_footer([])
-
-        assert "Sources: none" in footer
-        assert EXACT in footer
 
 
 class TestCitationLink:

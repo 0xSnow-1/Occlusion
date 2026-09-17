@@ -77,24 +77,6 @@ def _source_url_for(chunks, doc_id: str) -> str | None:
     return None
 
 
-def format_answer_footer(chunks) -> str:
-    """Pure answer-footer text: clickable source links + OGL attribution.
-
-    Kept side-effect free (no `st.*` calls) so tests can assert the
-    rendered answer path without a Streamlit runtime.
-    """
-    seen: dict[str, str | None] = {}
-    for c in chunks:
-        doc_id = getattr(c, "doc_id", str(c))
-        seen.setdefault(doc_id, getattr(c, "source_url", None))
-    if seen:
-        links = " · ".join(
-            citation_link(doc_id, url) for doc_id, url in seen.items()
-        )
-        sources = f"Sources: {links}"
-    else:
-        sources = "Sources: none"
-    return f"{sources}\n\n{OGL_ATTRIBUTION}"
 
 
 
