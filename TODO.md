@@ -693,19 +693,30 @@
 
 ## Progress tracker
 
+Status as of 2026-09-16 (evidence: implemented code on `main` plus the green offline suite `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q`).
+Phases 1–5 and 7 are done; the rest are open or partial — see the notes under the table.
+
 | Phase | Focus | Checklist | Status |
 |---|---|---|---|
 | 0 | Decisions on paper & repo hygiene | A, C, H | ☐ |
-| 1 | Corpus + ingestion | B | ☐ |
-| 2 | Golden set | B, D | ☐ |
-| 3 | Dense retrieval baseline | C | ☐ |
-| 4 | BM25 + RRF hybrid (+ optional rerank) | C, D | ☐ |
-| 5 | LangGraph agent + citations | C, E | ☐ |
+| 1 | Corpus + ingestion | B | ☑ |
+| 2 | Golden set | B, D | ☑ |
+| 3 | Dense retrieval baseline | C | ☑ |
+| 4 | BM25 + RRF hybrid (+ optional rerank) | C, D | ☑ |
+| 5 | LangGraph agent + citations | C, E | ☑ |
 | 6 | Ragas harness + LangSmith + CI | D | ☐ |
-| 7 | Guardrails & fail-closed | E | ☐ |
+| 7 | Guardrails & fail-closed | E | ☑ |
 | 8 | Manual error analysis + one improvement | D | ☐ |
 | 9 | Demo UI + deployment | F | ☐ |
 | 10 | README + audit + ship gate | G, H | ☐ |
+
+**Tracker notes (2026-09-16):**
+- Phase 0 stays open: `SHIP_CRITERIA.md` (Task 0.2) was never created, and the Task 0.3 `.env`-history check is still pending.
+- Phase 4 is done with rerank (Task 4.3) deliberately off — it is explicitly optional.
+- Phase 6 stays open: the Ragas baseline plus CI exist, but the LangSmith tag conventions (Task 6.3) are unverified.
+- Phase 7 is done rule-based per Task 7.2's "decide deliberately" (29 guardrail tests); the bounded repair loop was probed, converted 0 cases, and reverted — no retry loop ships by evidence, not by omission.
+- Phase 9 stays open: the Streamlit UI plus `Dockerfile` exist, but there is no public demo URL yet.
+- Phase 10 stays open: the audit exists (`AUDIT_REPORT.md`, landed via `feature/New-v2` — merge it before citing it here); the README plus ship-gate decision do not.
 
 **Dependency notes:**
 - Phases 0–2 gate everything: no retrieval code before the golden set exists (plan §8-1).

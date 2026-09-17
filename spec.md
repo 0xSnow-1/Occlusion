@@ -24,9 +24,9 @@ Validation (deterministic code: citations exist in retrieved set, confidence >= 
   |-- pass --> Answer + source links --> END
 ```
 
-The deterministic guardrail / router / conversational-vs-medical split / evaluator-optimizer retry loop described in the old `Architecture Design desc.md` is not what the tests pin.
-The tests pin a simpler pipeline: retrieve, generate, validate, fail closed (see §5).
-Any router, conversational path, or bounded retry loop is future work and must be added to this spec before it is built.
+The entry node is a deterministic pre-LLM guardrail (`src/agent/guardrail.py`, TODO 7.2): flagged questions go straight to the refusal gate (Gate 0, `OUT_OF_SCOPE`) with retrieval and the LLM never running.
+Allowed questions flow retrieve, generate, validate, fail closed (see §5).
+A conversational-vs-medical router split or bounded retry loop is still future work and must be added to this spec before it is built.
 
 ## 3. Ingestion — write path (implemented)
 
@@ -44,9 +44,7 @@ Chunking uses `RecursiveCharacterTextSplitter` with defaults `chunk_size=1000`, 
 Each chunk inherits its source document metadata and gains `chunk_index` (0-based) and `chunk_total`.
 There is no embedding step in this module.
 Embedding happens at upsert time inside Qdrant via fastembed `models.Document` (see §3.3).
-Known issue on `main`: this file contains unresolved merge-conflict markers (`HEAD` vs `feature/retrieve`).
-The `HEAD` side adds a `sentence-transformers` `embed_documents` / `process` path plus a CLI that the tests do not cover and the pipeline does not call.
-The resolved direction is the `feature/retrieve` side (chunk-only), and the conflict markers must be removed with the `HEAD` side dropped.
+Resolved history: an earlier rebase left conflict markers in this file (a `sentence-transformers` embedding path plus CLI on one side, chunk-only on the other); the chunk-only side was kept and the markers removed, so this module has no embedding step and no CLI.
 
 ### 3.3 Index (`src/ingest/vector_store.py:35`)
 
@@ -95,37 +93,42 @@ Ties keep first-seen order (dense list first).
 ### 4.5 Retriever seam (`src/retrieve/__init__.py:21`)
 
 `make_retriever(client, collection, variant="hybrid")` returns a `(query, *, top_n=5)` callable over `dense`, `sparse`, or `hybrid`.
-This callable is the seam the future graph retrieval node imports, so retriever variants can be swapped without rewriting the agent or eval harness.
+This callable is the seam the graph retrieval node calls (`src/agent/graph.py`), so retriever variants can be swapped without rewriting the agent or eval harness.
 
-## 5. Agent contracts (specified by tests, not yet implemented)
+## 5. Agent contracts (implemented, pinned by tests)
 
-`src/agent/schemas.py` currently implements only `RetrievedChunk` (`doc_id`, `text`, `score`, `source_url`, `title`).
-`src/agent/graph.py`, `state.py`, `verify.py`, `prompts.py`, and `agents.py` are empty stubs.
-The contracts below are therefore requirements taken from `tests/agent/*`, not descriptions of existing code.
+`src/agent/schemas.py` implements `RetrievedChunk`, `Answer`, `Refusal` (plus the `RefusalReason` enum), `AgentOutput` (discriminated union on `kind`), `CitationCheck`, and `GuardrailDecision`.
+`state.py`, `graph.py`, `verify.py`, `guardrail.py`, and the `prompts/` package are implemented as described below.
+`agents.py` is a 0-byte stub reserved for future multi-agent orchestration (see §10).
 
 ### 5.1 Schemas (`tests/agent/test_schemas.py`)
 
-`Answer` carries `kind="answer"`, a non-empty `answer` string, `citations: list[str]`, and `confidence` bounded to `0-1`.
-`Refusal` carries `kind="refusal"`, a `reason` enum, and a `message` that defaults to text mentioning consulting a dentist when omitted.
+`Answer` carries `kind="answer"`, a non-empty `answer` string, `citations: list[str]`, and `confidence` bounded to `0-1` (the model's self-reported certainty that the answer is grounded in the supplied chunks).
+`Refusal` carries `kind="refusal"`, a `reason` enum, and a `message` that defaults to patient-safe text mentioning consulting a dentist when omitted.
+`RefusalReason` has exactly two values: `INSUFFICIENT_CONTEXT` for the RAG-side fail-closed gates (empty retrieval, low confidence, failed citation check) and `OUT_OF_SCOPE` for the guardrail/trap taxonomy (diagnostic/prescriptive, out-of-corpus).
 `AgentOutput` is a discriminated union on `kind` covering exactly `Answer` and `Refusal`.
 `CitationCheck` carries `verified`, `cited_ids`, `retrieved_ids`, `fabricated_ids`, `matches`, `total`, and `coverage`.
+`GuardrailDecision` carries `allowed` (default `False`, fail-closed) and the fired `rule` (`None` when allowed).
 
 ### 5.2 Citation verification (`tests/agent/test_verify.py`)
 
 Inline citation tokens take the form `[SRC:doc_id]`.
-`extract_citations` parses every such token in order, including repeats.
+`extract_citations` parses every such token in order, including repeats, and normalizes a stray `SRC:` prefix plus surrounding whitespace so the inline and `citations`-list styles compare equal.
 `verify_citations(answer, retrieved)` checks each cited id against the retrieved set.
 Zero citations or any fabricated id yields `verified=False` (fail closed).
-`coverage` equals `matches / total`, and `strip_fabricated_tokens` masks only the bad tokens.
+`coverage` equals `matches / total`, and `strip_fabricated_tokens` masks only the bad tokens (kept test-pinned but deliberately NOT wired into the graph — the graph refuses instead).
 
 ### 5.3 Graph (`tests/agent/test_graph.py`)
 
-`build_graph(retriever=..., llm=..., confidence_threshold=...)` injects a `(query, *, top_n)` retriever and an LLM exposing `llm.with_structured_output(Answer)`.
-`graph.invoke({"question": ...})` returns `{"response", "citation_check", "fused_chunks"}`.
-Empty retrieval short-circuits before generation and returns a `Refusal` with `fused_chunks == []`.
-Low confidence (below threshold) returns a `Refusal` with reason `INSUFFICIENT_CONTEXT`.
-Any fabricated citation returns a `Refusal`.
+`build_graph(retriever=..., llm=..., confidence_threshold=0.7)` injects a `(query, *, top_n)` retriever (e.g. a `make_retriever` output) and an LLM exposing `llm.with_structured_output(Answer)`.
+The entry node is `guardrail` (deterministic pre-LLM scope check, TODO 7.2): flagged questions skip retrieval and generation and go straight to `decide` (Gate 0 → `Refusal(OUT_OF_SCOPE)`); allowed questions flow `retrieve → generate → verify → decide`.
+`graph.invoke({"question": ...})` returns state including `{"response", "citation_check", "fused_chunks"}`.
+Empty retrieval short-circuits before generation and returns a `Refusal` with `fused_chunks == []` (Gate 1, `INSUFFICIENT_CONTEXT`).
+A failed citation check refuses (Gate 2, `INSUFFICIENT_CONTEXT`).
+Low confidence (below threshold) refuses (Gate 3, `INSUFFICIENT_CONTEXT`).
 The happy path returns an `Answer` with a verified citation check and the fused chunks attached.
+Generation builds its prompt with `format_dental_qa_prompt(question, chunks, template_name="dental_qa_v2.3")` from the versioned templates in `src/agent/prompts/` (base, CoT, simple, v2.3).
+All refusal sites write a fresh `Refusal` into `response` on every run and never reuse prior state.
 
 ## 6. Corpus (authoritative manifests, not this file)
 
@@ -163,6 +166,7 @@ No FastAPI service exists yet (Phase 9.2 remains optional); a Streamlit demo UI 
 
 `src/ingest/` holds the write path (`document_parser.py`, `chunking_and_embedding.py`, `vector_store.py`, `ingestion_pipeline.py`).
 `src/retrieve/` holds the read path (`base.py`, `dense.py`, `sparse.py`, `hybrid.py`, `__init__.py` with `make_retriever`).
-`src/agent/` holds fusion plus the stubbed agent contracts (`fusion.py` implemented; `schemas.py` partial; `graph.py`, `state.py`, `verify.py`, `prompts.py`, `agents.py` specified by tests).
-`src/eval/` is empty and planned per `TODO.md`.
-`tests/ingest/`, `tests/retrieve/`, and `tests/agent/test_fusion.py` cover implemented code, while the remaining `tests/agent/*` files are the spec for the stubs.
+`src/agent/` holds the implemented agent: `schemas.py` (all contracts), `state.py` (graph working memory), `graph.py` (guardrail entry node, retrieve/generate/verify/decide nodes, Gates 0–3), `verify.py` (fail-closed citation check), `guardrail.py` (deterministic pre-LLM scope gate), `fusion.py` (client-side RRF fallback), and the `prompts/` package of versioned templates (`dental_qa_v2.3` is the graph default).
+`agents.py` is a 0-byte stub reserved for future multi-agent orchestration.
+`src/eval/` holds the golden-set loader (`golden.py`) and the Ragas harness (`ragas/`, runner plus versioned `results/`).
+`tests/ingest/`, `tests/retrieve/`, and `tests/agent/` (fusion, schemas, verify, graph, prompts, guardrail) cover implemented code.

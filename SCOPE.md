@@ -65,6 +65,8 @@ Treat these as first-pass targets to recalibrate once you have a real golden-set
 - **Answer relevancy (Ragas):** ≥ 0.80
 - **Refusal correctness:** 100% on the golden set's emergency/out-of-scope trap questions. This is the one metric with zero acceptable slack — a health-adjacent assistant that fails to refuse is a failed project regardless of how good the retrieval numbers look.
 - **Latency:** P95 < 3s per query
+- **Latency (measured 2026-09-10, local hardware):** P50 ≈ 3.5s, P95 ≈ 4.9s over 12 timed `graph.invoke` calls (repo-local Qdrant, hybrid retriever, Bedrock Haiku 4.5 at temp 0, threshold 0.7) — misses the P95 < 3s target locally; the driver is the Bedrock round-trip, not retrieval. Recalibrating the target is a pending owner decision; staging must re-measure before any ship claim.
+- **Index parity note:** eval numbers were measured on the frozen 120-chunk snapshot; the Docker image bakes a 136-point superset index (the CDC `about` page served its full content at build time). Demo-safe, but eval-demo parity is not exact.
 - **Cost:** documented cost-per-query at an assumed volume (e.g. 500 queries/day), even if the number is small — the reasoning matters more than the number.
 
 ## 7. Kill / ship criteria
