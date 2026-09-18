@@ -42,3 +42,10 @@
 - Refusal correctness on trap questions is the hard ship gate (100%, zero slack) — never answer diagnostic/prescriptive or out-of-corpus questions confidently.
 - Corpus is patient-education only (HRSA/NIDCR/CDC public domain + NHS OGL v3.0). NHS-derived output needs OGL attribution. Do NOT re-add: MedlinePlus/ency, ADA/Colgate/WebMD, NADP glossary, per-Trust leaflets, archived clinical guidelines, CMS glossary — all explicitly rejected.
 - Follow `TODO.md` phase order (0–2 gate everything; verify gate per task) and check `SCOPE.md` before adding features.
+
+## Parallel lanes (one branch per worktree)
+- `~/Occlusion` is the branch factory: create each lane branch from the base, then switch straight back so the name is free. A branch can be open in only one folder at a time.
+- Each lane works in its own worktree on its own branch and opens its own PR. Base every lane on the same point so lanes stay merge-compatible.
+- Handoff notes: each lane writes `.agents/handoffs/<branch>.md` plus its PR body. Every handoff file starts with three header lines: `Branch: <name>`, `Date: <YYYY-MM-DD>`, `Scope: <one line>`. Never edit `SHARED_CONTEXT.md` from a parallel lane. Whoever merges last consolidates all handoff files into `SHARED_CONTEXT.md` in one sequential commit, ordered by merge sequence from `git log`.
+
+(End of file - total 51 lines)

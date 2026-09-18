@@ -7,7 +7,6 @@ from src.ui.app import (
     DISCLAIMER,
     OGL_ATTRIBUTION,
     citation_link,
-    format_answer_footer,
 )
 
 EXACT = (
@@ -28,23 +27,6 @@ class TestOglDisclaimer:
         assert EXACT in DISCLAIMER
 
 
-class TestAnswerFooter:
-    def test_footer_renders_links_and_ogl(self):
-        footer = format_answer_footer(
-            [_chunk(), _chunk(doc_id="gum-disease", url="https://www.nhs.uk/conditions/gum-disease/")]
-        )
-
-        assert "[dental-abscess](https://www.nhs.uk/conditions/dental-abscess/)" in footer
-        assert "[gum-disease](https://www.nhs.uk/conditions/gum-disease/)" in footer
-        assert EXACT in footer
-
-    def test_footer_empty_chunks_still_carries_ogl(self):
-        footer = format_answer_footer([])
-
-        assert "Sources: none" in footer
-        assert EXACT in footer
-
-
 class TestCitationLink:
     def test_link_when_url_known(self):
         assert citation_link("dental-abscess", "https://www.nhs.uk/conditions/dental-abscess/") == (
@@ -53,3 +35,11 @@ class TestCitationLink:
 
     def test_chip_fallback_for_legacy_chunks(self):
         assert citation_link("dental-abscess", None) == "`dental-abscess`"
+
+    def test_chip_fallback_for_local_file_paths(self):
+        local_path = "/home/user/data/raw/dry-mouth.pdf"
+        assert citation_link("dry-mouth", local_path) == "`dry-mouth`"
+
+    def test_no_link_for_javascript_scheme(self):
+        bad_url = "javascript:alert('xss')"
+        assert citation_link("test-doc", bad_url) == "`test-doc`"

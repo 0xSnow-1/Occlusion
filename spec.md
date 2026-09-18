@@ -14,8 +14,12 @@ A LangGraph agent that answers routine dental-health questions by retrieving fro
 
 ```text
 User question
+  |-- flagged (decision-shaped / out-of-scope) --> Refusal(OUT_OF_SCOPE) --> END
+  |
+Guardrail (deterministic pre-LLM regex, src/agent/guardrail.py; retrieval and LLM never run when flagged)
   |
 Hybrid retrieval (Qdrant dense top_k 20 + sparse top_k 20, server-side RRF, client-side rrf_fuse fallback)
+  |-- empty --> Refusal(INSUFFICIENT_CONTEXT) --> END
   |
 RAG generation (LLM with structured output -> Answer { answer, citations, confidence })
   |
@@ -99,7 +103,6 @@ This callable is the seam the graph retrieval node calls (`src/agent/graph.py`),
 
 `src/agent/schemas.py` implements `RetrievedChunk`, `Answer`, `Refusal` (plus the `RefusalReason` enum), `AgentOutput` (discriminated union on `kind`), `CitationCheck`, and `GuardrailDecision`.
 `state.py`, `graph.py`, `verify.py`, `guardrail.py`, and the `prompts/` package are implemented as described below.
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration (see §10).
 
 ### 5.1 Schemas (`tests/agent/test_schemas.py`)
 
@@ -113,7 +116,7 @@ This callable is the seam the graph retrieval node calls (`src/agent/graph.py`),
 ### 5.2 Citation verification (`tests/agent/test_verify.py`)
 
 Inline citation tokens take the form `[SRC:doc_id]`.
-`extract_citations` parses every such token in order, including repeats, and normalizes a stray `SRC:` prefix plus surrounding whitespace so the inline and `citations`-list styles compare equal.
+`extract_citations` parses every such token in order, including repeats; `verify_citations` then feeds each id through `normalize_doc_id`, which strips a stray `SRC:` prefix plus surrounding whitespace so the inline and `citations`-list styles compare equal.
 `verify_citations(answer, retrieved)` checks each cited id against the retrieved set.
 Zero citations or any fabricated id yields `verified=False` (fail closed).
 `coverage` equals `matches / total`, and `strip_fabricated_tokens` masks only the bad tokens (kept test-pinned but deliberately NOT wired into the graph — the graph refuses instead).
@@ -167,6 +170,5 @@ No FastAPI service exists yet (Phase 9.2 remains optional); a Streamlit demo UI 
 `src/ingest/` holds the write path (`document_parser.py`, `chunking_and_embedding.py`, `vector_store.py`, `ingestion_pipeline.py`).
 `src/retrieve/` holds the read path (`base.py`, `dense.py`, `sparse.py`, `hybrid.py`, `__init__.py` with `make_retriever`).
 `src/agent/` holds the implemented agent: `schemas.py` (all contracts), `state.py` (graph working memory), `graph.py` (guardrail entry node, retrieve/generate/verify/decide nodes, Gates 0–3), `verify.py` (fail-closed citation check), `guardrail.py` (deterministic pre-LLM scope gate), `fusion.py` (client-side RRF fallback), and the `prompts/` package of versioned templates (`dental_qa_v2.3` is the graph default).
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration.
 `src/eval/` holds the golden-set loader (`golden.py`) and the Ragas harness (`ragas/`, runner plus versioned `results/`).
 `tests/ingest/`, `tests/retrieve/`, and `tests/agent/` (fusion, schemas, verify, graph, prompts, guardrail) cover implemented code.
