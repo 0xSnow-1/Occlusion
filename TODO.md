@@ -716,7 +716,7 @@ Phases 1–5 and 7 are done; the rest are open or partial — see the notes unde
 - Phase 6 stays open: the Ragas baseline plus CI exist, but the LangSmith tag conventions (Task 6.3) are unverified.
 - Phase 7 is done rule-based per Task 7.2's "decide deliberately" (29 guardrail tests); the bounded repair loop was probed, converted 0 cases, and reverted — no retry loop ships by evidence, not by omission.
 - Phase 9 stays open: the Streamlit UI plus `Dockerfile` exist, but there is no public demo URL yet.
-- Phase 10 stays open: the audit exists (`AUDIT_REPORT.md`, landed via `feature/New-v2` — merge it before citing it here); the README plus ship-gate decision do not.
+- Phase 10 stays open: the audit exists (`AUDIT_REPORT.md`, landed via `feature/New-v2` — merge it before citing it here; the pointer is LOCAL-ONLY, resolving via the author's commit `14a7098` / local branch but not on a fresh clone, so if the ref is missing carry the B2-B5 scope from the B1 handoff note + `SHARED_CONTEXT.md` audit section and ask the owner for `AUDIT_REPORT.md` §6); the README plus ship-gate decision do not.
 
 **Dependency notes:**
 - Phases 0–2 gate everything: no retrieval code before the golden set exists (plan §8-1).
