@@ -104,3 +104,29 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Deliberately NOT done (do not duplicate): `AGENTS.md` untouched incl. the `:7` ingest-command drift (B4 owns all of `AGENTS.md`); `SHIP_CRITERIA.md` not created (human decision); latency-target recalibration recorded as pending owner decision in `SCOPE.md` §6.
 - For B5: README wording for latency + Docker/eval divergence must match the `SCOPE.md` §6 notes above.
 - Full task spec lives on `feature/New-v2` as `AUDIT_REPORT.md` §6 (not on this line yet) - view with `git show feature/New-v2:AUDIT_REPORT.md` (or commit `14a7098`). That pointer is LOCAL-ONLY: it resolves on the author machine via commit `14a7098` / the local `feature/New-v2` branch, but a fresh clone has neither (`origin/feature/New-v2` carries no `AUDIT_REPORT.md` and `14a7098` is unpublished). Fallback: if the ref is missing, this B1 handoff note plus the AUDIT section of `SHARED_CONTEXT.md` (above) carry the B2-B5 scope; ask the owner for `AUDIT_REPORT.md` §6 rather than treating the spec as locally readable.
+
+## B4 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-hygiene` (from `fix/v1-docs-sync` @ `563ef56`, i.e. on top of B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B4, blockers 10/11/12/14): `src/agent/agents.py` DELETED (owner: LangGraph was never going there, stub useless) with its `AGENTS.md` bullet removed — grep confirms zero imports; `.gitignore` no longer ignores `LOGGING.md`/`AGENTIC_WORKFLOW.md`/`Agentic_AI_Engineering_Reference.md` (kept `data/raw/_archive/`); `AGENTS.md` lint line now mentions `.no-mistakes.yaml` + `treehouse.toml`.
+- Deliberately NOT done: root `SKILL (7).md` artifact exists only on `feature/New-v2` (committed in `14a7098`), never on this line — nothing to rename/delete here; `git status --short` is artifact-free. `git log --all --full-history -- .env` is empty (blocker 14 clean).
+- Verify: `git check-ignore -v .env data/qdrant_storage` still ignored; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 100/100 green (main-line count; 136 is the `feature/New-v2` line).
+- Next agent: base your branch on `fix/v1-hygiene` (`git checkout -b <next> fix/v1-hygiene`), NOT on `main`, so B4 travels with you. Do NOT re-add `agents.py` without owner approval.
+
+## B2 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-env-deps` (from `fix/v1-hygiene` @ `787990a`, i.e. on top of B4+B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B2, blockers 3/4): `sample.env` rewritten to runtime reality — Q&A-only active keys are `AWS_BEARER_TOKEN_BEDROCK`/`BEDROCK_MODEL_ID`/`BEDROCK_REGION` (Qdrant is repo-local path mode, so the Cloud pair is dropped); judge resolved to `BEDROCK_JUDGE_MODEL_ID` (what `run_ragas.py:46` reads — bare `JUDGE_MODEL_ID` is dead); tracing resolved to `LANGSMITH_TRACING` (canonical for pinned langsmith — `LANGCHAIN_TRACING_V2` is legacy); `GROQ_API_KEY`/Google/Tavily/DB-URI keys dropped (zero readers); all lines spaceless; commented minimal sets for eval vs booking (V2-only, nothing on this line reads them).
+- Dep cut with explicit owner approval (AGENTS.md new-dep rule, on record): `copilotkit`, `ag-ui-langgraph`, `ddgs`, `duckduckgo-search` removed from `pyproject.toml`; `uv lock` also shed orphans (`ag-ui-*`, `primp`, `partialjson`). Zero imports in `src/`/`scripts/`/`tests/` before and after.
+- Verify: `rg -l "copilotkit|ag_ui|ddgs|duckduckgo" src/ scripts/ tests/` zero; `uv sync --frozen` exit 0; `pyproject.toml` parses; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` 100/100 green (main-line count).
+- Deliberately NOT done: local `.env` files still carry stale keys (`JUDGE_MODEL_ID`, `LANGCHAIN_TRACING_V2`, spaced `CAL_URL `) — local-only, never committed; each dev reconciles their own `.env` from the new `sample.env`. README untouched (B5 owns it).
+- Next agent: base your branch on `fix/v1-env-deps` (`git checkout -b fix/v1-source-links-ogl fix/v1-env-deps`), NOT on `main`, so B2 travels with you.
+
+## B3 handoff (2026-09-17 — done, committed, UNMERGED; next agent read this first)
+
+- Branch `fix/v1-source-links-ogl` (from `fix/v1-env-deps` @ `2298466`, i.e. on top of B2+B4+B1). Owner merges per audit order (B4, B1, B2, B3, then B5) — NOT into `main` yet.
+- Done (audit §6 B3, blockers 6/7): `document_parser.py` writes `source_url` on every doc (HTML = page URL, PDF = file path + `file_path`); `retrieve/base.py` resolves `source_url` preferred, `file_path`/`source` fallback (frozen eval snapshot untouched, legacy payloads still link); `src/ui/app.py` renders clickable `[doc_id](url)` source links (chip fallback) + exact OGL sentence `Contains public sector information licensed under the Open Government Licence v3.0.` in `DISCLAIMER` and under every answer; new `OGL_ATTRIBUTION`/`citation_link` helpers (`citation_link` links http(s) URLs only, chips otherwise); dead `format_answer_footer` helper removed per review.
+- Verify: `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` is 111/111 green (100 main-line + 11 new: 5 `test_source_url.py`, 6 `test_ogl_disclaimer.py`); `tests/agent/test_graph.py`, `test_verify.py` untouched; `git log --all --full-history -- .env` empty.
+- For B5: README source-link + OGL wording must match the behavior above (links, not chips; exact OGL sentence in disclaimer + answer footer). README is yours alone — no other agent touches it.
+- Next agent: B5 `fix/v1-readme-demo` bases on this branch after it merges to `main` (or on this branch directly), per audit merge order.
+

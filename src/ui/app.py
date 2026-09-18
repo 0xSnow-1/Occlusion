@@ -43,12 +43,38 @@ BEDROCK_MODEL_ID = os.getenv(
 )
 BEDROCK_REGION = os.getenv("BEDROCK_REGION", "us-east-1")
 
+OGL_ATTRIBUTION = (
+    "Contains public sector information licensed "
+    "under the Open Government Licence v3.0."
+)
+
 DISCLAIMER = (
     "Patient-education assistant over public dental documentation — "
     "not a diagnostic tool. Emergency/triage guidance follows NHS UK sources. "
-    "Always consult a dentist for decisions about your own care."
+    "Always consult a dentist for decisions about your own care. "
+    + OGL_ATTRIBUTION
 )
 
+
+def citation_link(doc_id: str, source_url: str | None) -> str:
+    """Render one citation as a clickable markdown link when a URL is known.
+
+    Falls back to a bare backticked chip for legacy chunks whose payload
+    predates `source_url` (e.g. the frozen eval snapshot).
+    """
+    if source_url and source_url.startswith(("http://", "https://")):
+        return f"[{doc_id}]({source_url})"
+    return f"`{doc_id}`"
+
+
+def _source_url_for(chunks, doc_id: str) -> str | None:
+    """First known URL for a cited doc_id (None for legacy chunks)."""
+    for c in chunks:
+        if getattr(c, "doc_id", None) == doc_id and getattr(
+            c, "source_url", None
+        ):
+            return c.source_url
+    return None
 
 
 @st.cache_resource(show_spinner="Connecting to knowledge base…")
@@ -155,14 +181,19 @@ def render_assistant(question: str, state: dict) -> None:
             )
             check = state["check"]
             chips = " · ".join(
-                f"`{c}`" for c in check.cited_ids
+                citation_link(c, _source_url_for(state["chunks"], c))
+                for c in check.cited_ids
             )
             st.caption(f"Sources: {chips}" if chips else "Sources: none")
+            st.caption(OGL_ATTRIBUTION)
             with st.expander(
                 f"Retrieved evidence ({len(state['chunks'])} chunks)"
             ):
                 for c in state["chunks"]:
-                    st.markdown(f"**`{c.doc_id}`**")
+                    if c.source_url:
+                        st.markdown(f"[{c.doc_id}]({c.source_url})")
+                    else:
+                        st.markdown(f"**`{c.doc_id}`**")
                     st.caption(
                         c.text[:600] + ("…" if len(c.text) > 600 else "")
                     )
