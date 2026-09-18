@@ -103,7 +103,6 @@ This callable is the seam the graph retrieval node calls (`src/agent/graph.py`),
 
 `src/agent/schemas.py` implements `RetrievedChunk`, `Answer`, `Refusal` (plus the `RefusalReason` enum), `AgentOutput` (discriminated union on `kind`), `CitationCheck`, and `GuardrailDecision`.
 `state.py`, `graph.py`, `verify.py`, `guardrail.py`, and the `prompts/` package are implemented as described below.
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration (see §10).
 
 ### 5.1 Schemas (`tests/agent/test_schemas.py`)
 
@@ -171,6 +170,5 @@ No FastAPI service exists yet (Phase 9.2 remains optional); a Streamlit demo UI 
 `src/ingest/` holds the write path (`document_parser.py`, `chunking_and_embedding.py`, `vector_store.py`, `ingestion_pipeline.py`).
 `src/retrieve/` holds the read path (`base.py`, `dense.py`, `sparse.py`, `hybrid.py`, `__init__.py` with `make_retriever`).
 `src/agent/` holds the implemented agent: `schemas.py` (all contracts), `state.py` (graph working memory), `graph.py` (guardrail entry node, retrieve/generate/verify/decide nodes, Gates 0–3), `verify.py` (fail-closed citation check), `guardrail.py` (deterministic pre-LLM scope gate), `fusion.py` (client-side RRF fallback), and the `prompts/` package of versioned templates (`dental_qa_v2.3` is the graph default).
-`agents.py` is a 0-byte stub reserved for future multi-agent orchestration.
 `src/eval/` holds the golden-set loader (`golden.py`) and the Ragas harness (`ragas/`, runner plus versioned `results/`).
 `tests/ingest/`, `tests/retrieve/`, and `tests/agent/` (fusion, schemas, verify, graph, prompts, guardrail) cover implemented code.
