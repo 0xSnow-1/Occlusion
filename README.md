@@ -8,19 +8,21 @@
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
 > **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
-> **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor safety trilogy 204/204 oracle criteria · live-model pass 192/202 (10 boundary over-refusals under analysis).
+> **Live demo:** https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/ · **Safety:** all 6 dangerous trap questions refused live (pre-LLM gate, ~0.1s).
+> **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
 
 ## Executive summary
 
-**Occlusion** is a citation-grounded Retrieval-Augmented Generation system over a small, openly licensed dental patient-education corpus (HRSA/NIDCR/CDC public domain + NHS UK OGL v3.0).
-It answers routine questions with inline `[SRC:doc_id]` citations verified against retrieved chunks, and refuses diagnostic, prescriptive, or out-of-corpus questions through a deterministic pre-LLM guardrail plus fail-closed validation gates.
+**Occlusion** is a citation-grounded question-answering system over a small, openly licensed dental patient-education corpus (HRSA/NIDCR/CDC public domain + NHS UK OGL v3.0).
+It answers routine questions with inline `[SRC:doc_id]` citations verified against retrieved chunks.
+It refuses diagnostic, prescriptive, or out-of-corpus questions through a deterministic pre-LLM guardrail plus fail-closed validation gates.
 Every change is measured against a versioned golden set and a Ragas harness with a judge model distinct from the generator.
 
-Built as a portfolio project, it demonstrates hybrid retrieval, LangGraph orchestration with Pydantic-structured outputs, healthcare-grade safety wiring, and eval-driven development with honest baselines, including open backlogs.
+Built as a portfolio project, it demonstrates hybrid retrieval, LangGraph orchestration with structured outputs, healthcare-grade safety wiring, and eval-driven development with honest baselines, including open backlogs.
 
 ## Try it in 60 seconds
 
-The demo answers ONLY from the documents listed below — never from general knowledge. Paste these three questions in order:
+The demo answers ONLY from the documents listed below. Never from general knowledge. Paste these three questions in order:
 
 1. `How am I supposed to brush my teeth properly?` → answered with clickable source links.
 2. `What dosage of amoxicillin should I take for a toothache?` → refused in ~0.1s without the AI ever being asked (medication decisions are out of scope).
@@ -28,7 +30,7 @@ The demo answers ONLY from the documents listed below — never from general kno
 
 Refusals outside the corpus are deliberate, not broken. The same three questions are clickable buttons in the demo sidebar.
 
-What it covers, in plain words: brushing and flossing, cavities and tooth decay, gum disease, dry mouth, dentures, children's teeth basics, plus emergency and post-procedure guidance from NHS UK sources (knocked-out tooth, abscess, toothache, wisdom-tooth removal, root canals). Anything else — medication doses, personal diagnosis, insurance, off-topic — is refused on purpose.
+What it covers, in plain words: brushing and flossing, cavities and tooth decay, gum disease, dry mouth, dentures, children's teeth basics, plus emergency and post-procedure guidance from NHS UK sources (knocked-out tooth, abscess, toothache, wisdom-tooth removal, root canals). Anything else is refused on purpose: medication doses, personal diagnosis, insurance, off-topic.
 
 ## Problem
 
@@ -73,7 +75,7 @@ Validation gates (deterministic code):
 
 - **Dense** `sentence-transformers/all-MiniLM-L6-v2` (cosine) for paraphrase; **sparse** `prithivida/Splade_PP_en_v1` (SPLADE/BM25-style) for exact terminology. Dimension read via `client.get_embedding_size()`, never hardcoded.
 - Collection declared hybrid-ready from day one (dense + sparse at creation; sparse cannot be added later, see `DECISIONS/hybrid-qdrant-vector-store.md`). Payload indexes on `doc_id` / `source_url` / `title`.
-- `hybrid_search(..., top_k=20, top_n=5, fusion_k=60)`: two prefetches fused server-side with `FusionQuery(fusion=RRF)`; client-side `rrf_fuse(dense, sparse, k=60)` fallback. Rank-based fusion because cosine (bounded) and BM25 (unbounded) scores are incomparable.
+- `hybrid_search(..., top_k=20, top_n=5, fusion_k=60)`: two prefetches fused server-side with `FusionQuery(fusion=RRF)`, plus a client-side `rrf_fuse(dense, sparse, k=60)` fallback. Fusion is rank-based because cosine scores (bounded) and BM25 scores (unbounded) cannot be compared directly.
 - `rrf_fuse` contract pinned by `tests/agent/test_fusion.py`: a doc in both lists outranks a rank-1-only doc.
 - `make_retriever(client, collection, variant="hybrid"|"dense"|"sparse")` is the seam the graph and harness share.
 
@@ -136,7 +138,7 @@ Latency/cost are recorded, never gated; SCOPE §6 target was P95 < 3 s, recalibr
 
 The driver is the Bedrock round-trip, not retrieval. Staging must re-measure before any ship claim, since deploy adds cold start and never subtracts.
 
-Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. The Docker image bakes a 136-point superset index (the CDC `about` page served its full content at build time instead of the 1-chunk stub). Demo-safe, but eval-demo parity is not exact.
+Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. The demo index is a 179-point superset (the CDC `about` page served its full content at build time instead of the 1-chunk stub). Demo-safe, but eval-demo parity is not exact.
 
 ## Corpus and provenance
 
@@ -161,7 +163,7 @@ Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinica
 | Structured output | Pydantic v2 (`Answer` vs `Refusal` discriminated on `kind`) | LLM output is a contract |
 | Eval | Ragas (distinct judge) + Harbor trilogy + golden set | Quality + safety, separately |
 | Observability | LangSmith tracing | Per-node latency/tokens/cost |
-| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; Dockerfile → HF Spaces (port 7860) |
+| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; live on Streamlit Community Cloud (Dockerfile retained for container runs) |
 
 ## Run it locally
 
@@ -179,7 +181,7 @@ uv run streamlit run src/ui/app.py         # demo UI (requires ingested collecti
 uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
 ```
 
-Two ingest paths. Start with `--pdf-only`: it ingests local PDFs from `data/raw` only and skips the 11 HTML sources, so it needs no HTML fetch and no API keys. Run the full ingest (`uv run python scripts/run_ingest.py` with no flag) when you want the whole corpus: 4 PDFs plus 11 HTML pages into `./data/qdrant_storage`. Qdrant path mode holds a single-process lock, so close the chat session (type `quit` or `q`) before starting Streamlit or a second run.
+Two ingest paths. Start with `--pdf-only`: it ingests local PDFs from `data/raw` only and skips the 11 HTML sources, so it needs no HTML fetch and no API keys. Run the full ingest (`uv run python scripts/run_ingest.py` with no flag) when you want the whole corpus: 4 PDFs plus 11 HTML pages into `./data/qdrant_storage`. Qdrant path mode holds a single-process lock. Close the chat session (type `quit` or `q`) before starting Streamlit or a second run.
 
 Single test: `uv run pytest tests/agent/test_guardrail.py -q`.
 Ragas smoke (needs Bedrock + ingested collection): `uv run python -m src.eval.ragas.run_ragas --limit 3`.
@@ -187,21 +189,23 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 
 ## Testing
 
-111 offline tests, green: 61 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6) + 39 ingest/retrieve + 11 source-link and OGL (`test_source_url` 5, `test_ogl_disclaimer` 6).
+132 offline tests, green: 82 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_bedrock_wiring` 2, `test_display_ux` 16, `test_recruiter_tour` 3) + 39 ingest/retrieve + 11 source-link and OGL (`test_source_url` 5, `test_ogl_disclaimer` 6).
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
 
 ## Demo
 
-Live demo: Streamlit Community Cloud (free tier, no card) — URL will be posted here once live: `https://<your-app>.streamlit.app`.
+Live demo: Streamlit Community Cloud (free tier, no card): https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/
 
-Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` → Deploy. Dependencies install from `requirements.txt` at repo root; the Qdrant index is vendored at `data/qdrant_storage/` (force-added, 179 points, 1.4 MB — re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`).
+The sidebar offers the three 60-second tour questions as one-click buttons. Saying hello gets a friendly nudge toward a routine question (the pipeline never runs for greetings). Refusals show plain words plus the safety gate that fired (Gate 0-3), never a raw error name.
+
+Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` (plus `LANGSMITH_TRACING="true"`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` to enable tracking) → Deploy. Dependencies install from `requirements.txt` at repo root. The Qdrant index is vendored at `data/qdrant_storage/` (force-added, 179 points, 1.4 MB). Re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`.
 
 Hibernation note: Community Cloud sleeps apps after 12h without traffic; anyone visiting wakes it by clicking. First wake is slow (dependency load plus embedding-model download), then faster follow-ups in the same session. The vendored index is a superset of the 120-chunk eval snapshot (see latency notes above).
 
-To try it locally, run in order: `uv run python scripts/run_ingest.py --pdf-only`, then `uv run python scripts/run_agent.py --chat` and ask one routine question, then `uv run streamlit run src/ui/app.py`. The chat prints each node as it runs (guardrail, retrieve, generate, verify, decide) followed by the structured Answer or Refusal as JSON. The Streamlit page shows the same answer with confidence, clickable source links, and retrieved evidence.
+To try it locally, run in order: `uv run python scripts/run_ingest.py --pdf-only`, then `uv run python scripts/run_agent.py --chat` and ask one routine question, then `uv run streamlit run src/ui/app.py`. The chat prints each pipeline step as it runs (guardrail, retrieve, generate, verify, decide). It finishes with the structured Answer or Refusal as JSON. The Streamlit page shows the same answer with confidence, clickable source links, and retrieved evidence.
 
-Sources in the UI are clickable `[doc_id](url)` links with a backticked chip fallback for legacy chunks that predate `source_url`. The disclaimer at the top of the page and the footer under every answer both carry the exact sentence `Contains public sector information licensed under the Open Government Licence v3.0.` (see `OGL_ATTRIBUTION`, `citation_link`, and `format_answer_footer` in `src/ui/app.py`).
+Sources in the UI are clickable `[doc_id](url)` links with a backticked chip fallback for legacy chunks that predate `source_url`. The disclaimer at the top of the page and the footer under every answer both carry the exact sentence `Contains public sector information licensed under the Open Government Licence v3.0.` (see `OGL_ATTRIBUTION` and `citation_link` in `src/ui/app.py`).
 
 ## Docs
 
