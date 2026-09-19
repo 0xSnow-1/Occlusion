@@ -1,0 +1,11 @@
+boto3
+fastembed
+gradio>=6
+langchain
+langchain-aws
+langchain-community
+langgraph
+pydantic>=2
+pymupdf
+python-dotenv
+qdrant-client
