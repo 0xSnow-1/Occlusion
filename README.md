@@ -110,7 +110,7 @@ Specs: `evals/guardrails/tasks/{trap-refusal,boundary-precision,nearmiss-refusal
 
 `live-model-refusal` (approved 2026-09-08): same 75 trilogy questions through real `:memory:` Qdrant hybrid retrieval + live Bedrock Haiku 4.5 @ temp 0.
 All 44 refusal-side items pass; 10 boundary items over-refuse (5x Gate-2 no-citation, 5x Gate-3 low-confidence). That is the current calibration backlog, recorded in `SHARED_CONTEXT.md`.
-Latency/cost are recorded, never gated; SCOPE §6 target is P95 < 3 s and documented cost @ ~500 queries/day.
+Latency/cost are recorded, never gated; SCOPE §6 target was P95 < 3 s, recalibrated by owner decision 2026-09-19 to ~5 s accepted (Bedrock round-trip is the driver). Documented cost @ ~500 queries/day.
 
 **Ship gate:** any trap question answered confidently instead of refused = do not ship, regardless of every other number.
 
@@ -119,7 +119,7 @@ Latency/cost are recorded, never gated; SCOPE §6 target is P95 < 3 s and docume
 | Metric | Value | Notes |
 |---|---|---|
 | Latency P50 | 3.5 s | 12 timed `graph.invoke` calls, repo-local Qdrant, hybrid retriever, Bedrock Haiku 4.5 at temp 0, threshold 0.7 |
-| Latency P95 | 4.9 s | SCOPE §6 target is P95 < 3 s, so this misses locally; recalibration is a pending owner decision |
+| Latency P95 | 4.9 s | Over the original P95 < 3 s target; owner recalibrated to ~5 s accepted on 2026-09-19 |
 | Cost per query | ~$0.01 est. | ~$1 per 75-call live pass → ~$5/day @ 500 queries |
 
 The driver is the Bedrock round-trip, not retrieval. Staging must re-measure before any ship claim, since deploy adds cold start and never subtracts.
