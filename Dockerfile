@@ -1,8 +1,10 @@
 # Hugging Face Spaces (Docker SDK) image for the Occlusion Streamlit demo.
 #
-# Why Docker, not the Streamlit SDK: heavy embedding deps (fastembed,
-# sentence-transformers, qdrant-client) exceed Community Cloud's 1 GB RAM
-# comfort zone, and the Qdrant index must be built at image-build time
+# Why Docker, not Streamlit Community Cloud: this image is the path for paid
+# Docker hosts (HF Docker SDK needs PRO as of 2026). The free primary target
+# is Streamlit Community Cloud (2.7GB ceiling, no torch in the install —
+# embeddings are fastembed-only), deployed straight from this repo; see
+# README Demo. The Qdrant index must be built at image-build time
 # (data/qdrant_storage/ is gitignored — it can never be bundled).
 #
 # Space settings (set manually at creation, nothing secret is baked in):

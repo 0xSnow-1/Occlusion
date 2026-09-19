@@ -181,11 +181,13 @@ Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry p
 
 ## Demo
 
-No public URL yet. The deploy target is Hugging Face Spaces (Docker SDK, see `Dockerfile`, TODO.md Phase 9). To create it, set SDK to Docker on CPU basic (free), port 7860, and add secrets outside the repo: `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION`.
+Live demo: Streamlit Community Cloud (free tier, no card) — URL will be posted here once live: `https://<your-app>.streamlit.app`.
 
-To try it now, run the local path in order: `uv run python scripts/run_ingest.py --pdf-only`, then `uv run python scripts/run_agent.py --chat` and ask one routine question, then `uv run streamlit run src/ui/app.py`. The chat prints each node as it runs (guardrail, retrieve, generate, verify, decide) followed by the structured Answer or Refusal as JSON. The Streamlit page shows the same answer with confidence, clickable source links, and retrieved evidence.
+Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` → Deploy. Dependencies install from `requirements.txt` at repo root; the Qdrant index is vendored at `data/qdrant_storage/` (force-added, 179 points, 1.4 MB — re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`).
 
-Cold start note: the image bakes the Qdrant index at build time with `RUN uv run python scripts/run_ingest.py`, so the first boot loads the baked 136-point index and connects to Bedrock. Expect a slow first question on CPU basic (free tier), then faster follow-ups in the same session. The baked index is a superset of the 120-chunk eval snapshot (see latency notes above).
+Hibernation note: Community Cloud sleeps apps after 12h without traffic; anyone visiting wakes it by clicking. First wake is slow (dependency load plus embedding-model download), then faster follow-ups in the same session. The vendored index is a superset of the 120-chunk eval snapshot (see latency notes above).
+
+To try it locally, run in order: `uv run python scripts/run_ingest.py --pdf-only`, then `uv run python scripts/run_agent.py --chat` and ask one routine question, then `uv run streamlit run src/ui/app.py`. The chat prints each node as it runs (guardrail, retrieve, generate, verify, decide) followed by the structured Answer or Refusal as JSON. The Streamlit page shows the same answer with confidence, clickable source links, and retrieved evidence.
 
 Sources in the UI are clickable `[doc_id](url)` links with a backticked chip fallback for legacy chunks that predate `source_url`. The disclaimer at the top of the page and the footer under every answer both carry the exact sentence `Contains public sector information licensed under the Open Government Licence v3.0.` (see `OGL_ATTRIBUTION`, `citation_link`, and `format_answer_footer` in `src/ui/app.py`).
 

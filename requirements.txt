@@ -1,0 +1,14 @@
+# Runtime deps for Streamlit Community Cloud (installs from this file, not pyproject).
+# Mirrors spaces/zerogpu/requirements.txt, with streamlit instead of gradio.
+# Deliberately lean: no torch stack (embeddings are fastembed-only), no eval/dev packages.
+boto3
+fastembed
+langchain
+langchain-aws
+langchain-community
+langgraph
+pydantic>=2
+pymupdf
+python-dotenv
+qdrant-client
+streamlit
