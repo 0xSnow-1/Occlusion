@@ -77,12 +77,30 @@ def _source_url_for(chunks, doc_id: str) -> str | None:
     return None
 
 
+def build_llm():
+    """Build the Bedrock chat model, forwarding the bearer token explicitly.
+
+    botocore's default credential chain has no bearer-token provider and
+    langchain-aws does not auto-read AWS_BEARER_TOKEN_BEDROCK, so without
+    this kwarg every generation fails with NoCredentialsError and the graph
+    fail-closes every routine question at Gate 2 (pinned by
+    tests/agent/test_bedrock_wiring.py). The key stays in the environment —
+    never hardcoded, never logged.
+    """
+    from langchain_aws import ChatBedrockConverse
+
+    return ChatBedrockConverse(
+        model=BEDROCK_MODEL_ID,
+        region_name=BEDROCK_REGION,
+        temperature=0,
+        bedrock_api_key=os.getenv("AWS_BEARER_TOKEN_BEDROCK"),
+    )
+
+
 @st.cache_resource(show_spinner="Connecting to knowledge base…")
 def get_pipeline():
     """Build the production pipeline once per session (Qdrant path mode holds
     an exclusive lock — one shared client, never one per question)."""
-    from langchain_aws import ChatBedrockConverse
-
     store = VectorStore(
         collection_name=COLLECTION_NAME, qdrant_url=QDRANT_PATH
     )
@@ -92,9 +110,7 @@ def get_pipeline():
             "Run `uv run python scripts/run_ingest.py` first."
         )
     retriever = make_retriever(store.client, COLLECTION_NAME, variant="hybrid")
-    llm = ChatBedrockConverse(
-        model=BEDROCK_MODEL_ID, region_name=BEDROCK_REGION, temperature=0
-    )
+    llm = build_llm()
     graph = build_graph(
         retriever=retriever,
         llm=llm,
