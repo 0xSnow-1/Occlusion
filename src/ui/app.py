@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -77,6 +78,74 @@ def _source_url_for(chunks, doc_id: str) -> str | None:
     return None
 
 
+_GREETING_RE = re.compile(
+    r"^(hi|hello|hey|howdy|good morning|good afternoon|good evening)[!.,\s]*$",
+    re.IGNORECASE,
+)
+
+
+def is_greeting(text: str) -> bool:
+    """True only when the WHOLE message is a greeting (no question attached).
+
+    "Hello, how should I brush?" is not greeting-only and must reach the
+    graph; bare "Hello" gets friendly guidance instead of a lecturing
+    Gate-2 refusal. Pure function — pinned by tests/agent/test_display_ux.py.
+    """
+    return bool(text and _GREETING_RE.match(text.strip()))
+
+
+def greeting_response() -> str:
+    """Friendly guidance for greeters; never the citation path (zero content
+    to ground, so the graph is never invoked for these)."""
+    return (
+        "Hello! I answer routine dental-care questions — try asking "
+        'something like "How should I brush my teeth?" '
+        "I answer only from trusted dental documents, with sources shown, "
+        "and I will say plainly when a question is outside what I cover."
+    )
+
+
+def render_greeting(content: str) -> None:
+    """Render one greeting turn (live or replayed from history)."""
+    with st.chat_message("assistant"):
+        st.markdown(content)
+
+
+_GATE_LABELS = {
+    0: "scope check",
+    1: "no evidence retrieved",
+    2: "citation check",
+    3: "confidence",
+}
+
+
+def refusal_caption(reason: str, state: dict) -> str:
+    """Human caption for a refusal: which safety gate fired, no raw enum.
+
+    Mirrors the decide-node order in src/agent/graph.py (Gate 0 guardrail →
+    Gate 1 empty retrieval → Gate 2 citation check → Gate 3 confidence).
+    Pure function — pinned by tests/agent/test_display_ux.py.
+    """
+    if not state.get("guardrail_allowed", True):
+        gate = 0
+    elif not state.get("chunks"):
+        gate = 1
+    elif (state.get("check") is not None) and not state["check"].verified:
+        gate = 2
+    else:
+        gate = 3
+    latency = state.get("latency_s") or 0.0
+    reason_words = (
+        "out of scope for this assistant"
+        if reason == "out_of_scope"
+        else "not enough reliable sources"
+    )
+    return (
+        f"Gate {gate} ({_GATE_LABELS[gate]}) — {reason_words} · "
+        f"{latency:.1f}s · no citations emitted by design"
+    )
+
+
 def build_llm():
     """Build the Bedrock chat model, forwarding the bearer token explicitly.
 
@@ -135,6 +204,7 @@ def run_question(graph, question: str) -> dict:
         "chunks": [],
         "check": None,
         "gen_confidence": None,
+        "guardrail_allowed": True,
     }
     t0 = time.monotonic()
     with st.status("Working…", expanded=True) as status:
@@ -142,6 +212,7 @@ def run_question(graph, question: str) -> dict:
             for node, payload in update.items():
                 label = stages.get(node, node)
                 if node == "guardrail":
+                    state["guardrail_allowed"] = payload["guardrail"].allowed
                     flag = (
                         "flagged out-of-scope"
                         if not payload["guardrail"].allowed
@@ -222,10 +293,8 @@ def render_assistant(question: str, state: dict) -> None:
             st.warning(
                 f"I'm not able to answer that — {reason}.\n\n{response.message}"
             )
-            st.caption(
-                f"Gate: `{response.reason}` · "
-                f"{state['latency_s']:.1f}s · no citations emitted by design"
-            )
+            reason_value = getattr(response.reason, "value", response.reason)
+            st.caption(refusal_caption(str(reason_value), state))
 
 
 def main() -> None:
@@ -266,6 +335,8 @@ def main() -> None:
         if turn["role"] == "user":
             with st.chat_message("user"):
                 st.markdown(turn["content"])
+        elif turn.get("greeting"):
+            render_greeting(turn["content"])
         else:
             render_assistant(turn["question"], turn["state"])
 
@@ -274,6 +345,15 @@ def main() -> None:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
+        if is_greeting(prompt):
+            # Greeting-only: friendly guidance, graph never invoked (zero
+            # content to ground, so the citation path would only lecture).
+            content = greeting_response()
+            render_greeting(content)
+            st.session_state.messages.append(
+                {"role": "assistant", "greeting": True, "content": content}
+            )
+            return
         state = run_question(graph, prompt)
         st.session_state.messages.append(
             {"role": "assistant", "question": prompt, "state": state}
