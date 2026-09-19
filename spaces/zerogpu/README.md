@@ -7,7 +7,7 @@ sdk: gradio
 app_file: src/ui/gradio_app.py
 pinned: false
 license: mit
-short_description: Citation-grounded dental patient-education assistant — cited answers or safe refusal.
+short_description: Cited dental answers or safe refusal.
 ---
 
 # Occlusion Dental FAQ
