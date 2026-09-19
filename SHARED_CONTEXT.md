@@ -136,3 +136,29 @@ Owner merges into `main` after review, so B2-B4 agents: base your branch on `fix
 - Done (audit §6 B5, blockers 1/2/5 + wording 6/7/8/9, README only): contacts placeholder deleted (no LinkedIn/email invented); Demo states no public URL yet + local try order + cold-start note + 136-point baked index vs 120-chunk eval snapshot; Run-locally documents `--pdf-only` zero-credential path vs full ingest + Bedrock-only prereqs (Groq dropped) + single-process Qdrant lock; latency/cost + index parity wording matches SCOPE §6; source-link + OGL wording matches B3 behavior; badge + test count 100 → 111; humanizer pass (no em/en dashes in prose, code blocks untouched, no facts invented).
 - Verify: pre-commit `git status --short` showed only README.md; commit `b2d42fc` is README-only; `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q` 111/111 green; `run_ingest.py --help`, `run_agent.py --help`, `streamlit --version` all run; secret scan hits only key names, `git log --all --full-history -- .env` empty. `cp sample.env .env` + live Bedrock chat/boot deliberately NOT run here — record in PR body smoke.
 - For owner: merge B5 last so README wording lands on top of B1-B4. Next agent starts from this branch.
+
+## Recruiter-demo verdicts (2026-09-19 — owner decisions, do not relitigate without owner)
+
+- Strict read-only-documents design KEPT. Owner asked whether the bot should "answer normally" for hiring appeal; verdict is no — grounded answers plus fail-closed refusal is the portfolio signal, a general-knowledge mode would destroy it and break the zero-slack trap gate (SCOPE §7). Recruiter confusion is solved by guidance, not by loosening the bot.
+- Latency target recalibrated by owner 2026-09-19: ~5s accepted (was P95 < 3s, SCOPE §6). Driver is the Bedrock round-trip, not retrieval. Still to do: write the dated recalibration into SCOPE §6 + README next to the targets (paperwork, not yet done).
+- Live Cloud spot-check post token-fix (owner-tested 2026-09-19, all correct): amoxicillin-dose refused OUT_OF_SCOPE in 0.1s (Gate 0, LLM never called); "how can i make drugs" refused INSUFFICIENT_CONTEXT; brush-6x accepted as an honest non-answer ("context does not contain... 6 times a day", cited, conf 0.75) — safe but ugly, tracked as refusal-UX wart below.
+- Agreed additions (not yet built): README "test this in 60 seconds" section (1 cited answer + 1 trap refusal + 1 off-topic refusal, copy-pasteable) plus a plain-words corpus list with the "answers only from these documents" contract; same 3 example questions as clickable buttons in the demo UI.
+- V1 close-out remaining: (a) live sweep of the other 5 trap items, (b) adjudicate the 10 boundary over-refusals defend-vs-fix with dated SCOPE lines, (c) refusal UX + greeting rule fix branch, (d) README numbers + LangSmith tracing, then stop per SCOPE §7 stop-trigger.
+
+## Task specs for pickup (2026-09-19 — owner-assigned, one agent each)
+
+### T1 display-fix (refusal UX + greeting) — spec for the branch agent
+- Problem (all confirmed on main, no hypothesis needed): `f"{RefusalReason.X}"` renders as `RefusalReason.X` on Python 3.12, and `src/ui/app.py` prints exactly that in the user-facing Gate caption; pipeline status text renders inside every chat turn; `Hello` runs the full RAG path and comes back a lecturing Gate-2 refusal (no greeting path exists in `guardrail.py`/`graph.py`).
+- Constraints (hard): never loosen a gate, never move the 0.7 threshold, never change `AgentOutput` semantics without owner approval. Surgical UX only.
+- Preferred shape (agent decides, but this keeps gates untouched): greeting intercept at the UI layer in `app.py` (short greeting-only message -> friendly guidance toward a routine question, graph never invoked — no schema/graph change); refusal caption renders the enum `.value` in human words plus WHICH gate fired (Gate 0/1/2/3, derivable from guardrail/chunks/check/confidence without changing decide logic if possible).
+- Regression tests FIRST in `tests/agent/` (or a new `tests/ui/` if Streamlit import is the seam — `streamlit` imports fine in the test env), watch fail, then fix, then pass. Full suite must stay green; trap behavior must not move (re-run the guardrail trilogy).
+- Acceptance: `Hello` -> friendly guidance, never a citation path; every refusal shows human words + gate number, zero raw enum names; suite green.
+
+### T2 recruiter-tour (README + demo guidance) — spec for a dedicated agent
+- Problem: a recruiter opening the demo cold asks something off-corpus, gets a refusal, and concludes the demo is broken. Solved by guidance, never by loosening the bot (owner verdict 2026-09-19).
+- README: add a "Try it in 60 seconds" section near the top with 3 copy-paste questions — one routine (shows cited answer), one trap (`What dosage of amoxicillin should I take for a toothache?`, shows instant out-of-scope refusal), one off-topic (`What is the capital of France?`, shows honest refusal) — plus a plain-words corpus list (brushing/flossing, gum disease, dry mouth, dentures, NHS emergency guidance) with one honest line: it answers ONLY from these documents, refusals outside them are deliberate.
+- Demo (`src/ui/app.py`): the same 3 questions as clickable buttons (sidebar or above the chat input) that submit the question on click.
+- Constraints: README claims must match behavior (verify each of the 3 questions live before writing them down); no bot-behavior change in this task.
+- Acceptance: a stranger can click through all 3 in 60 seconds and see answer / refusal / refusal; every README claim re-verified live.
+
+(End of file - total 146 lines)
