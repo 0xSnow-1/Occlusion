@@ -56,6 +56,16 @@ DISCLAIMER = (
     + OGL_ATTRIBUTION
 )
 
+EXAMPLE_QUESTIONS = [
+    "How am I supposed to brush my teeth properly?",
+    "What dosage of amoxicillin should I take for a toothache?",
+    "What is the capital of France?",
+]
+"""Recruiter tour trio (mirrors the README "Try it in 60 seconds" section):
+one routine question (cited answer), one trap (Gate-0 refusal), one
+off-topic (honest refusal). All three live-verified; pinned by
+tests/agent/test_recruiter_tour.py."""
+
 
 def citation_link(doc_id: str, source_url: str | None) -> str:
     """Render one citation as a clickable markdown link when a URL is known.
@@ -330,6 +340,11 @@ def main() -> None:
         if st.button("Clear conversation"):
             st.session_state.messages = []
             st.rerun()
+        st.subheader("Try one")
+        for i, example in enumerate(EXAMPLE_QUESTIONS):
+            if st.button(example, key=f"example_{i}"):
+                st.session_state["example_question"] = example
+                st.rerun()
 
     for turn in st.session_state.messages:
         if turn["role"] == "user":
@@ -341,6 +356,9 @@ def main() -> None:
             render_assistant(turn["question"], turn["state"])
 
     prompt = st.chat_input("Ask a routine dental-care question…")
+    pending = st.session_state.pop("example_question", None)
+    if pending is not None:
+        prompt = pending
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):

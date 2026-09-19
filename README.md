@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-111_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-129_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
 > **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
@@ -17,6 +17,18 @@ It answers routine questions with inline `[SRC:doc_id]` citations verified again
 Every change is measured against a versioned golden set and a Ragas harness with a judge model distinct from the generator.
 
 Built as a portfolio project, it demonstrates hybrid retrieval, LangGraph orchestration with Pydantic-structured outputs, healthcare-grade safety wiring, and eval-driven development with honest baselines, including open backlogs.
+
+## Try it in 60 seconds
+
+The demo answers ONLY from the documents listed below — never from general knowledge. Paste these three questions in order:
+
+1. `How am I supposed to brush my teeth properly?` → answered with clickable source links.
+2. `What dosage of amoxicillin should I take for a toothache?` → refused in ~0.1s without the AI ever being asked (medication decisions are out of scope).
+3. `What is the capital of France?` → refused (outside the corpus; answered honestly instead of guessed).
+
+Refusals outside the corpus are deliberate, not broken. The same three questions are clickable buttons in the demo sidebar.
+
+What it covers, in plain words: brushing and flossing, cavities and tooth decay, gum disease, dry mouth, dentures, children's teeth basics, plus emergency and post-procedure guidance from NHS UK sources (knocked-out tooth, abscess, toothache, wisdom-tooth removal, root canals). Anything else — medication doses, personal diagnosis, insurance, off-topic — is refused on purpose.
 
 ## Problem
 
