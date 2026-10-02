@@ -32,12 +32,12 @@
   Mark them up rather than flattening them into paragraphs.
 - **NHS charges/111/999 content:** keep — it's real content — but expect a golden
   set decision on whether NHS-specific service navigation ("call 111") is answer
-  material for a likely-US audience (see RESEARCHER_OUTPUT.md assessment).
+  material for a likely-US audience (see docs/internal/RESEARCHER_OUTPUT.md assessment).
 - **Attribution requirement:** OGL v3.0 requires attribution — the README and
   PROVENANCE must carry "Contains public sector information licensed under the
   Open Government Licence v3.0" for NHS content.
 
-## Category coverage status (from RESEARCHER_OUTPUT.md + scope decisions)
+## Category coverage status (from docs/internal/RESEARCHER_OUTPUT.md + scope decisions)
 
 | Category | Status |
 |---|---|

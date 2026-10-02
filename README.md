@@ -149,7 +149,7 @@ Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. 
 
 Licenses: US HRSA/NIDCR/CDC is public domain; NHS UK is OGL v3.0. Outputs derived from NHS material carry *"Contains public sector information licensed under the Open Government Licence v3.0."*
 Known limits (documented, not hidden): triage navigation is NHS-based (111/999/A&E, not silently localized); insurance terminology descoped to v1 (`refuse_no_coverage` golden items); fillings/scale-and-polish aftercare covered at overview level only.
-Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinical-guideline files (v2 clinician-mode candidate), CMS glossary, plus rejected MedlinePlus/ency, ADA/Colgate/WebMD, NADP glossary, per-Trust leaflets. See `RESEARCHER_OUTPUT.md`.
+Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinical-guideline files (v2 clinician-mode candidate), CMS glossary, plus rejected MedlinePlus/ency, ADA/Colgate/WebMD, NADP glossary, per-Trust leaflets. See `docs/internal/RESEARCHER_OUTPUT.md`.
 
 ## Tech stack
 
@@ -211,16 +211,16 @@ Sources in the UI are clickable `[doc_id](url)` links with a backticked chip fal
 
 - `spec.md`: as-built technical reference (code + tests win over older docs)
 - `SCOPE.md`: scope, refusal taxonomy, ship/kill criteria, v2 parking lot
-- `TODO.md`: phased roadmap with per-task verify gates
+- `docs/internal/TODO.md`: phased roadmap with per-task verify gates
 - `AGENTS.md`: module contracts, test pins, gotchas
 - `SHARED_CONTEXT.md`: current pointer, learnings, eval roadmap
-- `Architecture Design desc.md` + `Architecture_diagram_v3.png`: target-vision companion (see as-built note above)
+- `docs/internal/architecture-design.md` + `Architecture_diagram_v3.png`: target-vision companion (see as-built note above)
 - `data/PROVENANCE.md`, `data/HTML_SOURCES.md`: corpus manifests
-- `DECISIONS/hybrid-qdrant-vector-store.md`, `LOGGING.md`
+- `DECISIONS/hybrid-qdrant-vector-store.md`: vector-store rationale and constraints
 
 ## Roadmap (v2 parking lot, deliberately not v1)
 
-Cross-encoder rerank (only if evals earn its latency) · original dental-benefit glossary · US triage source · clinician-mode corpus · MCP tool exposure · front-desk dashboard · multi-turn memory · multilingual. `TODO.md` phase order gates everything; check `SCOPE.md` before adding features.
+Cross-encoder rerank (only if evals earn its latency) · original dental-benefit glossary · US triage source · clinician-mode corpus · MCP tool exposure · front-desk dashboard · multi-turn memory · multilingual. `docs/internal/TODO.md` phase order gates everything; check `SCOPE.md` before adding features.
 
 ## License
 

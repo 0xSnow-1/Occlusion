@@ -1,10 +1,10 @@
 # Spec — Occlusion (Chairside dental RAG MVP)
 
 > This file is the single technical-design and architecture reference for the project.
-> It replaces `dental-rag-agent-mvp-plan.md` and `Architecture Design desc.md` as the source of truth.
+> It replaces `docs/internal/dental-rag-agent-mvp-plan.md` and `docs/internal/architecture-design.md` as the source of truth.
 > Every claim below is grounded in the code on `main` plus the contracts pinned by `tests/agent/*`.
 > Where the old docs disagree with the code, the code and tests win.
-> Related docs: `SCOPE.md` (scope + refusal taxonomy), `TODO.md` (build order), `data/PROVENANCE.md` + `data/HTML_SOURCES.md` (corpus), `DECISIONS/hybrid-qdrant-vector-store.md` (vector-store rationale).
+> Related docs: `SCOPE.md` (scope + refusal taxonomy), `docs/internal/TODO.md` (build order), `data/PROVENANCE.md` + `data/HTML_SOURCES.md` (corpus), `DECISIONS/hybrid-qdrant-vector-store.md` (vector-store rationale).
 
 ## 1. What this system is (one sentence)
 

@@ -89,7 +89,7 @@ and the eval roadmap below before proposing anything.
 
 ## V2 pointer (2026-09-11 — receptionist pivot, supersedes Path B draft above)
 
-Spec: `SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` node via
+Spec: `docs/internal/SPEC_V2.md`. Q&A + guardrail + Gates 0-3 frozen; new parallel `booking` node via
 `src/agent/tools.py` on real cal.com API v2 (slots + booking, `CAL_API_KEY` in `.env` only).
 Owner provides real cal.com account (username + visit types + timezone). Insurance dropped,
 no fake slots ever, booking failure degrades to callback list. Next: tools + state + node
