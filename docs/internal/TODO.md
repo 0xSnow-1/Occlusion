@@ -252,8 +252,8 @@
 ## Phase 4 — Sparse (BM25) + RRF hybrid retrieval (Checklist: C, D)
 
 ### Task 4.1 — Sparse/BM25 vector upsert
-- **What:** Generate sparse vectors (fastembed's BM25-style sparse model, or equivalent
-  IDF-weighted sparse representation) for every chunk and upsert them to the collection's sparse
+- **What:** Generate sparse vectors (SPLADE via `Splade_PP_en_v1`, or equivalent
+  learned-sparse representation) for every chunk and upsert them to the collection's sparse
   vector space, alongside — not replacing — the dense vectors.
 - **Inputs:** `data/chunks_v1.jsonl`; existing collection (Task 3.1/3.2).
 - **Outputs / side-effects:** Every point now carries both dense and sparse vectors; upsert log.

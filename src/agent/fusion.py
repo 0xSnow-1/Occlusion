@@ -1,6 +1,6 @@
 """Reciprocal Rank Fusion over dense + sparse ranked lists (TODO Phase 4.2).
 
-Fuses on *rank*, not raw score: dense cosine scores and sparse BM25 scores
+Fuses on *rank*, not raw score: dense cosine scores and sparse SPLADE scores
 live on incompatible scales, so a doc's fused score is the sum of
 ``1 / (k + rank)`` over each list it appears in.  A doc in both lists
 therefore outranks a doc that is rank-1 in only one list.

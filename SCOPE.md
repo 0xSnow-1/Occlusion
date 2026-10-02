@@ -30,7 +30,7 @@ This is the "why AI earns its complexity" argument for the checklist: a static F
 ## 4. In scope (v1)
 
 - Text-based Q&A over a curated corpus of public dental patient-education content (NIDCR, CDC, HRSA, NHS UK — see `data/PROVENANCE.md`)
-- Hybrid retrieval (BM25 + dense) fused with reciprocal rank fusion
+- Hybrid retrieval (SPLADE sparse + dense) fused with reciprocal rank fusion
 - Every answer carries a citation back to the specific source chunk(s) it was grounded in
 - A deterministic, non-LLM emergency/out-of-scope filter that runs before the RAG path and can override it
 - An evaluation harness (golden set + Ragas metrics) that must pass before any change ships
@@ -60,7 +60,7 @@ Cutting these isn't a limitation to apologize for in the README — it's the jud
 
 Treat these as first-pass targets to recalibrate once you have a real golden-set baseline, not commandments. Write down what you actually measured in the README next to these.
 
-- **Retrieval:** hybrid (RRF) beats both dense-only and BM25-only baselines on recall@5 against the golden set — the size of the gap is the actual finding, report it either way.
+- **Retrieval:** hybrid (RRF) beats both dense-only and sparse-only (SPLADE) baselines on recall@5 against the golden set — the size of the gap is the actual finding, report it either way.
 - **Faithfulness (Ragas):** ≥ 0.85
 - **Context precision (Ragas):** ≥ 0.75
 - **Answer relevancy (Ragas):** ≥ 0.80

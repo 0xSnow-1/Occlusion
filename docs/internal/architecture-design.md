@@ -28,7 +28,7 @@ CORPUS (PDFs + HTML) → Parse → Chunk/Split text → Index (fastembed @ upser
    wrapped in a fastembed `models.Document` at upsert time, which produces two
    representations per chunk:
    - **Dense vector** (all-MiniLM-L6-v2, 384-dim, cosine) → semantic match.
-   - **Sparse vector** (Splade_PP_en_v1, BM25-style IDF-weighted `(index, value)`
+   - **Sparse vector** (Splade_PP_en_v1, SPLADE learned-sparse `(index, value)`
      pairs) → catches exact terminology that dense embeddings miss.
 5. **Vector DB** — Qdrant, persisted locally at `./data/qdrant_storage`
    (gitignored; pass an `https://` URL to target Qdrant Cloud instead). Each
@@ -37,7 +37,7 @@ CORPUS (PDFs + HTML) → Parse → Chunk/Split text → Index (fastembed @ upser
    retrieval can feed matched chunks straight to the LLM. The pipeline
    recreates the collection each run, so the store always mirrors the corpus.
 
-*Why both vector types: dense search finds paraphrases, BM25 finds exact terms
+*Why both vector types: dense search finds paraphrases, learned-sparse SPLADE finds exact terms
 (drug names, procedure names). Neither alone is sufficient — that's the whole
 argument for hybrid retrieval.*
 

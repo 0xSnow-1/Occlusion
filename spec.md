@@ -8,7 +8,7 @@
 
 ## 1. What this system is (one sentence)
 
-A LangGraph agent that answers routine dental-health questions by retrieving from a curated, openly licensed patient-education corpus using hybrid search (BM25 + dense) fused with Reciprocal Rank Fusion, returns a structured, cited answer validated against a Pydantic schema, and refuses to answer when it isn't confident, with every change measured against a golden eval set.
+A LangGraph agent that answers routine dental-health questions by retrieving from a curated, openly licensed patient-education corpus using hybrid search (SPLADE learned-sparse + dense) fused with Reciprocal Rank Fusion, returns a structured, cited answer validated against a Pydantic schema, and refuses to answer when it isn't confident, with every change measured against a golden eval set.
 
 ## 2. Architecture (as built + as specified by tests)
 
@@ -54,7 +54,7 @@ Resolved history: an earlier rebase left conflict markers in this file (a `sente
 
 `VectorStore` manages one Qdrant collection declared hybrid-ready from day one.
 Dense config is `sentence-transformers/all-MiniLM-L6-v2` with cosine distance, and the dimension is read via `client.get_embedding_size()` rather than hardcoded.
-Sparse config is `prithivida/Splade_PP_en_v1` (SPLADE/BM25-style).
+Sparse config is `prithivida/Splade_PP_en_v1` (SPLADE, learned sparse).
 Payload indexes are created on `doc_id` (keyword), `source_url` (keyword), and `title` (text).
 `upsert_documents` takes a list of dicts each containing a `text` key plus metadata, stores the full dict (including `text`) as payload so each point is self-contained, and assigns integer point ids `0..n`.
 Three connection modes exist: `":memory:"` for tests, `http(s)://` for server/Cloud, and any other string as a local on-disk path (default `./data/qdrant_storage`).
@@ -153,7 +153,7 @@ Those dependencies must be justified and approved or removed; no new dependency 
 
 ## 8. Evaluation and ship gate
 
-Retrieval must show hybrid (RRF) beating dense-only and BM25-only on recall@5, with the gap reported either way.
+Retrieval must show hybrid (RRF) beating dense-only and sparse-only (SPLADE) on recall@5, with the gap reported either way.
 Ragas targets are faithfulness `>= 0.85`, context precision `>= 0.75`, and answer relevancy `>= 0.80`, with measured results recorded in the README once the harness exists.
 Refusal correctness on trap questions is 100% with zero slack, and any confident non-refused trap answer blocks shipping regardless of all other numbers.
 Latency target is P95 under 3 seconds, and cost per query must be documented at an assumed volume even when small.

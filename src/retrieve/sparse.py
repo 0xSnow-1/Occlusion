@@ -1,4 +1,4 @@
-"""Sparse-only (BM25-style) search: the exact-terminology path (TODO Phase 4.1).
+"""Sparse-only (SPLADE, learned sparse) search: the exact-terminology path (TODO Phase 4.1).
 
 Same return shape as `dense_search` so the eval harness can swap them
 freely.  Used standalone to prove the Phase 3.3 motivation case (a

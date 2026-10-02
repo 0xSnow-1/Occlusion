@@ -6,7 +6,7 @@ for hybrid dense + sparse retrieval.
 Stack:
     - qdrant-client with fastembed integration for local embedding
     - Dense: all-MiniLM-L6-v2 (384-dim, cosine)
-    - Sparse: Splade_PP_en_v1 (BM25-style, IDF-weighted)
+    - Sparse: Splade_PP_en_v1 (SPLADE, learned sparse)
 """
 
 from __future__ import annotations

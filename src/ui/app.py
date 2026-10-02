@@ -333,7 +333,7 @@ def main() -> None:
     with st.sidebar:
         st.header("About this demo")
         st.write(
-            f"**{points}** knowledge-base chunks · hybrid retrieval (BM25 + dense, RRF)"
+            f"**{points}** knowledge-base chunks · hybrid retrieval (SPLADE + dense, RRF)"
         )
         st.write(f"Model `{BEDROCK_MODEL_ID}` @ temperature 0")
         st.write(f"Refusal threshold `{CONFIDENCE_THRESHOLD:.2f}`")

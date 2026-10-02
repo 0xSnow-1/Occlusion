@@ -208,7 +208,7 @@ def build_demo() -> gr.Blocks:
     try:
         _, points = get_pipeline()
         about = (
-            f"**{points}** knowledge-base chunks · hybrid retrieval (BM25 + dense, RRF) · "
+            f"**{points}** knowledge-base chunks · hybrid retrieval (SPLADE + dense, RRF) · "
             f"model `{BEDROCK_MODEL_ID}` @ temperature 0 · "
             f"refusal threshold `{CONFIDENCE_THRESHOLD:.2f}`"
         )
