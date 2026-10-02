@@ -16,14 +16,14 @@
 
 ## Layout (what's real vs stub)
 - `src/ingest/` — implemented: `document_parser.py` (PyMuPDFLoader + WebBaseLoader; `doc_id` = PDF stem / URL path segment), `chunking_and_embedding.py` (RecursiveCharacterTextSplitter 1000/200 chars; embedding at upsert time via fastembed `models.Document`), `vector_store.py` (Qdrant dense cosine + sparse `Splade_PP_en_v1`, payload indexes on `doc_id`/`source_url`/`title`, int point ids `0..n`).
-- `src/retrieve/` — implemented: `base.py` (Qdrant points → `RetrievedChunk`), `dense.py` (cosine top_k 20), `sparse.py` (BM25 top_k 20), `hybrid.py` (prefetch 20+20, server RRF, client-side fallback), `__init__.py` (exports `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`).
+- `src/retrieve/` — implemented: `base.py` (Qdrant points → `RetrievedChunk`), `dense.py` (cosine top_k 20), `sparse.py` (SPLADE learned-sparse top_k 20), `hybrid.py` (prefetch 20+20, server RRF, client-side fallback), `__init__.py` (exports `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`).
 - `src/agent/schemas.py` — implemented (Phase 5.1): `RetrievedChunk`, `Answer` (`kind`, non-empty `answer`, `citations: list[str]`, `confidence` 0–1), `Refusal` (`RefusalReason` str enum `insufficient_context`/`out_of_scope`, default patient-safe message), `CitationCheck` (fail-closed defaults), `AgentOutput` (discriminated union on `kind`).
 - `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `guardrail`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`), default overwrite semantics (deliberately no reducers).
 - `src/agent/graph.py` — implemented (Phase 5.3): LangGraph wiring (guardrail, retrieve, generate, verify, decide nodes; conditional edges for flagged/empty paths).
 - `src/agent/verify.py` — implemented: `verify_citations` checks inline `[SRC:doc_id]` tokens against retrieved chunk IDs; fail-closed on zero citations or fabricated IDs.
 - `src/agent/prompts/` (package) — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks; versioned templates (`.md`) loaded via `load_prompt_template`.
 - `src/agent/guardrail.py` — implemented (Phase 7.2): `screen_question` deterministic regex-based scope gate returning `GuardrailDecision(allowed, rule)`.
-- `src/eval/` — empty, planned per TODO phases.
+- `src/eval/` — implemented: `golden.py` (golden-set schema + loader), `ragas/` (Ragas harness with distinct judge + committed baseline results).
 
 ## Contracts the tests pin (don't reinvent)
 - `rrf_fuse(dense, sparse, k=60, top_n=...)`: rank-based RRF; doc in both lists outranks rank-1-only (`tests/agent/test_fusion.py`).
@@ -32,9 +32,9 @@
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/test_guardrail.py` (29), `test_graph.py` (4), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6) — 61 agent tests, all green. Total offline suite is 100 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_guardrail.py` (29), `test_graph.py` (4), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6) — 61 agent tests, all green. Total offline suite is 132 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
-- Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (`LOGGING.md`).
+- Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (see Logging note above).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
 - No lint, typecheck, or `opencode.json` in repo (CI exists: `.github/workflows/ci.yml`; test baseline pinned in `.no-mistakes.yaml`; worktree pool configured in `treehouse.toml`). Streamlit UI at `src/ui/app.py` (Dockerfile for HF Spaces at port 7860).
 
