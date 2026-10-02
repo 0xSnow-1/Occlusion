@@ -7,7 +7,7 @@
 [![Offline tests](https://img.shields.io/badge/tests-132_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
-> **Status:** MVP under active development with measured results: 132/132 offline tests green (CI) and the Ragas/Harbor baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
+> **Status:** MVP under active development with measured results: 132/132 offline tests green (CI) and the eval baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
 > **Live demo:** https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/ · **Safety:** all 6 dangerous trap questions refused live (pre-LLM gate, ~0.1s).
 > **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor (a Docker-isolated eval harness) safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
 
