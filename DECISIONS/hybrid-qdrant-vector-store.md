@@ -6,11 +6,11 @@
 
 ## Decision
 
-Use Qdrant as the vector database with both dense (cosine, 384-dim) and sparse (SPLADE/BM25-style) vectors stored per point from day one, instead of starting dense-only and migrating later.
+Use Qdrant as the vector database with both dense (cosine, 384-dim) and sparse (SPLADE, learned sparse) vectors stored per point from day one, instead of starting dense-only and migrating later.
 
 ## Why
 
-- **Hybrid retrieval beats dense-only.** Dense embeddings miss exact terminology (drug names, procedure codes, specific condition names) that dental documents contain. BM25 catches those.
+- **Hybrid retrieval beats dense-only.** Dense embeddings miss exact terminology (drug names, procedure codes, specific condition names) that dental documents contain. Learned-sparse SPLADE retrieval catches those.
 - **Sparse vectors must be declared at collection creation.** Qdrant does not allow adding sparse vector fields after a collection is created without rebuilding it. Starting hybrid-ready avoids a painful migration in Phase 4.
 - **RRF fusion requires both vector types.** The architecture uses Reciprocal Rank Fusion which fuses results by rank, not score. This requires both dense and sparse search results to fuse.
 - **Dimension should never be hardcoded.** Using `client.get_embedding_size()` instead of hardcoding `384` prevents silent breakage when swapping embedding models.
