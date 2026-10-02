@@ -11,7 +11,8 @@ Dental patients with routine questions — post-procedure care, preventive care,
 
 ## 2. Evidence this problem is real
 
-Not assumed — pulled from current industry data on dental front-desk operations:
+Unsourced industry estimates on dental front-desk operations (used only to
+motivate the project; not measured by this repo):
 
 - Front desk staff spend an estimated 50-60% of work hours on phone calls, handling 40-60 calls/day at 4-6 minutes each, largely insurance, procedure, and logistics questions.
 - Practices miss roughly 20-35% of incoming calls during business hours because staff are simultaneously handling in-person patients.

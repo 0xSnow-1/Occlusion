@@ -1,11 +1,12 @@
-# Hugging Face Spaces (Docker SDK) image for the Occlusion Streamlit demo.
+# Optional container image for the Occlusion Streamlit demo.
 #
-# Why Docker, not Streamlit Community Cloud: this image is the path for paid
-# Docker hosts (HF Docker SDK needs PRO as of 2026). The free primary target
-# is Streamlit Community Cloud (2.7GB ceiling, no torch in the install —
-# embeddings are fastembed-only), deployed straight from this repo; see
-# README Demo. The Qdrant index must be built at image-build time
-# (data/qdrant_storage/ is gitignored — it can never be bundled).
+# The live demo runs on Streamlit Community Cloud (see README Demo and
+# docs/DEPLOY.md). This Dockerfile is an optional path for container hosts
+# that want the same Streamlit app without Community Cloud, e.g. a Hugging
+# Face Spaces Docker-SDK app (HF Docker SDK needs PRO as of 2026). No Spaces
+# URL is published — this image is the available, not deployed, path. The
+# Qdrant index is built at image-build time (data/qdrant_storage/ is
+# gitignored at build, a fresh re-ingest happens in this image).
 #
 # Space settings (set manually at creation, nothing secret is baked in):
 #   SDK: Docker · hardware: CPU basic (free) · port: 7860

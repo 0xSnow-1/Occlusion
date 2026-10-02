@@ -4,12 +4,12 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-129_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-132_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
-> **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
+> **Status:** MVP under active development with measured results: 132/132 offline tests green (CI) and the Ragas/Harbor baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
 > **Live demo:** https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/ · **Safety:** all 6 dangerous trap questions refused live (pre-LLM gate, ~0.1s).
-> **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
+> **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor (a Docker-isolated eval harness) safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
 
 ## Executive summary
 
@@ -34,7 +34,7 @@ What it covers, in plain words: brushing and flossing, cavities and tooth decay,
 
 ## Problem
 
-Dental front desks drown in routine-question call volume (SCOPE.md §2, industry data):
+Dental front desks drown in routine-question call volume. The figures below are unsourced industry estimates (SCOPE.md §2), used only to motivate the project — this repo does not measure them:
 
 - Staff spend an estimated 50-60% of work hours on phone calls (40-60 calls/day at 4-6 min each).
 - Practices miss roughly 20-35% of incoming calls during business hours.
@@ -64,7 +64,7 @@ Validation gates (deterministic code):
 - Entry node is `guardrail` (`src/agent/guardrail.py`, `screen_question` → `GuardrailDecision`). No tokens spent on refusals.
 - `build_graph(retriever, llm, confidence_threshold)` takes any `(query, *, top_n) -> list[RetrievedChunk]` retriever plus an LLM exposing `.with_structured_output(Answer)`.
 - `verify_citations` fails closed on zero citations or any fabricated ID; `coverage = matches / total`.
-- Cross-cutting: LangSmith tracing, versioned prompts in `src/agent/prompts/`, logging per `LOGGING.md` (no `print()` in library code).
+- Cross-cutting: LangSmith tracing, versioned prompts in `src/agent/prompts/`, logging per `AGENTS.md` conventions (no `print()` in library code).
 
 > Note on `Architecture_diagram_v3.png`: that canvas shows the fuller target vision (router, conversational path, evaluator-optimizer retry loop).
 > The code and tests on `main` pin the simpler pipeline above (`spec.md` §2, §5). Router, NC-agent, and the bounded-retry loop are explicitly future work. See Roadmap.
@@ -73,9 +73,9 @@ Validation gates (deterministic code):
 
 ### Hybrid retrieval with RRF
 
-- **Dense** `sentence-transformers/all-MiniLM-L6-v2` (cosine) for paraphrase; **sparse** `prithivida/Splade_PP_en_v1` (SPLADE/BM25-style) for exact terminology. Dimension read via `client.get_embedding_size()`, never hardcoded.
+- **Dense** `sentence-transformers/all-MiniLM-L6-v2` (cosine) for paraphrase; **sparse** `prithivida/Splade_PP_en_v1` (SPLADE, learned sparse) for exact terminology. Dimension read via `client.get_embedding_size()`, never hardcoded.
 - Collection declared hybrid-ready from day one (dense + sparse at creation; sparse cannot be added later, see `DECISIONS/hybrid-qdrant-vector-store.md`). Payload indexes on `doc_id` / `source_url` / `title`.
-- `hybrid_search(..., top_k=20, top_n=5, fusion_k=60)`: two prefetches fused server-side with `FusionQuery(fusion=RRF)`, plus a client-side `rrf_fuse(dense, sparse, k=60)` fallback. Fusion is rank-based because cosine scores (bounded) and BM25 scores (unbounded) cannot be compared directly.
+- `hybrid_search(..., top_k=20, top_n=5, fusion_k=60)`: two prefetches fused server-side with `FusionQuery(fusion=RRF)`, plus a client-side `rrf_fuse(dense, sparse, k=60)` fallback. Fusion is rank-based because cosine scores (bounded) and SPLADE scores (unbounded) cannot be compared directly.
 - `rrf_fuse` contract pinned by `tests/agent/test_fusion.py`: a doc in both lists outranks a rank-1-only doc.
 - `make_retriever(client, collection, variant="hybrid"|"dense"|"sparse")` is the seam the graph and harness share.
 
@@ -91,7 +91,7 @@ Validation gates (deterministic code):
 - Parse: `PyMuPDFLoader` per PDF page (`doc_id` = file stem) + `WebBaseLoader` per HTML page (`doc_id` = URL slug). Failures logged and skipped.
 - Chunk: `RecursiveCharacterTextSplitter` 1000/200, each chunk inherits source metadata plus `chunk_index`/`chunk_total`. Embedding at upsert via fastembed `models.Document` (no separate embedding stage).
 - Index: `VectorStore` recreates the collection each run (`recreate_collection=True`), integer point ids `0..n`, payloads self-contained (text + metadata) so retrieval feeds the LLM directly. Default store `./data/qdrant_storage` (gitignored); `:memory:` for tests; `https://` URL for Cloud.
-- First end-to-end run: 28 pages → 118 chunks → 118 points.
+- First end-to-end run (2026-09-06, historical): 28 pages → 118 chunks → 118 points. The current vendored demo index holds 179 points; the frozen eval snapshot holds 120 chunks (see Index parity note below).
 
 ## Evaluation (measured, not claimed)
 
@@ -138,7 +138,7 @@ Latency/cost are recorded, never gated; SCOPE §6 target was P95 < 3 s, recalibr
 
 The driver is the Bedrock round-trip, not retrieval. Staging must re-measure before any ship claim, since deploy adds cold start and never subtracts.
 
-Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. The demo index is a 179-point superset (the CDC `about` page served its full content at build time instead of the 1-chunk stub). Demo-safe, but eval-demo parity is not exact.
+Index parity note: eval numbers were measured on the frozen 120-chunk snapshot (`evals/guardrails/tasks/live-model-refusal/environment/chunks_v1.jsonl`, 120 lines). The vendored demo index (`data/qdrant_storage/`) holds 179 points — a superset caused by live-HTML build-time variance (a 2026-09-10 Docker bake measured 136 points). Demo-safe, but eval-demo parity is not exact.
 
 ## Corpus and provenance
 
@@ -163,7 +163,7 @@ Deliberately excluded and archived (`data/raw/_archive/`, gitignored): 9 clinica
 | Structured output | Pydantic v2 (`Answer` vs `Refusal` discriminated on `kind`) | LLM output is a contract |
 | Eval | Ragas (distinct judge) + Harbor trilogy + golden set | Quality + safety, separately |
 | Observability | LangSmith tracing | Per-node latency/tokens/cost |
-| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; live on Streamlit Community Cloud (Dockerfile retained for container runs) |
+| Demo | Streamlit UI at `src/ui/app.py` (+ scripts `run_ingest.py` / `run_agent.py` `--chat`) | Chat face over the production graph; live on Streamlit Community Cloud. `Dockerfile` and `spaces/zerogpu/` (Gradio) are optional container/Spaces configs, not currently deployed (see `docs/DEPLOY.md`) |
 
 ## Run it locally
 
@@ -199,7 +199,7 @@ Live demo: Streamlit Community Cloud (free tier, no card): https://occlusion-4ky
 
 The sidebar offers the three 60-second tour questions as one-click buttons. Saying hello gets a friendly nudge toward a routine question (the pipeline never runs for greetings). Refusals show plain words plus the safety gate that fired (Gate 0-3), never a raw error name.
 
-Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` (plus `LANGSMITH_TRACING="true"`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` to enable tracking) → Deploy. Dependencies install from `requirements.txt` at repo root. The Qdrant index is vendored at `data/qdrant_storage/` (force-added, 179 points, 1.4 MB). Re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`.
+Deploying the public app (owner-only, ~5 minutes): see [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 Hibernation note: Community Cloud sleeps apps after 12h without traffic; anyone visiting wakes it by clicking. First wake is slow (dependency load plus embedding-model download), then faster follow-ups in the same session. The vendored index is a superset of the 120-chunk eval snapshot (see latency notes above).
 
@@ -230,9 +230,9 @@ NHS-derived output requires: *"Contains public sector information licensed under
 
 ## Contact
 
-Portfolio project. Implementation by the repo owner, decisions by the owner. Issues and doc-fix PRs welcome; new dependencies need explicit owner approval first.
+**Ahmed Gamal** · GitHub: [0xSnow-1](https://github.com/0xSnow-1) · LinkedIn: [in/ahmed-gamal-363b47307](https://www.linkedin.com/in/ahmed-gamal-363b47307) · Email: [0xahmed.gamal@gmail.com](mailto:0xahmed.gamal@gmail.com)
 
-- GitHub: <https://github.com/0xSnow-1/Occlusion>
+Issues and doc-fix PRs welcome; new dependencies need explicit owner approval first.
 
 ---
 
