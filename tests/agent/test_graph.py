@@ -101,6 +101,7 @@ def test_empty_retrieval_fails_closed():
     # The gate short-circuits before generation on empty retrieval, so the
     # LLM was never even called in spirit: fused_chunks stays empty.
     assert out["fused_chunks"] == []
+    assert out.get("retrieval_error") is not True
 
 
 def test_blank_question_never_retrieves_or_generates():
@@ -119,6 +120,41 @@ def test_blank_question_never_retrieves_or_generates():
 
     assert isinstance(out["response"], Refusal)
     assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT
+
+
+def test_retrieval_failure_is_flagged_for_the_service():
+    def failing_retriever(query: str, *, top_n: int):
+        raise RuntimeError("qdrant down")
+
+    graph = build_graph(
+        retriever=failing_retriever,
+        llm=FakeLLM(
+            Answer(
+                answer="x [SRC:ada-guide-001]",
+                citations=["ada-guide-001"],
+                confidence=0.9,
+            )
+        ),
+    )
+    out = graph.invoke({"question": "Does flossing help?"})
+
+    assert out["retrieval_error"] is True
+    assert isinstance(out["response"], Refusal)
+
+
+def test_generation_failure_is_flagged_for_the_service():
+    class FailingLLM:
+        def with_structured_output(self, schema):
+            return self
+
+        def invoke(self, messages):
+            raise RuntimeError("bedrock down")
+
+    graph = build_graph(retriever=stub_retriever, llm=FailingLLM())
+    out = graph.invoke({"question": "Does silver diamine fluoride work?"})
+
+    assert out["generation_error"] is True
+    assert isinstance(out["response"], Refusal)
 
 
 def _point(score: float):
@@ -157,6 +193,7 @@ def test_gated_retriever_refuses_off_topic_before_generation():
     assert isinstance(out["response"], Refusal)
     assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT
     assert out["fused_chunks"] == []
+    assert out.get("retrieval_error") is not True
 
 
 class _ForbiddenClient:

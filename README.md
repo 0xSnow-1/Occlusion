@@ -4,10 +4,10 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-170_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-193_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
-> **Status:** MVP under active development with measured results: 170/170 offline tests green (CI) and the eval baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
+> **Status:** MVP under active development with measured results: 193/193 offline tests green (CI) and the eval baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
 > **Live demo:** https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/ · **Safety:** all 6 dangerous trap questions refused live (pre-LLM gate, ~0.1s).
 > **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor (a Docker-isolated eval harness) safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
 
@@ -64,6 +64,7 @@ Validation gates (deterministic code):
 - Entry node is `guardrail` (`src/agent/guardrail.py`, `screen_question` → `GuardrailDecision`). No tokens spent on refusals.
 - `build_graph(retriever, llm, confidence_threshold)` takes any `(query, *, top_n) -> list[RetrievedChunk]` retriever plus an LLM exposing `.with_structured_output(Answer)`.
 - `verify_citations` fails closed on zero citations or any fabricated ID; `coverage = matches / total`.
+- `src/service/` wraps the graph in a FastAPI boundary with `/health`, `/ready`, `/ask`, and `/metrics`; graph infrastructure failures return 503 instead of a refusal. See `DECISIONS/fastapi-service-boundary.md`.
 - Cross-cutting: LangSmith tracing, versioned prompts in `src/agent/prompts/`, logging per `AGENTS.md` conventions (no `print()` in library code).
 
 > Note on `Architecture_diagram_v3.png`: that canvas shows the fuller target vision (router, conversational path, evaluator-optimizer retry loop).
@@ -178,11 +179,14 @@ uv sync
 cp sample.env .env   # fill keys; .env is gitignored, never commit it
 uv run python scripts/run_ingest.py --pdf-only  # try path: local PDFs only, no HTML fetch, no keys needed
 uv run python scripts/run_agent.py --chat  # interactive (quit with quit/q; Qdrant local lock is single-process)
+uv run python scripts/run_api.py           # FastAPI service on :8000 (health, ready, ask, metrics)
 uv run streamlit run src/ui/app.py         # demo UI (requires ingested collection + Bedrock .env keys)
-uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ -q
+uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ tests/service/ -q
 ```
 
 Two ingest paths. Start with `--pdf-only`: it ingests local PDFs from `data/raw` only and skips the 11 HTML sources, so it needs no HTML fetch and no API keys. Run the full ingest (`uv run python scripts/run_ingest.py` with no flag) when you want the whole corpus: 4 PDFs plus 11 HTML pages into `./data/qdrant_storage`. Qdrant path mode holds a single-process lock. Close the chat session (type `quit` or `q`) before starting Streamlit or a second run.
+
+The FastAPI service exposes `GET /health`, `GET /ready`, `POST /ask`, and `GET /metrics` (Prometheus text). `/ready` checks the retrieval index; `/ask` returns the answer or refusal plus evidence, a request ID, and latency. The Streamlit demo still uses the in-process pipeline until the planned HTTP migration.
 
 Single test: `uv run pytest tests/agent/test_guardrail.py -q`.
 Ragas smoke (needs Bedrock + ingested collection): `uv run python -m src.eval.ragas.run_ragas --limit 3`.
@@ -190,7 +194,7 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 
 ## Testing
 
-170 offline tests, green: 91 agent + 35 ingest + 37 retrieve + 7 eval (`test_guardrail` 29, `test_graph` 7, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_display_ux` 16, `test_bedrock_wiring` 2, `test_ogl_disclaimer` 6, `test_recruiter_tour` 3; `test_document_parser` 3, `test_ingestion_pipeline` 5; `test_relevance` 24; `tests/eval` 7).
+193 offline tests, green: 93 agent + 35 ingest + 37 retrieve + 7 eval + 21 service (`test_guardrail` 29, `test_graph` 9, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_display_ux` 16, `test_bedrock_wiring` 2, `test_ogl_disclaimer` 6, `test_recruiter_tour` 3; `test_document_parser` 3, `test_ingestion_pipeline` 5; `test_relevance` 24; `tests/eval` 7; `tests/service` 21).
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
 

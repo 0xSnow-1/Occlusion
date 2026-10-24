@@ -1,8 +1,10 @@
-# Runtime deps for Streamlit Community Cloud (installs from this file, not pyproject).
-# Mirrors spaces/zerogpu/requirements.txt, with streamlit instead of gradio.
+# Runtime deps for Streamlit Community Cloud and the FastAPI service
+# (installs from this file, not pyproject). Mirrors spaces/zerogpu/requirements.txt
+# with streamlit instead of gradio, plus FastAPI and uvicorn.
 # Deliberately lean: no torch stack (embeddings are fastembed-only), no eval/dev packages.
 boto3
 beautifulsoup4
+fastapi
 fastembed
 langchain
 langchain-aws
@@ -13,3 +15,4 @@ pymupdf
 python-dotenv
 qdrant-client
 streamlit
+uvicorn

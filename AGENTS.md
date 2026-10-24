@@ -2,14 +2,15 @@
 
 ## Commands
 - Setup: `uv sync && cp sample.env .env` (fill keys; `.env` is gitignored — never commit it).
-- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ -q`
+- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ tests/service/ -q`
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
 - Ingest pipeline: `uv run python scripts/run_ingest.py` (default corpus from `data/raw` plus the 11 `DEFAULT_HTML_URLS`, into on-disk Qdrant at `./data/qdrant_storage`; `--pdf-only` for local PDFs only).
+- Run API: `uv run python scripts/run_api.py` (FastAPI on `:8000`; requires an ingested collection and Bedrock `.env` keys).
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
 - CI (`.github/workflows/ci.yml`) mirrors the offline suite on every push and PR. If you add/remove a test path or change the test command, update the `pytest` line to match. Never change triggers, runners, or action versions without human approval.
 
 ## Stack / dependencies (source: `ai-stack/STACK.md`, inlined — that dir is gitignored)
-- Preferred: Python 3.12+ / uv; LangGraph; Qdrant + fastembed / sentence-transformers; Ragas + LangSmith; Pydantic v2 / FastAPI; PyMuPDF. `pyproject.toml` as committed is approved as-is.
+- Preferred: Python 3.12+ / uv; LangGraph; Qdrant + fastembed / sentence-transformers; Ragas + LangSmith; Pydantic v2 / FastAPI; PyMuPDF. FastAPI and uvicorn are now declared per the pre-approved stack; `httpx` is a dev-only TestClient helper and was already a transitive dependency.
 - Never reach for `copilotkit`, `ag-ui-langgraph`, `ddgs` / `duckduckgo-search` (user does not know them) without explicit approval.
 - Prefer the simplest solution using an already-listed lib over adding a new dep. New dep needs explicit user approval first: research 1-2 candidates, explain why in layman's terms, go through the learning process, then record the winner in STACK.md.
 - This is a portfolio/resume project. The user is the decision-maker — the LLM implements, the user decides. When asked to build something, present options and let the user choose. Do not make architectural or design decisions on the user's behalf.
@@ -18,23 +19,26 @@
 - `src/ingest/` — implemented: `document_parser.py` (PyMuPDFLoader + WebBaseLoader; `doc_id` = PDF stem / URL path segment), `chunking_and_embedding.py` (RecursiveCharacterTextSplitter 1000/200 chars; embedding at upsert time via fastembed `models.Document`), `vector_store.py` (Qdrant dense cosine + sparse `Splade_PP_en_v1`, payload indexes on `doc_id`/`source_url`/`title`, int point ids `0..n`).
 - `src/retrieve/` — implemented: `base.py` (Qdrant points → `RetrievedChunk`), `dense.py` (cosine top_k 20), `sparse.py` (SPLADE learned-sparse top_k 20), `hybrid.py` (prefetch 20+20, server RRF, client-side fallback), `relevance.py` (off-corpus gate: descoped insurance rule plus raw dense/sparse floors), `__init__.py` (exports `dense_search`, `sparse_search`, `hybrid_search`, `make_retriever`; `make_retriever` gates by default, opt out with `relevance_gate=False`).
 - `src/agent/schemas.py` — implemented (Phase 5.1): `RetrievedChunk`, `Answer` (`kind`, non-empty `answer`, `citations: list[str]`, `confidence` 0–1), `Refusal` (`RefusalReason` str enum `insufficient_context`/`out_of_scope`, default patient-safe message), `CitationCheck` (fail-closed defaults), `AgentOutput` (discriminated union on `kind`).
-- `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `guardrail`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`), default overwrite semantics (deliberately no reducers).
+- `src/agent/state.py` — implemented: `AgentState` TypedDict (`question`, `guardrail`, `fused_chunks`, `candidate`, `citation_check`, `response`, `confidence_threshold`, optional `retrieval_error`/`generation_error` service signals), default overwrite semantics (deliberately no reducers).
 - `src/agent/graph.py` — implemented (Phase 5.3): LangGraph wiring (guardrail, retrieve, generate, verify, decide nodes; conditional edges for flagged/empty paths).
 - `src/agent/verify.py` — implemented: `verify_citations` checks inline `[SRC:doc_id]` tokens against retrieved chunk IDs; fail-closed on zero citations or fabricated IDs.
 - `src/agent/prompts/` (package) — implemented (Phase 5.2): `format_dental_qa_prompt` with `[SRC:doc_id]`-anchored context blocks; versioned templates (`.md`) loaded via `load_prompt_template`.
 - `src/agent/guardrail.py` — implemented (Phase 7.2): `screen_question` deterministic regex-based scope gate returning `GuardrailDecision(allowed, rule)`.
+- `src/service/` — implemented (AUDIT P0.3): FastAPI app (`create_app` with injectable `Pipeline`), `GraphPipeline` (lazy Qdrant + Bedrock graph, serialized invokes), typed request/response models, in-process Prometheus metrics, `/health`, `/ready`, `/ask`, `/metrics`; entry point `scripts/run_api.py`.
 - `src/eval/` — implemented: `golden.py` (golden-set schema + loader), `negative.py` (negative-set schema + loader for the off-corpus gate), `ragas/` (Ragas harness with distinct judge + committed baseline results).
 
 ## Contracts the tests pin (don't reinvent)
 - `rrf_fuse(dense, sparse, k=60, top_n=...)`: rank-based RRF; doc in both lists outranks rank-1-only (`tests/agent/test_fusion.py`).
 - Off-corpus gate: `screen_relevance_question` refuses blank/descoped input before any query; `assess_relevance` passes when raw dense ≥ 0.35 OR sparse ≥ 10.0, never on RRF. `make_retriever` returns `[]` on refusal so the graph fails closed (`tests/retrieve/test_relevance.py`).
 - Citations: inline `[SRC:doc_id]` tokens; `verify_citations` checks IDs ∈ retrieved set; zero citations or any fabricated ID → `verified=False`, fail closed (`tests/agent/test_verify.py`).
-- `build_graph(retriever=..., llm=..., confidence_threshold=...)`: injectable retriever + `llm.with_structured_output(Answer)` fake; empty retrieval / low confidence / fabricated citation → `Refusal` (`tests/agent/test_graph.py`).
+- `build_graph(retriever=..., llm=..., confidence_threshold=...)`: injectable retriever + `llm.with_structured_output(Answer)` fake; empty retrieval / low confidence / fabricated citation → `Refusal`; infrastructure failures set `retrieval_error`/`generation_error` (`tests/agent/test_graph.py`).
+- Service: `create_app(pipeline=..., settings=...)`; `/ask` rejects blank/whitespace and over-length questions with 422, adds `X-Request-ID`, times out with 504, maps unavailable pipeline or graph infra failure to 503, and exposes Prometheus text at `/metrics`; `/health` never touches the pipeline, `/ready` only checks the index (`tests/service/`).
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/test_guardrail.py` (29), `test_graph.py` (7), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6), `test_display_ux.py` (16), `test_bedrock_wiring.py` (2), `test_ogl_disclaimer.py` (6), `test_recruiter_tour.py` (3) — 91 agent tests, all green. Ingest 35, retrieve 37 (`test_relevance.py` 24), eval 7. Total offline suite is 170 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_guardrail.py` (29), `test_graph.py` (9), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6), `test_display_ux.py` (16), `test_bedrock_wiring.py` (2), `test_ogl_disclaimer.py` (6), `test_recruiter_tour.py` (3) — 93 agent tests, all green. Ingest 35, retrieve 37 (`test_relevance.py` 24), eval 7, service 21. Total offline suite is 193 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
+- `GraphPipeline` serializes graph invocations because local Qdrant path mode is single-process; `/health` is pure liveness, `/ready` checks collection existence and point count only, and `/ask` returns 503 for graph infrastructure flags or pipeline failures.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (see Logging note above).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.
 - No lint, typecheck, or `opencode.json` in repo (CI exists: `.github/workflows/ci.yml`; test baseline pinned in `.no-mistakes.yaml`; worktree pool configured in `treehouse.toml`). Streamlit UI at `src/ui/app.py` (Dockerfile for HF Spaces at port 7860).
