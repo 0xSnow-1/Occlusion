@@ -4,8 +4,11 @@ The fake LLM stands in for `llm.with_structured_output(Answer).invoke(...)` so
 the whole pipeline runs offline — this is the "mock LLM hook" from TODO 5.2.
 """
 
+from types import SimpleNamespace
+
 from src.agent.graph import build_graph
 from src.agent.schemas import Answer, Refusal, RefusalReason, RetrievedChunk
+from src.retrieve import make_retriever
 
 STUB_CHUNK = RetrievedChunk(
     doc_id="ada-guide-001",
@@ -116,3 +119,57 @@ def test_blank_question_never_retrieves_or_generates():
 
     assert isinstance(out["response"], Refusal)
     assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT
+
+
+def _point(score: float):
+    return SimpleNamespace(
+        id=0,
+        score=score,
+        payload={
+            "doc_id": "doc-1",
+            "text": "dental text",
+            "source_url": "https://example.com",
+        },
+    )
+
+
+class _OffTopicClient:
+    """Low dense and sparse scores; fusion must never be reached."""
+
+    def query_points(self, **kwargs):
+        if "prefetch" in kwargs:
+            raise AssertionError("hybrid search must not run after a gate refusal")
+        score = 0.10 if kwargs.get("using") == "dense" else 5.0
+        return SimpleNamespace(points=[_point(score)])
+
+
+class ForbiddenLLM:
+    def with_structured_output(self, schema):
+        raise AssertionError("LLM must not run for an off-corpus question")
+
+
+def test_gated_retriever_refuses_off_topic_before_generation():
+    retriever = make_retriever(_OffTopicClient(), "col", variant="hybrid")
+    graph = build_graph(retriever=retriever, llm=ForbiddenLLM())
+
+    out = graph.invoke({"question": "What is the capital of France?"})
+
+    assert isinstance(out["response"], Refusal)
+    assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT
+    assert out["fused_chunks"] == []
+
+
+class _ForbiddenClient:
+    def query_points(self, **kwargs):
+        raise AssertionError("descoped question must not query Qdrant")
+
+
+def test_gated_retriever_refuses_insurance_before_any_query():
+    retriever = make_retriever(_ForbiddenClient(), "col", variant="hybrid")
+    graph = build_graph(retriever=retriever, llm=ForbiddenLLM())
+
+    out = graph.invoke({"question": "What's my dental insurance deductible?"})
+
+    assert isinstance(out["response"], Refusal)
+    assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT
+    assert out["fused_chunks"] == []

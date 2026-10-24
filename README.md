@@ -4,10 +4,10 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-144_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-170_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
-> **Status:** MVP under active development with measured results: 144/144 offline tests green (CI) and the eval baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
+> **Status:** MVP under active development with measured results: 170/170 offline tests green (CI) and the eval baselines below are recorded on committed results; the live-model calibration backlog is open and documented. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
 > **Live demo:** https://occlusion-4kywlwripebvhgmhg6evmx.streamlit.app/ · **Safety:** all 6 dangerous trap questions refused live (pre-LLM gate, ~0.1s).
 > **Measured:** Ragas faithfulness 0.9304 / relevancy 0.8938 / precision 0.7952 / recall 0.9191 · Harbor (a Docker-isolated eval harness) safety trilogy 204/204 oracle criteria · live-model pass 192/202 (first-pass boundary verdicts recorded in `SHARED_CONTEXT.md`).
 
@@ -82,6 +82,7 @@ Validation gates (deterministic code):
 ### Safety wiring (the hard gate)
 
 - Guardrail rules are decision-shaped (dosage/medication frames, `do I have` diagnosis, `should I get <treatment>`), not keyword blocklists, so informational mentions of pain/antibiotics/root canal still pass. Pinned by 29 tests in `tests/agent/test_guardrail.py` (12 flagged + 17 allowed incl. boundary cases).
+- Off-corpus gate (`src/retrieve/relevance.py`): descoped insurance terms are refused before any query, and a neutral question must clear at least one raw dense/sparse floor. It uses raw scores, never RRF, because RRF is rank-based. On the 72 gate-scored golden items plus a 12-item negative set it produced 0 false accepts and 0 false refusals; the 6 diagnostic traps remain the guardrail's job. See `DECISIONS/relevance-gate.md`.
 - Graph gates pinned by `tests/agent/test_graph.py` with stub retriever + FakeLLM: empty retrieval, low confidence, and fabricated citation each produce `Refusal`.
 - Refusal reasons are wire contracts: guardrail-flagged → `out_of_scope`; failed validation / empty retrieval → `insufficient_context`. Every refusal message mentions consulting a dentist.
 - Real pre-guardrail escape is on record (`SHARED_CONTEXT.md`): an amoxicillin-dosage ask once returned as `kind=answer` at confidence 0.95, which is why the guardrail sits pre-LLM.
@@ -178,7 +179,7 @@ cp sample.env .env   # fill keys; .env is gitignored, never commit it
 uv run python scripts/run_ingest.py --pdf-only  # try path: local PDFs only, no HTML fetch, no keys needed
 uv run python scripts/run_agent.py --chat  # interactive (quit with quit/q; Qdrant local lock is single-process)
 uv run streamlit run src/ui/app.py         # demo UI (requires ingested collection + Bedrock .env keys)
-uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q
+uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ -q
 ```
 
 Two ingest paths. Start with `--pdf-only`: it ingests local PDFs from `data/raw` only and skips the 11 HTML sources, so it needs no HTML fetch and no API keys. Run the full ingest (`uv run python scripts/run_ingest.py` with no flag) when you want the whole corpus: 4 PDFs plus 11 HTML pages into `./data/qdrant_storage`. Qdrant path mode holds a single-process lock. Close the chat session (type `quit` or `q`) before starting Streamlit or a second run.
@@ -189,7 +190,7 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 
 ## Testing
 
-144 offline tests, green: 89 agent + 35 ingest + 13 retrieve + 7 eval (`test_guardrail` 29, `test_graph` 5, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_display_ux` 16, `test_bedrock_wiring` 2, `test_ogl_disclaimer` 6, `test_recruiter_tour` 3; `test_document_parser` 3, `test_ingestion_pipeline` 5; `tests/eval` 7).
+170 offline tests, green: 91 agent + 35 ingest + 37 retrieve + 7 eval (`test_guardrail` 29, `test_graph` 7, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_display_ux` 16, `test_bedrock_wiring` 2, `test_ogl_disclaimer` 6, `test_recruiter_tour` 3; `test_document_parser` 3, `test_ingestion_pipeline` 5; `test_relevance` 24; `tests/eval` 7).
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
 
