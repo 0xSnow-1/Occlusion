@@ -2,7 +2,7 @@
 
 ## Commands
 - Setup: `uv sync && cp sample.env .env` (fill keys; `.env` is gitignored — never commit it).
-- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q`
+- Test (fast, offline): `uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ -q`
 - Single test: `uv run pytest tests/<path>::<Class>::<test_name> -q`
 - Ingest pipeline: `uv run python scripts/run_ingest.py` (default corpus from `data/raw` plus the 11 `DEFAULT_HTML_URLS`, into on-disk Qdrant at `./data/qdrant_storage`; `--pdf-only` for local PDFs only).
 - `pyproject.toml` sets `pythonpath = ["."]` — import as `src.*`. Requires Python 3.12+, `uv`.
@@ -32,7 +32,7 @@
 - Schemas: `Answer` (`answer` non-empty, `citations: list[str]`, `confidence` 0–1) vs `Refusal` (`reason` enum, default message mentions consulting a dentist); discriminated union on `kind` (`tests/agent/test_schemas.py`).
 
 ## Gotchas
-- `tests/agent/test_guardrail.py` (29), `test_graph.py` (4), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6) — 61 agent tests, all green. Total offline suite is 132 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
+- `tests/agent/test_guardrail.py` (29), `test_graph.py` (5), `test_verify.py` (7), `test_schemas.py` (11), `test_fusion.py` (4), `test_prompts.py` (6), `test_display_ux.py` (16), `test_bedrock_wiring.py` (2), `test_ogl_disclaimer.py` (6), `test_recruiter_tour.py` (3) — 89 agent tests, all green. Ingest 35, retrieve 13, eval 7. Total offline suite is 144 tests. Chunking tests run fast (no model downloads, embedding at upsert time).
 - Qdrant `:memory:` ignores payload indexes (warning is benign); Cloud free tier suspends after ~1wk idle. Sparse vectors must be declared at collection creation — never add later (see `DECISIONS/hybrid-qdrant-vector-store.md`). Don't hardcode dim 384; use `client.get_embedding_size()`.
 - Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points; no `print()` in library code (see Logging note above).
 - Ignored artifacts: `data/parsed/`, `data/embeddings_cache/`, `data/qdrant_storage/`, `eval/results/*.json`, `data/raw/_archive/`. Keep versioned snapshots (`chunks_v1.jsonl`, `golden_set_v1.jsonl`) when created.

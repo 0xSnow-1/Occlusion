@@ -6,13 +6,34 @@ from langchain_core.documents import Document
 
 logger = logging.getLogger(__name__)
 
+# Provenance allowlist (data/PROVENANCE.md): only these PDFs may enter the
+# corpus. Paths are relative to PDFS_directory so a rejected file cannot be
+# smuggled in through a subdirectory such as data/raw/_archive/.
+APPROVED_PDF_PATHS: frozenset[str] = frozenset(
+    {
+        "dry-mouth.pdf",
+        "flossing-brushing.pdf",
+        "older-adults-and-oral-health.pdf",
+        "regular-oral-health-care-keeps-you-healthy.pdf",
+    }
+)
 
-def load_all_PDFS(PDFS_directory: str) -> List[Any]:
+
+def load_all_PDFS(
+    PDFS_directory: str,
+    allowed_paths: frozenset[str] | set[str] | None = None,
+) -> List[Any]:
     PDF_path = Path(PDFS_directory).resolve()
     logger.info(f"The Data Directory has been found: {PDF_path}")
     documents = []
 
-    pdf_files = list(PDF_path.glob("**/*.pdf"))
+    pdf_files = sorted(PDF_path.glob("**/*.pdf"))
+    if allowed_paths is not None:
+        pdf_files = [
+            pdf_file
+            for pdf_file in pdf_files
+            if pdf_file.relative_to(PDF_path).as_posix() in allowed_paths
+        ]
     logger.debug(
         f"There is a total number of {len(pdf_files)} PDF files for: {[str(f) for f in pdf_files]} "
     )
@@ -68,10 +89,22 @@ def load_all_websites(URL_links: list[str]) -> List[Any]:
     logger.info(f"Successfully Loaded {len(documents)} total site pages")
     return documents
 
-def load_all_documents(PDFS_directory: str, URL_links: list[str]) -> List[Document]:
-    pdf_parser = load_all_PDFS(PDFS_directory)
+def load_all_documents(
+    PDFS_directory: str,
+    URL_links: list[str],
+    allowed_pdf_paths: frozenset[str] | set[str] | None = None,
+) -> List[Document]:
+    pdf_parser = load_all_PDFS(PDFS_directory, allowed_pdf_paths)
     html_parser = load_all_websites(URL_links)
     all_documents = pdf_parser + html_parser
     logger.info(f"Total documents loaded: {len(all_documents)}")
     return all_documents
+
+
+__all__ = [
+    "APPROVED_PDF_PATHS",
+    "load_all_PDFS",
+    "load_all_documents",
+    "load_all_websites",
+]
 

@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 from langchain_core.documents import Document
 
+from src.ingest.document_parser import APPROVED_PDF_PATHS
 from src.ingest.ingestion_pipeline import IngestionPipeline
 
 # ---------------------------------------------------------------------------
@@ -128,3 +129,18 @@ class TestRun:
         assert second["points"] < first["points"]
         stored = pipeline._store.client.count(pipeline.collection_name).count
         assert stored == second["points"]
+
+    def test_run_passes_provenance_allowlist_to_parser(self, pipeline):
+        captured = {}
+
+        def fake_load(pdf_directory, html_urls, allowed_pdf_paths=None):
+            captured["allowed_pdf_paths"] = allowed_pdf_paths
+            return []
+
+        with patch(
+            "src.ingest.ingestion_pipeline.load_all_documents",
+            side_effect=fake_load,
+        ):
+            pipeline.run()
+
+        assert captured["allowed_pdf_paths"] == APPROVED_PDF_PATHS

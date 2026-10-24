@@ -98,3 +98,21 @@ def test_empty_retrieval_fails_closed():
     # The gate short-circuits before generation on empty retrieval, so the
     # LLM was never even called in spirit: fused_chunks stays empty.
     assert out["fused_chunks"] == []
+
+
+def test_blank_question_never_retrieves_or_generates():
+    """A blank query must not reach retrieval: Qdrant would still return
+    nearest neighbours for an empty embedding and the model could answer."""
+
+    def forbidden_retriever(query: str, *, top_n: int):
+        raise AssertionError("retriever must not run for a blank question")
+
+    class ForbiddenLLM:
+        def with_structured_output(self, schema):
+            raise AssertionError("LLM must not run for a blank question")
+
+    graph = build_graph(retriever=forbidden_retriever, llm=ForbiddenLLM())
+    out = graph.invoke({"question": "   "})
+
+    assert isinstance(out["response"], Refusal)
+    assert out["response"].reason == RefusalReason.INSUFFICIENT_CONTEXT

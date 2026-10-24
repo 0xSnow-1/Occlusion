@@ -57,6 +57,28 @@ THRESHOLDS = {
 }
 
 
+def threshold_failures(verdict: dict[str, dict]) -> list[str]:
+    """Return the metric names whose ship threshold did not pass."""
+    return [metric for metric, result in verdict.items() if not result["pass"]]
+
+
+def baseline_regressions(
+    means: dict[str, float | None],
+    baseline_means: dict[str, float | None],
+    tolerance: float = 0.02,
+) -> list[str]:
+    """Return metrics that dropped more than ``tolerance`` below baseline."""
+    return [
+        metric
+        for metric, baseline in baseline_means.items()
+        if (
+            baseline is not None
+            and means.get(metric) is not None
+            and means[metric] < baseline - tolerance
+        )
+    ]
+
+
 def collect_samples(limit: int | None) -> tuple[list[dict], list[str]]:
     """Run the live graph over golden answer items; return Ragas-ready
     sample dicts plus the ids refused (unscored)."""
@@ -170,6 +192,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--out", default="src/eval/ragas/results/ragas_baseline_v1.json")
+    parser.add_argument(
+        "--baseline",
+        default=None,
+        help="Optional prior report to compare against; exits nonzero on a drop.",
+    )
+    parser.add_argument(
+        "--baseline-tolerance",
+        type=float,
+        default=0.02,
+        help="Allowed drop below the baseline mean before failing (default 0.02).",
+    )
     args = parser.parse_args()
 
     samples, refused = collect_samples(args.limit)
@@ -203,6 +236,11 @@ def main() -> None:
     }
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
+    baseline_means: dict[str, float | None] = {}
+    if args.baseline and Path(args.baseline).exists():
+        baseline_means = json.loads(
+            Path(args.baseline).read_text(encoding="utf-8")
+        ).get("means", {})
     out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     logger.info("means=%s refused=%d report=%s", means, len(refused), out)
     for metric, v in verdict.items():
@@ -211,6 +249,25 @@ def main() -> None:
             metric, v["mean"] or 0.0, v["threshold"],
             "PASS" if v["pass"] else "FAIL",
         )
+
+    failures = threshold_failures(verdict)
+    if baseline_means:
+        regressions = baseline_regressions(
+            means,
+            baseline_means,
+            tolerance=args.baseline_tolerance,
+        )
+        if regressions:
+            logger.error(
+                "Ragas baseline regressions beyond %.3f: %s",
+                args.baseline_tolerance,
+                ", ".join(regressions),
+            )
+            failures.extend(regressions)
+
+    if failures:
+        logger.error("Ragas gate failed: %s", ", ".join(sorted(set(failures))))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

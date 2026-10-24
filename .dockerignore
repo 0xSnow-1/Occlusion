@@ -8,6 +8,7 @@ __pycache__/
 .git/
 .github/
 data/qdrant_storage/
+data/raw/_archive/
 data/parsed/
 data/embeddings_cache/
 evals/jobs/

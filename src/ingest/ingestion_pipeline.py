@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 
 from src.ingest.chunking_and_embedding import DocumentChunker
-from src.ingest.document_parser import load_all_documents
+from src.ingest.document_parser import APPROVED_PDF_PATHS, load_all_documents
 from src.ingest.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -54,10 +54,15 @@ class IngestionPipeline:
     Parameters
     ----------
     pdf_directory:
-        Directory scanned recursively for PDFs.
+        Directory scanned recursively for PDFs. Only files whose path
+        relative to this directory is in ``allowed_pdf_paths`` are parsed.
     html_urls:
         Web pages to load. Defaults to the project corpus
         (``DEFAULT_HTML_URLS``); pass an empty list for PDFs only.
+    allowed_pdf_paths:
+        Provenance allowlist for PDFs, relative to ``pdf_directory``.
+        Defaults to the approved v1 corpus (``APPROVED_PDF_PATHS``).
+        Pass ``None`` only for a caller that has its own trusted corpus.
     collection_name:
         Qdrant collection to (re)create and fill.
     qdrant_path:
@@ -82,9 +87,11 @@ class IngestionPipeline:
         chunk_size: int = CHUNK_SIZE,
         chunk_overlap: int = CHUNK_OVERLAP,
         recreate_collection: bool = True,
+        allowed_pdf_paths: frozenset[str] | None = APPROVED_PDF_PATHS,
     ) -> None:
         self.pdf_directory = pdf_directory
         self.html_urls = DEFAULT_HTML_URLS if html_urls is None else html_urls
+        self.allowed_pdf_paths = allowed_pdf_paths
         self.collection_name = collection_name
         self.recreate_collection = recreate_collection
         self._chunker = DocumentChunker(
@@ -103,7 +110,11 @@ class IngestionPipeline:
         produced) and ``points`` (points upserted into Qdrant).
         """
         # Stage 1: parse ------------------------------------------------------
-        documents = load_all_documents(self.pdf_directory, self.html_urls)
+        documents = load_all_documents(
+            self.pdf_directory,
+            self.html_urls,
+            allowed_pdf_paths=self.allowed_pdf_paths,
+        )
         if not documents:
             logger.warning("No documents found -- nothing to ingest.")
             return {"pages": 0, "chunks": 0, "points": 0}
