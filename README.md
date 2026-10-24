@@ -4,7 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-agent_graph-orange.svg)](https://langchain-ai.github.io/langgraph/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-hybrid_dense_sparse-blue.svg)](https://qdrant.tech/)
-[![Offline tests](https://img.shields.io/badge/tests-129_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
+[![Offline tests](https://img.shields.io/badge/tests-144_passed-brightgreen.svg)](https://github.com/0xSnow-1/Occlusion/actions)
 [![Ragas](https://img.shields.io/badge/Ragas-faithfulness_0.93-purple.svg)](src/eval/ragas/results/ragas_baseline_v1.json)
 
 > **Status:** MVP in active development. **Domain:** Dental patient education. **Core claim:** cited answers or safe refusal, never a confident guess.
@@ -91,7 +91,7 @@ Validation gates (deterministic code):
 - Parse: `PyMuPDFLoader` per PDF page (`doc_id` = file stem) + `WebBaseLoader` per HTML page (`doc_id` = URL slug). Failures logged and skipped.
 - Chunk: `RecursiveCharacterTextSplitter` 1000/200, each chunk inherits source metadata plus `chunk_index`/`chunk_total`. Embedding at upsert via fastembed `models.Document` (no separate embedding stage).
 - Index: `VectorStore` recreates the collection each run (`recreate_collection=True`), integer point ids `0..n`, payloads self-contained (text + metadata) so retrieval feeds the LLM directly. Default store `./data/qdrant_storage` (gitignored); `:memory:` for tests; `https://` URL for Cloud.
-- First end-to-end run: 28 pages → 118 chunks → 118 points.
+- Current vendored run: 28 pages → 133 chunks → 133 points.
 
 ## Evaluation (measured, not claimed)
 
@@ -138,7 +138,7 @@ Latency/cost are recorded, never gated; SCOPE §6 target was P95 < 3 s, recalibr
 
 The driver is the Bedrock round-trip, not retrieval. Staging must re-measure before any ship claim, since deploy adds cold start and never subtracts.
 
-Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. The demo index is a 179-point superset (the CDC `about` page served its full content at build time instead of the 1-chunk stub). Demo-safe, but eval-demo parity is not exact.
+Index parity note: eval numbers were measured on the frozen 120-chunk snapshot. The demo index is a 133-point superset (the CDC `about` page served its full content at build time instead of the 1-chunk stub). The parser uses a provenance allowlist and `.dockerignore` excludes `data/raw/_archive/`, so rejected archive sources cannot reach either index. Demo-safe, but eval-demo parity is not exact.
 
 ## Corpus and provenance
 
@@ -189,7 +189,7 @@ CI (`.github/workflows/ci.yml`) runs the offline pytest suite on push/PR to `mai
 
 ## Testing
 
-132 offline tests, green: 82 agent (`test_guardrail` 29, `test_graph` 4, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_bedrock_wiring` 2, `test_display_ux` 16, `test_recruiter_tour` 3) + 39 ingest/retrieve + 11 source-link and OGL (`test_source_url` 5, `test_ogl_disclaimer` 6).
+144 offline tests, green: 89 agent + 35 ingest + 13 retrieve + 7 eval (`test_guardrail` 29, `test_graph` 5, `test_verify` 7, `test_schemas` 11, `test_fusion` 4, `test_prompts` 6, `test_display_ux` 16, `test_bedrock_wiring` 2, `test_ogl_disclaimer` 6, `test_recruiter_tour` 3; `test_document_parser` 3, `test_ingestion_pipeline` 5; `tests/eval` 7).
 Qdrant `:memory:` ignores payload indexes (benign warning); Cloud free tier suspends after ~1 wk idle; sparse vectors must exist at collection creation.
 Logging: `logging.getLogger(__name__)` per module, `basicConfig` only at entry points, no `print()` in library code.
 
@@ -199,7 +199,7 @@ Live demo: Streamlit Community Cloud (free tier, no card): https://occlusion-4ky
 
 The sidebar offers the three 60-second tour questions as one-click buttons. Saying hello gets a friendly nudge toward a routine question (the pipeline never runs for greetings). Refusals show plain words plus the safety gate that fired (Gate 0-3), never a raw error name.
 
-Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` (plus `LANGSMITH_TRACING="true"`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` to enable tracking) → Deploy. Dependencies install from `requirements.txt` at repo root. The Qdrant index is vendored at `data/qdrant_storage/` (force-added, 179 points, 1.4 MB). Re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`.
+Deploy (owner only, 5 minutes): sign in at share.streamlit.io with GitHub → Create app → repo `0xSnow-1/Occlusion`, branch `main`, main file `src/ui/app.py`, Python 3.12 → Advanced settings → Secrets (TOML): `AWS_BEARER_TOKEN_BEDROCK`, `BEDROCK_MODEL_ID`, `BEDROCK_REGION` (plus `LANGSMITH_TRACING="true"`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` to enable tracking) → Deploy. Dependencies install from `requirements.txt` at repo root. The Qdrant index is vendored at `data/qdrant_storage/` (force-added, 133 points, 1.0 MB). Re-vendor after any corpus change with `uv run python scripts/run_ingest.py` then `git add -f data/qdrant_storage`.
 
 Hibernation note: Community Cloud sleeps apps after 12h without traffic; anyone visiting wakes it by clicking. First wake is slow (dependency load plus embedding-model download), then faster follow-ups in the same session. The vendored index is a superset of the 120-chunk eval snapshot (see latency notes above).
 

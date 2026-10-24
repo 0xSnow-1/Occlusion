@@ -6,4 +6,4 @@
 # because runs always supply --intent, the Test step still runs its
 # intent-targeted evidence agent on top of it.
 commands:
-  test: 'uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ -q'
+  test: 'uv run pytest tests/ingest/ tests/retrieve/ tests/agent/ tests/eval/ -q'

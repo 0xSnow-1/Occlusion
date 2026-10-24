@@ -65,7 +65,14 @@ def _should_continue_to_generate(state: AgentState) -> str:
 
 
 def _route_after_guardrail(state: AgentState) -> str:
-    """Route from guardrail node: flagged → refusal gate, else → retrieval."""
+    """Route from guardrail node: blank or flagged → refusal gate, else retrieval.
+
+    The guardrail deliberately does not own blank-input handling. This
+    boundary check keeps an empty query from reaching retrieval, where
+    Qdrant would still return nearest-neighbour chunks.
+    """
+    if not state["question"].strip():
+        return "decide"
     return "retrieve" if state["guardrail"].allowed else "decide"
 
 
@@ -111,24 +118,31 @@ def _verify_node():
 def _decide_node(confidence_threshold: float):
     """Decide node: applies refusal gates and sets final response."""
     def decide_node(state: AgentState) -> dict:
-        # Gate 0: Pre-LLM guardrail flagged the question (TODO 7.2) —
+        # Gate 0: Blank input. The guardrail allows it by design, and
+        # retrieval would otherwise return nearest-neighbour chunks for an
+        # empty query. Refuse before anything else runs.
+        if not state["question"].strip():
+            logger.info("Refusing blank question")
+            return {"response": _create_refusal(RefusalReason.INSUFFICIENT_CONTEXT)}
+
+        # Gate 1: Pre-LLM guardrail flagged the question (TODO 7.2) —
         # diagnostic/prescriptive/out-of-scope per SCOPE.md §5. Retrieval
         # and generation never ran; the refusal is deterministic.
         if not state["guardrail"].allowed:
             logger.info("Refusing at guardrail (rule=%s)", state["guardrail"].rule)
             return {"response": _create_refusal(RefusalReason.OUT_OF_SCOPE)}
 
-        # Gate 1: Empty retrieval
+        # Gate 2: Empty retrieval
         if not state["fused_chunks"]:
             logger.info("Refusing due to empty retrieval")
             return {"response": _create_refusal(RefusalReason.INSUFFICIENT_CONTEXT)}
         
-        # Gate 2: Failed citation check
+        # Gate 3: Failed citation check
         if not state["citation_check"].verified:
             logger.info("Refusing due to failed citation check")
             return {"response": _create_refusal(RefusalReason.INSUFFICIENT_CONTEXT)}
         
-        # Gate 3: Low confidence
+        # Gate 4: Low confidence
         if state["candidate"].confidence < confidence_threshold:
             logger.info(f"Refusing due to low confidence: {state['candidate'].confidence} < {confidence_threshold}")
             return {"response": _create_refusal(RefusalReason.INSUFFICIENT_CONTEXT)}

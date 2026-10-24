@@ -2,6 +2,7 @@
 # Mirrors spaces/zerogpu/requirements.txt, with streamlit instead of gradio.
 # Deliberately lean: no torch stack (embeddings are fastembed-only), no eval/dev packages.
 boto3
+beautifulsoup4
 fastembed
 langchain
 langchain-aws

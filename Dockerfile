@@ -34,7 +34,8 @@ RUN uv sync --frozen --no-dev
 
 # Bake the Qdrant index into the image (needs build-time network: 11 HTML
 # sources + fastembed model downloads). Live-HTML sources may vary; measured
-# at 136 points (136 chunks from 28 pages; eval snapshot = 120 points).
+# at 133 points (133 chunks from 28 pages; eval snapshot = 120 points).
+# data/raw/_archive/ is excluded by .dockerignore and by the parser allowlist.
 RUN uv run python scripts/run_ingest.py
 
 EXPOSE 7860
