@@ -31,7 +31,7 @@ v3.0" — carry this in the README.
 (A.D.A.M./Ebix copyright, AI/RAG use explicitly prohibited), ADA MouthHealthy /
 Colgate / WebMD (all rights reserved), NADP dental glossary (no open license),
 individual NHS Trust leaflets (per-Trust copyright, not covered by nhs.uk OGL).
-Full rationale: `RESEARCHER_OUTPUT.md`.
+Full rationale: `docs/internal/RESEARCHER_OUTPUT.md`.
 
 ## Archived corpus (v1 → v2 decisions)
 

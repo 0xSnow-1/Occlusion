@@ -1,8 +1,0 @@
-{
-    "jobs_dir": "evals/jobs",
-    "tasks": [
-        {
-            "path": "evals/guardrails/tasks/trap-refusal"
-        }
-    ]
-}
