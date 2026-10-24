@@ -53,7 +53,7 @@ def _retrieve_node(retriever: Callable[..., List[RetrievedChunk]]):
         except Exception as e:
             logger.error(f"Retrieval failed: {type(e).__name__}: {e}")
             # Fail closed: empty retrieval leads to refusal
-            return {"fused_chunks": []}
+            return {"fused_chunks": [], "retrieval_error": True}
     return retrieve_node
 
 
@@ -98,11 +98,14 @@ def _generate_node(llm):
         except Exception as e:
             logger.error(f"Generation failed: {type(e).__name__}: {e}")
             # Return low-confidence answer to trigger refusal
-            return {"candidate": Answer(
-                answer="I encountered an error while generating the answer.",
-                citations=[],
-                confidence=0.0,
-            )}
+            return {
+                "candidate": Answer(
+                    answer="I encountered an error while generating the answer.",
+                    citations=[],
+                    confidence=0.0,
+                ),
+                "generation_error": True,
+            }
     return generate_node
 
 

@@ -20,11 +20,16 @@ a terminal `Refusal`, LLM never called) → retrieve node writes
 verify node writes `citation_check` → routing writes `response` (an
 `Answer` or a `Refusal`). Consumers (UI, eval harness) read exactly
 `response`.
+
+Infrastructure failures also set `retrieval_error` or `generation_error`.
+The graph still fails closed with a refusal; the HTTP service reads those
+flags to return 503 instead of presenting an infrastructure failure as a
+normal refusal.
 """
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from src.agent.schemas import (
     Answer,
@@ -46,6 +51,12 @@ class AgentState(TypedDict):
 
     fused_chunks: list[RetrievedChunk]
     """RRF-fused retrieval results, best first. Empty → refuse (fail closed)."""
+
+    retrieval_error: NotRequired[bool]
+    """True when retrieval infrastructure failed; the HTTP service maps it to 503."""
+
+    generation_error: NotRequired[bool]
+    """True when generation infrastructure failed; the HTTP service maps it to 503."""
 
     candidate: Answer
     """Validated-but-unverified LLM output; input to verification and gates."""

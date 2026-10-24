@@ -122,6 +122,8 @@
 
 ### P0.3 Add the FastAPI service boundary (High)
 
+> **Status:** partial in `feat/p0-3-fastapi-service`. The FastAPI service, offline tests, metrics, request IDs, timeouts, and 503 mapping are implemented. The Streamlit HTTP migration is deferred to the next PR so the live demo stays up until the API is deployed.
+
 **What is wrong, in plain English**
 
 - `fastapi` and `uvicorn` are declared dependencies, but no app exists.
