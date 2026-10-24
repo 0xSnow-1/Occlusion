@@ -196,6 +196,9 @@
 
 ### P0.5 Add a retrieval relevance gate (High)
 
+> **Status:** done in `fix/audit-p0-5-relevance-gate`.
+> Raw dense/sparse floors plus a descoped insurance rule; 0 false accepts and 0 false refusals on the 72 gate-scored golden items plus the 12-item negative set. See `DECISIONS/relevance-gate.md`.
+
 **What is wrong, in plain English**
 
 - A question like "What is the capital of France?" retrieves 5 plausible-looking dental chunks.
@@ -211,7 +214,7 @@
 
 1. Inspect the score scale returned by dense, sparse, and RRF fusion.
 2. Add an explicit, documented relevance threshold.
-3. Fail closed when the best fused score is below the threshold.
+3. Fail closed when neither raw dense nor sparse top-1 score clears its floor.
 4. Measure the threshold on the golden set plus a negative set so it does not over-refuse.
 5. Record the chosen threshold in `DECISIONS/`.
 
@@ -336,7 +339,7 @@
 
 1. P0.1 - remove archive sources and rebuild.
 2. P0.4 - empty input guard.
-3. P0.5 - relevance gate.
+3. P0.5 - relevance gate (done in `fix/audit-p0-5-relevance-gate`).
 4. P0.2 - eval CI gate.
 5. P0.3 - FastAPI service.
 6. P1.1 and P1.2 - observability and CLI token.
