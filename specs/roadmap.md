@@ -14,10 +14,10 @@ Do not duplicate task text here; point at the TODO phase/task and add only owner
 
 ## Phase A: Cross-encoder rerank (measured)
 
-- [ ] A.1 Get owner approval for the cross-encoder dependency (AGENTS.md new-dep rule: research 1–2 candidates, plain-language trade-off, record winner). No code before approval.
-- [ ] A.2 Implement toggleable rerank stage per `docs/internal/TODO.md` Task 4.3: hybrid top ~20 → cross-encoder → top_n 5; default **off**; same return shape as `hybrid_search`.
-- [ ] A.3 Run Task 4.3 verification: 5 golden questions on/off, record ordering quality and latency delta. If it does not earn latency, keep off and write down why.
-- [ ] A.4 If on: re-run hybrid vs dense comparison (Task 4.4) and the offline suite; update README + this roadmap; move cross-encoder out of SCOPE.md §9 parking lot in the same change.
+- [ ] A.1 Owner approval for the cross-encoder choice: `Xenova/ms-marco-MiniLM-L-6-v2` through `fastembed` `TextCrossEncoder`, so no new Python dependency. Approved 2026-11-25; decision record `DECISIONS/cross-encoder-rerank.md` ticks when PR #24 merges.
+- [ ] A.2 First, before any code, capture the rerank-off baseline on the frozen 120-chunk snapshot: recall@5, MRR, and p50/p95 retrieval latency under `eval/results/`. Then implement the toggleable rerank stage per `docs/internal/TODO.md` Task 4.3: hybrid top ~20, cross-encoder, top_n 5; default **off**; same return shape as `hybrid_search`.
+- [ ] A.3 Run the rerank-on comparison against the A.2 baseline on the identical snapshot: recall@5, MRR, ordering quality, and latency delta in one side-by-side table. If it does not earn latency, keep it off and write down why.
+- [ ] A.4 If on: re-run hybrid vs dense comparison (Task 4.4), the cost-gated Ragas context-precision check, and the offline suite; update README and this roadmap; move cross-encoder out of SCOPE.md §9 parking lot in the same change.
 
 ## Phase B: Ship-gate paperwork (TODO Phase 0)
 

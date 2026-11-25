@@ -12,7 +12,7 @@
 ## Stack / dependencies (source: `ai-stack/STACK.md`, inlined — that dir is gitignored)
 - Preferred: Python 3.12+ / uv; LangGraph; Qdrant + fastembed / sentence-transformers; Ragas + LangSmith; Pydantic v2 / FastAPI; PyMuPDF. FastAPI and uvicorn are now declared per the pre-approved stack; `httpx` is a dev-only TestClient helper and was already a transitive dependency.
 - Never reach for `copilotkit`, `ag-ui-langgraph`, `ddgs` / `duckduckgo-search` (user does not know them) without explicit approval.
-- Prefer the simplest solution using an already-listed lib over adding a new dep. New dep needs explicit user approval first: research 1-2 candidates, explain why in layman's terms, go through the learning process, then record the winner in STACK.md.
+- Prefer the simplest solution using an already-listed lib over adding a new dep.
 - This is a portfolio/resume project. The user is the decision-maker — the LLM implements, the user decides. When asked to build something, present options and let the user choose. Do not make architectural or design decisions on the user's behalf.
 
 ## Layout (what's real vs stub)

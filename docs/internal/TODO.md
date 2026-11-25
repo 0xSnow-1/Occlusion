@@ -283,20 +283,28 @@
   - Forgetting that RRF returns rank-based ordering: don't reuse the raw fused score as if it
     were a similarity score anywhere (thresholds, UI confidence, etc.).
 
-### Task 4.3 — (Optional) Cross-encoder reranking to top_n = 5
+### Task 4.3 - (Optional) Cross-encoder reranking to top_n = 5
 - **What:** Add an optional rerank stage: take the RRF top ~20, score pairs with a local
-  cross-encoder (sentence-transformers), return top_n 5. Must be a toggleable stage, off by
+  cross-encoder (`fastembed` `TextCrossEncoder`, model `Xenova/ms-marco-MiniLM-L-6-v2`; see
+  `DECISIONS/cross-encoder-rerank.md`), return top_n 5. Must be a toggleable stage, off by
   default until measured.
-- **Inputs:** Hybrid search results; a local cross-encoder model.
-- **Outputs / side-effects:** `hybrid_search(rerank=True|False)`; note the added p50/p95 latency.
-- **✅ Verify:** Toggle it on for 5 golden questions: do top-5 results visibly improve (better
-  ordering)? Record the latency delta. If ordering doesn't improve measurably, keep it off and
-  write down why — "we measured, it didn't earn its latency" is a great interview answer.
+- **Inputs:** Hybrid search results; the approved local cross-encoder model.
+- **Outputs / side-effects:** `hybrid_search(rerank=True|False)`; a before/after comparison file
+  under `eval/results/`; the added p50/p95 latency.
+- **✅ Verify:** Capture the "before" row first, before any code. On the frozen 120-chunk snapshot,
+  run the Task 3.4/4.4 retrieval metrics harness with rerank off. Record recall@5, MRR, and
+  p50/p95 retrieval latency under `eval/results/`. Implement the toggle, then run the same harness
+  with rerank on against the identical snapshot. Produce one side-by-side table with the rerank-off
+  row, the rerank-on row, and the per-question wins and losses. If ordering and recall do not
+  improve measurably, keep it off and write down why. "We measured, it didn't earn its latency" is
+  a good interview answer. Never compare runs where the collection or golden set changed between
+  measurements.
 - **⚠️ Pitfalls:**
-  - Reranking before fusing (reranking dense-only results) — you're then just polishing half the
-    signal.
-  - Shipping it because it's cool, not because a metric moved. The Phase 6 harness will give you
-    the real verdict; treat this task as scaffolding for that comparison.
+  - Reranking before fusing (reranking dense-only results). You then polish only half the signal.
+  - Shipping it because it's cool, not because a metric moved. The Phase 6 harness gives the real
+    verdict; treat this task as scaffolding for that comparison.
+  - Comparing the rerank-on run against a baseline from a different snapshot, or against old
+    committed Ragas numbers. Capture the "before" row on the same collection and golden set.
 
 ### Task 4.4 — Hybrid vs. dense-only comparison — record the numbers
 - **What:** Run the Task 3.4 eval script with the hybrid retriever (and with rerank on/off if
