@@ -1,0 +1,1432 @@
+{
+  "meta": {
+    "generated_at": "2026-11-26T01:36:40.592884+00:00",
+    "variant": "hybrid",
+    "rerank": true,
+    "rerank_model": "Xenova/ms-marco-MiniLM-L-6-v2",
+    "relevance_gate": false,
+    "top_n": 5,
+    "snapshot_path": "evals/guardrails/tasks/live-model-refusal/environment/chunks_v1.jsonl",
+    "snapshot_sha256": "927616f7eb70d5745cd1f6be9c51fdd33ec82403bbf8a449d7137469e30d28ea",
+    "snapshot_items": 120,
+    "golden_path": "data/golden_set_v1.jsonl",
+    "golden_sha256": "5d32a3270805717a8f69d169d031cdca67ed8cc4db1ca017320d0ed0f1424ec7",
+    "golden_items": 78,
+    "answerable_items": 70,
+    "warmup_ms": 10256.999,
+    "python": "3.12.3"
+  },
+  "summary": {
+    "recall_at_5": 1.0,
+    "mrr_at_5": 0.909524,
+    "top1_accuracy": 0.842857,
+    "hit_rate_at_5": 1.0,
+    "p50_ms": 1329.735,
+    "p95_ms": 1822.931,
+    "mean_ms": 1392.822,
+    "min_ms": 1086.236,
+    "max_ms": 2077.021
+  },
+  "per_question": [
+    {
+      "id": "G01",
+      "question": "How am I supposed to brush my teeth properly?",
+      "relevant_doc_ids": [
+        "regular-oral-health-care-keeps-you-healthy"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "regular-oral-health-care-keeps-you-healthy",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 4,
+      "reciprocal_rank": 0.25,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1320.073
+    },
+    {
+      "id": "G02",
+      "question": "I brush and floss at home, so why do I still need check-ups?",
+      "relevant_doc_ids": [
+        "regular-oral-health-care-keeps-you-healthy"
+      ],
+      "retrieved_doc_ids": [
+        "regular-oral-health-care-keeps-you-healthy",
+        "flossing-brushing",
+        "older-adults-and-oral-health",
+        "gum-disease",
+        "dental-abscess"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1316.59
+    },
+    {
+      "id": "G03",
+      "question": "What does flossing clean that my toothbrush misses?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "regular-oral-health-care-keeps-you-healthy",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1128.516
+    },
+    {
+      "id": "G04",
+      "question": "What kind of toothbrush should I buy?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "toothache",
+        "regular-oral-health-care-keeps-you-healthy"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1299.809
+    },
+    {
+      "id": "G05",
+      "question": "My store has waxed, unwaxed, flavored and plain floss - does it matter which I grab?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1675.568
+    },
+    {
+      "id": "G06",
+      "question": "How do I get the floss down to the gum without hurting myself?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "older-adults-and-oral-health",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1763.579
+    },
+    {
+      "id": "G07",
+      "question": "How do I take care of my dentures at night, and should I sleep with them in?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "dental-treatments",
+        "teeth-grinding",
+        "teeth-grinding",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1435.877
+    },
+    {
+      "id": "G08",
+      "question": "What should I bring to my dental visit and what might the dentist suggest for my routine?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "older-adults-and-oral-health",
+        "toothache",
+        "dry-mouth",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1329.801
+    },
+    {
+      "id": "G09",
+      "question": "What causes dry mouth, and why can it make chewing and talking hard?",
+      "relevant_doc_ids": [
+        "dry-mouth"
+      ],
+      "retrieved_doc_ids": [
+        "dry-mouth",
+        "older-adults-and-oral-health",
+        "dry-mouth",
+        "dry-mouth",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1284.719
+    },
+    {
+      "id": "G10",
+      "question": "Can having less spit really lead to cavities?",
+      "relevant_doc_ids": [
+        "dry-mouth"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "dry-mouth",
+        "dry-mouth",
+        "older-adults-and-oral-health",
+        "dry-mouth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1344.265
+    },
+    {
+      "id": "G11",
+      "question": "Are there foods or habits I should steer clear of with a dry mouth?",
+      "relevant_doc_ids": [
+        "dry-mouth"
+      ],
+      "retrieved_doc_ids": [
+        "dry-mouth",
+        "dry-mouth",
+        "dry-mouth",
+        "dry-mouth",
+        "dry-mouth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1465.905
+    },
+    {
+      "id": "G12",
+      "question": "What can I sip or chew during the day to make my mouth feel wetter?",
+      "relevant_doc_ids": [
+        "dry-mouth"
+      ],
+      "retrieved_doc_ids": [
+        "dry-mouth",
+        "dry-mouth",
+        "dry-mouth",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1511.741
+    },
+    {
+      "id": "G13",
+      "question": "My mouth is often dry - how do I look after my teeth day to day, and when should I get changes checked?",
+      "relevant_doc_ids": [
+        "dry-mouth"
+      ],
+      "retrieved_doc_ids": [
+        "gum-disease",
+        "regular-oral-health-care-keeps-you-healthy",
+        "dry-mouth",
+        "tooth-decay",
+        "dry-mouth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank": 0.333333,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1449.449
+    },
+    {
+      "id": "G14",
+      "question": "I thought cavities were just kid stuff - can I still get them as an adult?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "dental-treatments",
+        "dry-mouth",
+        "about"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1206.884
+    },
+    {
+      "id": "G15",
+      "question": "Do I still need fluoride now that I'm older?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "tooth-decay",
+        "dry-mouth",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1275.337
+    },
+    {
+      "id": "G16",
+      "question": "Is gum disease just something that happens when you get old?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "health-info",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1193.388
+    },
+    {
+      "id": "G17",
+      "question": "What's the difference between gingivitis and the more serious gum problem?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "flossing-brushing",
+        "health-info",
+        "health-info",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1424.518
+    },
+    {
+      "id": "G18",
+      "question": "How does smoking affect my gums as I age?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "older-adults-and-oral-health",
+        "gum-disease",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1871.492
+    },
+    {
+      "id": "G19",
+      "question": "I get dry mouth a lot - is that just normal aging, and does it affect dentures?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "dry-mouth",
+        "dry-mouth",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1350.834
+    },
+    {
+      "id": "G20",
+      "question": "Besides chewing tobacco, what else raises risk for mouth and throat cancer, and what mouth changes should I get checked?",
+      "relevant_doc_ids": [
+        "older-adults-and-oral-health"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1722.826
+    },
+    {
+      "id": "G21",
+      "question": "What causes tooth decay in general?",
+      "relevant_doc_ids": [
+        "tooth-decay"
+      ],
+      "retrieved_doc_ids": [
+        "tooth-decay",
+        "dry-mouth",
+        "tooth-decay",
+        "flossing-brushing",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1183.851
+    },
+    {
+      "id": "G22",
+      "question": "In general, how does a hole in a tooth develop and what signs go with it?",
+      "relevant_doc_ids": [
+        "tooth-decay"
+      ],
+      "retrieved_doc_ids": [
+        "tooth-decay",
+        "knocked-out-tooth",
+        "root-canal-treatment",
+        "dental-treatments",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1329.668
+    },
+    {
+      "id": "G23",
+      "question": "What treatments are used for tooth decay at different stages, and how is it prevented in general?",
+      "relevant_doc_ids": [
+        "tooth-decay"
+      ],
+      "retrieved_doc_ids": [
+        "tooth-decay",
+        "older-adults-and-oral-health",
+        "tooth-decay",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1635.295
+    },
+    {
+      "id": "G24",
+      "question": "What is gum disease and what symptoms does it cause in general?",
+      "relevant_doc_ids": [
+        "gum-disease"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "gum-disease",
+        "health-info",
+        "health-info",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1872.73
+    },
+    {
+      "id": "G25",
+      "question": "Why do gums become irritated and bleed during brushing or eating hard foods?",
+      "relevant_doc_ids": [
+        "gum-disease"
+      ],
+      "retrieved_doc_ids": [
+        "gum-disease",
+        "flossing-brushing",
+        "health-info",
+        "older-adults-and-oral-health",
+        "tooth-decay"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1375.86
+    },
+    {
+      "id": "G26",
+      "question": "How is gum disease treated at early and serious stages in general?",
+      "relevant_doc_ids": [
+        "gum-disease"
+      ],
+      "retrieved_doc_ids": [
+        "gum-disease",
+        "health-info",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1310.908
+    },
+    {
+      "id": "G27",
+      "question": "How is gum disease prevented through everyday tooth and gum care?",
+      "relevant_doc_ids": [
+        "gum-disease"
+      ],
+      "retrieved_doc_ids": [
+        "older-adults-and-oral-health",
+        "health-info",
+        "health-info",
+        "gum-disease",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 4,
+      "reciprocal_rank": 0.25,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1248.174
+    },
+    {
+      "id": "G28",
+      "question": "What is a dental abscess in general?",
+      "relevant_doc_ids": [
+        "dental-abscess"
+      ],
+      "retrieved_doc_ids": [
+        "dental-abscess",
+        "dental-abscess",
+        "dental-abscess",
+        "tooth-decay",
+        "dental-abscess"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1096.498
+    },
+    {
+      "id": "G29",
+      "question": "What kinds of mouth conditions can lead to a build-up of pus under the teeth or gums?",
+      "relevant_doc_ids": [
+        "dental-abscess"
+      ],
+      "retrieved_doc_ids": [
+        "dental-abscess",
+        "tooth-decay",
+        "dental-abscess",
+        "health-info",
+        "dental-abscess"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1622.794
+    },
+    {
+      "id": "G30",
+      "question": "What symptoms occur with a dental abscess in general?",
+      "relevant_doc_ids": [
+        "dental-abscess"
+      ],
+      "retrieved_doc_ids": [
+        "dental-abscess",
+        "tooth-decay",
+        "gum-disease",
+        "dental-abscess",
+        "dental-abscess"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1342.126
+    },
+    {
+      "id": "G31",
+      "question": "How are dental abscesses treated by dentists, and how are they prevented in general?",
+      "relevant_doc_ids": [
+        "dental-abscess"
+      ],
+      "retrieved_doc_ids": [
+        "dental-abscess",
+        "dental-abscess",
+        "dental-abscess",
+        "root-canal-treatment",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1444.2
+    },
+    {
+      "id": "G32",
+      "question": "What is the general guidance for preserving a knocked-out adult tooth before reaching a dentist?",
+      "relevant_doc_ids": [
+        "knocked-out-tooth"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "knocked-out-tooth",
+        "knocked-out-tooth",
+        "knocked-out-tooth",
+        "knocked-out-tooth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1319.822
+    },
+    {
+      "id": "G33",
+      "question": "Why is a knocked-out baby tooth handled differently from a knocked-out adult tooth?",
+      "relevant_doc_ids": [
+        "knocked-out-tooth"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "knocked-out-tooth",
+        "knocked-out-tooth",
+        "knocked-out-tooth",
+        "knocked-out-tooth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1257.227
+    },
+    {
+      "id": "G34",
+      "question": "What happens at the dental clinic after a knocked-out tooth is brought in?",
+      "relevant_doc_ids": [
+        "knocked-out-tooth"
+      ],
+      "retrieved_doc_ids": [
+        "knocked-out-tooth",
+        "dental-treatments",
+        "knocked-out-tooth",
+        "knocked-out-tooth",
+        "knocked-out-tooth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1253.603
+    },
+    {
+      "id": "G35",
+      "question": "What causes toothache in general?",
+      "relevant_doc_ids": [
+        "toothache"
+      ],
+      "retrieved_doc_ids": [
+        "toothache",
+        "tooth-decay",
+        "dry-mouth",
+        "health-info",
+        "dental-abscess"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1337.196
+    },
+    {
+      "id": "G36",
+      "question": "What kinds of food and drink tend to worsen a sore tooth, and what eating habits help while waiting for care?",
+      "relevant_doc_ids": [
+        "toothache"
+      ],
+      "retrieved_doc_ids": [
+        "toothache",
+        "dental-abscess",
+        "dry-mouth",
+        "teeth-grinding",
+        "wisdom-tooth-removal"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1445.771
+    },
+    {
+      "id": "G37",
+      "question": "What general measures ease toothache while waiting for an appointment, and how is toothache prevented?",
+      "relevant_doc_ids": [
+        "toothache"
+      ],
+      "retrieved_doc_ids": [
+        "toothache",
+        "toothache",
+        "toothache",
+        "dental-abscess",
+        "toothache"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1470.078
+    },
+    {
+      "id": "G38",
+      "question": "What causes teeth grinding in general?",
+      "relevant_doc_ids": [
+        "teeth-grinding"
+      ],
+      "retrieved_doc_ids": [
+        "teeth-grinding",
+        "teeth-grinding",
+        "teeth-grinding",
+        "teeth-grinding",
+        "toothache"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1256.71
+    },
+    {
+      "id": "G39",
+      "question": "How can ongoing stress or poor sleep show up as jaw, tooth and head symptoms?",
+      "relevant_doc_ids": [
+        "teeth-grinding"
+      ],
+      "retrieved_doc_ids": [
+        "teeth-grinding",
+        "teeth-grinding",
+        "health-info",
+        "tooth-decay",
+        "teeth-grinding"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1329.907
+    },
+    {
+      "id": "G40",
+      "question": "What everyday habits help reduce teeth grinding, and what treatments are offered for it in general?",
+      "relevant_doc_ids": [
+        "teeth-grinding"
+      ],
+      "retrieved_doc_ids": [
+        "teeth-grinding",
+        "teeth-grinding",
+        "teeth-grinding",
+        "teeth-grinding",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1292.668
+    },
+    {
+      "id": "G41",
+      "question": "What is gum disease and what causes it?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "health-info",
+        "health-info",
+        "gum-disease",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1322.996
+    },
+    {
+      "id": "G42",
+      "question": "What happens inside the gums when they look puffy and bleed?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "gum-disease",
+        "gum-disease",
+        "health-info",
+        "older-adults-and-oral-health",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank": 0.333333,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1591.789
+    },
+    {
+      "id": "G43",
+      "question": "What are the usual signs of gum disease in the mouth?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "gum-disease",
+        "flossing-brushing",
+        "health-info",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1316.638
+    },
+    {
+      "id": "G44",
+      "question": "How would someone notice gum trouble affecting their gums, teeth and breath?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "gum-disease",
+        "flossing-brushing",
+        "flossing-brushing",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1272.548
+    },
+    {
+      "id": "G45",
+      "question": "How do dentists check for gum disease during a visit?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "gum-disease",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1126.131
+    },
+    {
+      "id": "G46",
+      "question": "How is gum disease diagnosed, and what do pocket depths and X-rays show?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "health-info",
+        "older-adults-and-oral-health",
+        "health-info",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1271.561
+    },
+    {
+      "id": "G47",
+      "question": "What treatments are used for gum disease in general?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "gum-disease",
+        "older-adults-and-oral-health",
+        "health-info",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1246.584
+    },
+    {
+      "id": "G48",
+      "question": "If someone has sore bleeding gums, what does getting it treated involve?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "gum-disease",
+        "health-info",
+        "health-info",
+        "older-adults-and-oral-health",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1390.761
+    },
+    {
+      "id": "G49",
+      "question": "What makes gum disease more likely to develop?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "health-info",
+        "older-adults-and-oral-health",
+        "older-adults-and-oral-health",
+        "health-info"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1358.873
+    },
+    {
+      "id": "G50",
+      "question": "What is the link between tobacco and gum disease, and who else tends to get it more?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "older-adults-and-oral-health",
+        "health-info",
+        "health-info",
+        "older-adults-and-oral-health"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1621.044
+    },
+    {
+      "id": "G51",
+      "question": "How do people keep their gums and teeth healthy day to day?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "tooth-decay",
+        "health-info",
+        "flossing-brushing",
+        "regular-oral-health-care-keeps-you-healthy"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1465.572
+    },
+    {
+      "id": "G52",
+      "question": "What happens if gum disease is left untreated over time?",
+      "relevant_doc_ids": [
+        "health-info"
+      ],
+      "retrieved_doc_ids": [
+        "health-info",
+        "older-adults-and-oral-health",
+        "flossing-brushing",
+        "health-info",
+        "gum-disease"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1191.648
+    },
+    {
+      "id": "G53",
+      "question": "What is a dental bridge?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "flossing-brushing",
+        "dental-treatments",
+        "knocked-out-tooth",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1221.181
+    },
+    {
+      "id": "G54",
+      "question": "What is a crown on a tooth and when is one fitted?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1585.964
+    },
+    {
+      "id": "G55",
+      "question": "What are dental fillings for and what kinds are there?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "tooth-decay",
+        "root-canal-treatment",
+        "older-adults-and-oral-health",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1608.551
+    },
+    {
+      "id": "G56",
+      "question": "What happens during a scale and polish?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "dental-treatments",
+        "wisdom-tooth-removal",
+        "health-info",
+        "tooth-decay"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1716.769
+    },
+    {
+      "id": "G57",
+      "question": "How do braces straighten teeth and who gets them on the NHS?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1176.078
+    },
+    {
+      "id": "G58",
+      "question": "What are dental implants and are they available on the NHS?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "wisdom-tooth-removal"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1889.478
+    },
+    {
+      "id": "G59",
+      "question": "What are dentures and why do they matter for eating and appearance?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "older-adults-and-oral-health",
+        "dental-treatments",
+        "flossing-brushing",
+        "dry-mouth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 2077.021
+    },
+    {
+      "id": "G60",
+      "question": "What are veneers like, and how is teeth whitening done in general?",
+      "relevant_doc_ids": [
+        "dental-treatments"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1509.164
+    },
+    {
+      "id": "G61",
+      "question": "Why might wisdom teeth need to come out and when do they appear?",
+      "relevant_doc_ids": [
+        "wisdom-tooth-removal"
+      ],
+      "retrieved_doc_ids": [
+        "wisdom-tooth-removal",
+        "dental-treatments",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1340.992
+    },
+    {
+      "id": "G62",
+      "question": "What happens during wisdom tooth removal?",
+      "relevant_doc_ids": [
+        "wisdom-tooth-removal"
+      ],
+      "retrieved_doc_ids": [
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "dental-treatments",
+        "wisdom-tooth-removal"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1086.236
+    },
+    {
+      "id": "G63",
+      "question": "How long does it take to recover after wisdom tooth removal and what does it feel like? What helps the wound heal?",
+      "relevant_doc_ids": [
+        "wisdom-tooth-removal"
+      ],
+      "retrieved_doc_ids": [
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "root-canal-treatment",
+        "wisdom-tooth-removal",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1310.86
+    },
+    {
+      "id": "G64",
+      "question": "How do people look after the mouth in the first days after wisdom tooth removal?",
+      "relevant_doc_ids": [
+        "wisdom-tooth-removal"
+      ],
+      "retrieved_doc_ids": [
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "dental-treatments",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1267.817
+    },
+    {
+      "id": "G65",
+      "question": "What problems can follow wisdom tooth removal and when is urgent dental help needed?",
+      "relevant_doc_ids": [
+        "wisdom-tooth-removal"
+      ],
+      "retrieved_doc_ids": [
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "wisdom-tooth-removal",
+        "dental-treatments"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1246.224
+    },
+    {
+      "id": "G66",
+      "question": "What is root canal treatment for?",
+      "relevant_doc_ids": [
+        "root-canal-treatment"
+      ],
+      "retrieved_doc_ids": [
+        "dental-treatments",
+        "root-canal-treatment",
+        "root-canal-treatment",
+        "root-canal-treatment",
+        "root-canal-treatment"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank": 0.5,
+      "top1": false,
+      "hit_at_k": true,
+      "latency_ms": 1384.084
+    },
+    {
+      "id": "G67",
+      "question": "What happens step by step during root canal treatment?",
+      "relevant_doc_ids": [
+        "root-canal-treatment"
+      ],
+      "retrieved_doc_ids": [
+        "root-canal-treatment",
+        "dental-treatments",
+        "root-canal-treatment",
+        "root-canal-treatment",
+        "root-canal-treatment"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1309.306
+    },
+    {
+      "id": "G68",
+      "question": "What is recovery like after a root canal?",
+      "relevant_doc_ids": [
+        "root-canal-treatment"
+      ],
+      "retrieved_doc_ids": [
+        "root-canal-treatment",
+        "root-canal-treatment",
+        "dental-treatments",
+        "root-canal-treatment",
+        "knocked-out-tooth"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1273.639
+    },
+    {
+      "id": "G69",
+      "question": "Can you walk me through how a root canal is done and how many visits it takes?",
+      "relevant_doc_ids": [
+        "root-canal-treatment"
+      ],
+      "retrieved_doc_ids": [
+        "root-canal-treatment",
+        "dental-treatments",
+        "root-canal-treatment",
+        "root-canal-treatment",
+        "root-canal-treatment"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1270.303
+    },
+    {
+      "id": "G70",
+      "question": "My teeth are very crowded \u2014 is there a tool that helps get floss through tight spaces?",
+      "relevant_doc_ids": [
+        "flossing-brushing"
+      ],
+      "retrieved_doc_ids": [
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing",
+        "flossing-brushing"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank": 1.0,
+      "top1": true,
+      "hit_at_k": true,
+      "latency_ms": 1251.5
+    }
+  ]
+}

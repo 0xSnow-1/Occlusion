@@ -19,6 +19,13 @@ Do not duplicate task text here; point at the TODO phase/task and add only owner
 - [ ] A.3 Run the rerank-on comparison against the A.2 baseline on the identical snapshot: recall@5, MRR, ordering quality, and latency delta in one side-by-side table. If it does not earn latency, keep it off and write down why.
 - [ ] A.4 If on: re-run hybrid vs dense comparison (Task 4.4), the cost-gated Ragas context-precision check, and the offline suite; update README and this roadmap; move cross-encoder out of SCOPE.md §9 parking lot in the same change.
 
+**A.2/A.3 outcome (2026-11-25; tick A.2 and A.3 on merge).**
+Measured on the frozen 120-chunk snapshot with identical snapshot and golden sha256 values (`eval/results/rerank_baseline_off.json`, `eval/results/rerank_on.json`, table in `eval/results/rerank_comparison.md`).
+Rerank on raises recall@5 from 0.9857 to 1.0000 and MRR@5 from 0.8981 to 0.9095.
+It adds 1254.6 ms at p50 and 1708.9 ms at p95, about 17 times the retrieval time.
+The gain does not earn the latency, so the stage ships off by default.
+A.4 stays closed because it applies only when rerank ships on.
+
 ## Phase B: Ship-gate paperwork (TODO Phase 0)
 
 - [ ] B.1 Create `SHIP_CRITERIA.md` (TODO Task 0.2) **or** record owner decision that SCOPE.md §6 remains the single source of truth and mark Task 0.2 superseded. Every number must map to a metric you can run.
