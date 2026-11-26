@@ -21,6 +21,7 @@ from src.retrieve.relevance import (
     best_retrieval_scores,
     screen_relevance_question,
 )
+from src.retrieve.rerank import DEFAULT_RERANK_MODEL, rerank_chunks
 from src.retrieve.sparse import sparse_search
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,8 @@ __all__ = [
     "dense_search",
     "sparse_search",
     "hybrid_search",
+    "rerank_chunks",
+    "DEFAULT_RERANK_MODEL",
     "make_retriever",
 ]
 
