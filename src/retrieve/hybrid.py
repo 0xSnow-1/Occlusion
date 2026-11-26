@@ -12,6 +12,7 @@ from typing import Any
 
 from src.agent.schemas import RetrievedChunk
 from src.retrieve.base import points_to_chunks
+from src.retrieve.rerank import rerank_chunks
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +26,21 @@ def hybrid_search(
     fusion_k: int = 60,
     dense_model: str | None = None,
     sparse_model: str | None = None,
+    rerank: bool = False,
+    rerank_model: str | None = None,
+    rerank_candidates: int | None = None,
 ) -> list[RetrievedChunk]:
     """Return the top_n fused chunks for `query_text`, best first.
 
     `fusion_k` applies to the client-side `rrf_fuse` fallback path;
     server-side RRF uses Qdrant's own fusion.  Never reuse the fused
     ordering as a similarity score — RRF is rank-based.
+
+    With ``rerank=True`` the stage first fetches ``rerank_candidates`` (or
+    ``top_k``) fused chunks, then scores them with a cross-encoder and keeps
+    ``top_n``.  Default off keeps the fused ordering untouched.
     """
+    candidate_k = (rerank_candidates or top_k) if rerank else top_n
     from qdrant_client import models
 
     from src.ingest.vector_store import (
@@ -59,7 +68,7 @@ def hybrid_search(
                 ),
             ],
             query=models.FusionQuery(fusion=models.Fusion.RRF),
-            limit=top_n,
+            limit=candidate_k,
             with_payload=True,
         )
     except Exception as exc:
@@ -89,9 +98,17 @@ def hybrid_search(
             top_k=top_k,
             sparse_model=sparse_model or _DEFAULT_SPARSE_MODEL,
         )
-        return rrf_fuse(dense_hits, sparse_hits, k=fusion_k, top_n=top_n)
+        chunks = rrf_fuse(
+            dense_hits, sparse_hits, k=fusion_k, top_n=candidate_k
+        )
+    else:
+        chunks = points_to_chunks(response.points)
 
-    chunks = points_to_chunks(response.points)
+    if rerank:
+        chunks = rerank_chunks(
+            query_text, chunks, top_n=top_n, model_name=rerank_model
+        )
+
     logger.info(
         "hybrid_search: query=%r top_k=%d top_n=%d hits=%d",
         query_text[:80],
